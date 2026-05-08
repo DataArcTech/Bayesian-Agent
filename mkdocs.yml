@@ -10,8 +10,8 @@ exclude_docs: |
 theme:
   name: material
   language: en
-  logo: assets/bayesian_agent_framework_v2.svg
-  favicon: assets/bayesian_agent_framework_v2.svg
+  logo: assets/logo.png
+  favicon: assets/logo.png
   features:
     - navigation.instant
     - navigation.sections
