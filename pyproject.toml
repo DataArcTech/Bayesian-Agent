@@ -26,6 +26,11 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+docs = [
+  "mkdocs-material>=9.6,<10",
+]
+
 [project.urls]
 Homepage = "https://github.com/DataArcTech/Bayesian-Agent"
 Repository = "https://github.com/DataArcTech/Bayesian-Agent"

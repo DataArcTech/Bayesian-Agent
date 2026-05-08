@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="README.md">English</a> | <a href="README_ZH.md">中文</a> |
+  <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
   <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a>
 </p>
 
@@ -293,9 +294,6 @@ tests/                  # Standard-library unittest suite
 - [ ] Add richer rewrite policies and adapter examples.
 - [ ] Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
 
-## 🚦 Status
-
-Bayesian-Agent v0.4 is an early standalone release. The package is usable for trace ingestion, Bayesian Skill belief updates, context rendering, repair planning, and result summarization. Full benchmark execution still depends on an external agent harness such as GenericAgent.
 
 ## 📈 Star History
 
@@ -308,9 +306,8 @@ If you use Bayesian-Agent in your research or projects, please cite it as:
 ```bibtex
 @software{bayesian_agent_2026,
   title = {Bayesian-Agent: Bayesian Self-Evolving Agent Framework},
-  author = {{DataArcTech}},
+  author = {{Xiaojun Wu}},
   year = {2026},
-  version = {0.4.0},
   url = {https://github.com/DataArcTech/Bayesian-Agent}
 }
 ```

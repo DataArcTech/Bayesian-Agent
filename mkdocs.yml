@@ -1,0 +1,69 @@
+site_name: Bayesian-Agent
+site_description: Bayesian Self-Evolving Agent Framework for evidence-weighted Skill and SOP evolution.
+site_url: https://dataarctech.github.io/Bayesian-Agent/
+repo_name: DataArcTech/Bayesian-Agent
+repo_url: https://github.com/DataArcTech/Bayesian-Agent
+edit_uri: edit/main/docs/
+exclude_docs: |
+  superpowers/**
+
+theme:
+  name: material
+  language: en
+  logo: assets/bayesian_agent_framework_v2.svg
+  favicon: assets/bayesian_agent_framework_v2.svg
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+nav:
+  - Overview: index.md
+  - Quick Start: quick-start.md
+  - Core Concepts: core-concepts.md
+  - Architecture: architecture.md
+  - CLI: cli.md
+  - Python API: python-api.md
+  - Adapters: adapters.md
+  - Schemas: schemas.md
+  - Experiments: experiments/index.md
+  - Method Note: method.md
+  - Experiment Note: experiments.md
+  - Roadmap: roadmap.md
+  - Citation: citation.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/DataArcTech/Bayesian-Agent
+      name: Bayesian-Agent on GitHub
+
+copyright: Copyright &copy; 2026 DataArcTech
