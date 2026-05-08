@@ -1,10 +1,122 @@
 # Bayesian-Agent
 
-Bayesian Self-Evolving Agent Framework for turning agent failures into reusable, evidence-weighted Skills and SOPs.
+<div align="center">
+  <img src="assets/bayesian_agent_framework_v2.svg" width="920" alt="Bayesian-Agent framework"/>
+</div>
 
-> v0.4 is an early standalone release. The core Bayesian Skill Evolution package, schemas, CLI utilities, artifacts, and GenericAgent integration boundary are included. GenericAgent itself is not copied or vendored.
+<p align="center">
+  <a href="README.md">English</a> | <a href="README_ZH.md">中文</a> |
+  <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a>
+</p>
 
-![Bayesian Self-Evolving Agent Framework](assets/bayesian_agent_framework_v2.svg)
+Bayesian-Agent is a standalone Bayesian self-evolving agent framework for turning agent failures into reusable, evidence-weighted Skills and SOPs.
+
+> v0.4 is the first standalone release. It includes the core Bayesian Skill Evolution package, schemas, CLI utilities, experiment artifacts, and a clean GenericAgent integration boundary. GenericAgent itself is not copied, vendored, or forked.
+
+## Overview
+
+Agent engineering is moving through three layers:
+
+1. **Prompt Engineering**: write better task instructions.
+2. **Context Engineering**: decide what evidence the model can see at inference time.
+3. **Harness Engineering**: put the model inside an observable, executable, recoverable system.
+
+Prompting can improve one answer. Context can improve one decision. Harness Engineering is what lets an agent work across tools, files, tests, memory, logs, and failure recovery.
+
+In that setting, **Skills** and **SOPs** become first-class engineering assets. A good Skill is not just a longer prompt. It is compressed operational knowledge:
+
+- what to inspect first
+- which tools to use
+- how to verify progress
+- which failure modes to avoid
+- when to stop, retry, or rewrite the procedure
+
+Bayesian-Agent asks a simple question: if Skills are hypotheses about how to solve tasks, why should they evolve by anecdote instead of evidence?
+
+## Core Idea
+
+Most LLM engineering interventions fall into two MECE routes:
+
+1. Change the model parameter distribution, such as pretraining, fine-tuning, and reinforcement learning.
+2. Change the inference condition, such as prompts, context, RAG, tools, memory, and harnesses.
+
+Bayesian-Agent focuses on the second route.
+
+If a base model samples from:
+
+```text
+P(X | theta)
+```
+
+then an agent system samples from:
+
+```text
+P(X | theta, C)
+```
+
+where `C` is the inference environment. Skills, SOPs, tools, memory, retrieved evidence, execution traces, and verifier feedback are all part of `C`.
+
+Bayesian-Agent treats each Skill or SOP as a hypothesis about success:
+
+```text
+P(success | theta, C, skill)
+```
+
+After each verified trajectory, the framework updates a posterior belief over that Skill. The next run receives posterior-weighted Skill context instead of unfiltered memory.
+
+## Core Features
+
+- **Evidence-weighted Skill evolution**: update Skill beliefs from verified success and failure trajectories.
+- **Bayesian Skill registry**: maintain Beta posteriors, failure modes, token cost, latency, turns, and context distribution.
+- **Failure-mode-aware repair**: identify recurring errors and generate focused repair plans.
+- **Token-aware context building**: inject only the Skills with useful posterior evidence.
+- **Full and incremental modes**: evolve from scratch or attach to an existing agent as a repair layer.
+- **Framework-agnostic boundary**: integrate with GenericAgent and other harnesses through adapters instead of vendoring their code.
+- **Standard-library-first core**: v0.4 has no runtime dependency beyond Python.
+
+## Self-Evolution Mechanism
+
+```text
+[Agent Trajectory]
+      |
+      v
+[Verifier / Benchmark Grader]
+      |
+      v
+[TrajectoryEvidence: success, failure mode, tokens, turns, latency]
+      |
+      v
+[Bayesian Skill Registry: posterior + cost + contexts]
+      |
+      v
+[Rewrite Policy: compress, patch, split, retire, explore]
+      |
+      v
+[Posterior-Weighted Skill Context]
+      |
+      v
+[Next Agent Run]
+```
+
+For each Skill or benchmark SOP, Bayesian-Agent maintains:
+
+- a Beta posterior over success probability
+- verified success and failure evidence
+- failure mode counts
+- input, output, and total token statistics
+- latency and turn statistics
+- context distribution
+- rewrite policy recommendations
+
+The default rewrite policy is intentionally small:
+
+| Posterior signal | Policy action |
+|---|---|
+| repeated verified success | compress or reinforce |
+| clustered failures | patch |
+| mixed outcomes across contexts | split or specialize |
+| dominant failures | retire or rewrite |
+| sparse evidence | explore |
 
 ## Install
 
@@ -14,7 +126,7 @@ cd Bayesian-Agent
 python -m pip install -e .
 ```
 
-The package has no runtime dependencies beyond the Python standard library.
+The package currently requires Python 3.9+ and has no runtime dependencies beyond the Python standard library.
 
 ## Quick Start
 
@@ -43,88 +155,6 @@ bayesian-agent summarize \
   --out temp/summary.json
 ```
 
-## Why Bayesian-Agent
-
-Large language model engineering is moving through three layers:
-
-1. **Prompt Engineering**: make the task instruction clearer.
-2. **Context Engineering**: decide what information the model can see at inference time.
-3. **Harness Engineering**: place the model inside a runnable, observable, recoverable system.
-
-Prompting helps a model answer better in one turn. Context helps it make better decisions with the right evidence. Harness Engineering matters when we want an agent to work for many steps in a real environment with tools, files, tests, logs, memory, and failure recovery.
-
-In this setting, **Skills** and **SOPs** become first-class engineering assets. A good Skill is not just a longer prompt. It is compressed operational knowledge:
-
-- what to inspect first
-- which tools to use
-- how to verify progress
-- which failure modes to avoid
-- when to stop, retry, or rewrite the procedure
-
-The open question is: how should Skills evolve?
-
-Bayesian-Agent treats each Skill or SOP as a hypothesis about agent success:
-
-```text
-P(success | model, context, skill)
-```
-
-Instead of blindly appending every anecdote to memory, Bayesian-Agent records action-verified evidence and updates posterior beliefs about which Skills work, in which contexts, and at what token cost.
-
-## Core Idea
-
-Most LLM engineering interventions fall into two MECE routes:
-
-1. Change the model parameters, such as pretraining, fine-tuning, and reinforcement learning.
-2. Change the inference conditions, such as prompts, context, RAG, tools, memory, and harnesses.
-
-Bayesian-Agent focuses on the second route.
-
-If a base model samples from:
-
-```text
-P(X | theta)
-```
-
-then an agent system samples from:
-
-```text
-P(X | theta, C)
-```
-
-where `C` is the inference environment. Skills, SOPs, tools, memory, and execution feedback are all part of `C`.
-
-Bayesian-Agent makes the Skill layer self-evolving by maintaining a posterior belief for each Skill:
-
-```text
-Skill h ~ hypothesis
-Evidence e ~ verified trajectory outcome
-Posterior ~ P(h works | e_1, e_2, ..., e_n)
-```
-
-## How It Works
-
-For each Skill or benchmark SOP, Bayesian-Agent maintains:
-
-- a Beta posterior over success probability
-- verified success and failure evidence
-- failure mode counts
-- token and latency statistics
-- context distribution
-- rewrite policy
-
-At execution time, the agent uses posterior-weighted Skill context. After execution, the framework records evidence and updates the Skill registry.
-
-Typical rewrite policies include:
-
-- **reinforce or compress** when repeated verified successes raise confidence
-- **patch** when failures cluster around a specific failure mode
-- **specialize or split** when a Skill works in one context but fails in another
-- **retire or rewrite** when posterior failures dominate
-- **keep exploratory** when evidence is insufficient
-
-This turns Skill evolution from prompt folklore into an evidence-tracking process.
-
 ## Python API
 
 ```python
@@ -138,6 +168,8 @@ registry.record(
         context="sop_bench",
         outcome="failure",
         failure_mode="xml_wrapped_answer",
+        input_tokens=70123,
+        output_tokens=4242,
         total_tokens=74365,
     )
 )
@@ -146,31 +178,27 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
-## Two Modes
+## Two Operating Modes
 
-### 1. Full Self-Evolving Mode
+### Full Self-Evolving Mode
 
-Bayesian-Agent starts from scratch, runs the benchmark tasks, collects evidence, and evolves Skills during the run.
+Bayesian-Agent starts from scratch, runs benchmark tasks, collects verified evidence, and evolves Skills during the run.
 
-This mode tests whether Bayesian Skill Evolution can improve an agent without relying on prior benchmark traces.
+This mode tests whether Bayesian Skill Evolution can improve an agent without relying on prior traces.
 
-### 2. Incremental Repair Mode
+### Incremental Repair Mode
 
-Bayesian-Agent can also be attached to an existing agent.
-
-The base agent runs first. Bayesian-Agent reads the base agent's success and failure traces, updates posterior Skill beliefs, then reruns only the failed tasks.
-
-This mode is designed for practical use:
+Bayesian-Agent can also attach to an existing agent. The base agent runs first. Bayesian-Agent reads its success and failure traces, updates posterior Skill beliefs, then reruns only the failed tasks.
 
 ```text
 Base Agent -> Failure Traces -> Bayesian Skill Evolution -> Rerun Failures -> Higher Accuracy
 ```
 
-It does not require retraining the model or replacing the original agent.
+This is the recommended production path because it improves an existing agent without retraining the model or replacing the original harness.
 
 ## Experimental Results
 
-We validated the prototype on GenericAgent with `deepseek-v4-flash`.
+The v0.4 prototype was validated with GenericAgent and `deepseek-v4-flash` on SOP-Bench and Lifelong AgentBench.
 
 ### Baseline: GenericAgent + deepseek-v4-flash
 
@@ -190,7 +218,7 @@ In full mode, Bayesian-Agent improved SOP-Bench from 80% to 100% while reducing 
 
 ### Incremental Repair Run
 
-In incremental mode, Bayesian-Agent only reran the failed GA tasks:
+In incremental mode, Bayesian-Agent only reran failed GenericAgent tasks:
 
 - SOP-Bench: 4 failed tasks, all repaired
 - Lifelong AgentBench: 2 failed tasks, all repaired
@@ -200,18 +228,38 @@ In incremental mode, Bayesian-Agent only reran the failed GA tasks:
 | SOP-Bench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 216k | 10k | 226k | 17.73 |
 | Lifelong AgentBench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 71k | 7k | 78k | 25.57 |
 
-This shows Bayesian-Agent can work as a plug-in repair layer: it can take an existing agent that has not reached 100% accuracy and improve it using only a small amount of incremental inference.
+The result shows that Bayesian-Agent can work as a plug-in repair layer: it can take an existing agent below 100% accuracy and improve it with a small amount of incremental inference.
 
-## Design Goals
+Experiment artifacts are stored under [`artifacts/`](artifacts/), and the method note is in [`docs/method.md`](docs/method.md).
 
-Bayesian-Agent is being refactored around these principles:
+## Relationship to GenericAgent
 
-- **Framework-agnostic**: integrate with existing agent systems instead of replacing them.
-- **Evidence-first**: evolve Skills only from verified execution traces.
-- **Token-aware**: track the cost of every Skill hypothesis.
-- **Failure-mode aware**: distinguish different types of failures instead of treating all failures as identical.
-- **Incremental by default**: improve existing agents by repairing their failures.
-- **Portable Skill registry**: make evolved Skills reusable across agents, models, and tasks.
+The first prototype was validated inside GenericAgent, but Bayesian-Agent is not a GenericAgent fork.
+
+The open-source structure is:
+
+- `bayesian_agent/core/`: framework-agnostic Bayesian Skill Evolution logic
+- `bayesian_agent/adapters/base.py`: minimal adapter contract for external agents
+- `bayesian_agent/adapters/generic_agent.py`: optional GenericAgent boundary
+- `schemas/`: portable trajectory and Skill belief schemas
+- `artifacts/`: reproducible benchmark result files
+
+GenericAgent remains an optional backend. Users can integrate Bayesian-Agent with their own agent harness by emitting the common trajectory schema.
+
+MinimalAgent adapter support is intentionally not included in v0.4.
+
+## Repository Layout
+
+```text
+bayesian_agent/
+  core/                 # Evidence, beliefs, registry, policy, context, repair
+  adapters/             # Adapter contract and optional GenericAgent boundary
+schemas/                # JSON schemas for trajectories and Skill beliefs
+artifacts/              # Baseline, full-mode, and incremental-mode result artifacts
+docs/                   # Method and experiment notes
+examples/               # Integration notes
+tests/                  # Standard-library unittest suite
+```
 
 ## Roadmap
 
@@ -220,19 +268,17 @@ Bayesian-Agent is being refactored around these principles:
 - [x] Implement the Bayesian Skill registry.
 - [x] Implement full self-evolving primitives.
 - [x] Implement incremental repair utilities.
-- [x] Add GenericAgent optional adapter boundary without vendoring GenericAgent.
+- [x] Add a GenericAgent optional adapter boundary without vendoring GenericAgent.
 - [x] Release experiment result artifacts.
+- [x] Add English and Chinese project READMEs.
 - [ ] Add executable benchmark runners for external checkouts.
 - [ ] Add richer rewrite policies and adapter examples.
+- [ ] Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
 
 ## Status
 
-The first prototype was validated inside GenericAgent. This repository now contains the standalone Bayesian-Agent core and CLI. Benchmark execution through GenericAgent remains an optional integration because the framework should not be a GenericAgent fork.
-
-## Repository
-
-GitHub: <https://github.com/DataArcTech/Bayesian-Agent>
+Bayesian-Agent v0.4 is an early standalone release. The package is usable for trace ingestion, Bayesian Skill belief updates, context rendering, repair planning, and result summarization. Full benchmark execution still depends on an external agent harness such as GenericAgent.
 
 ## License
 
-This project is released under the MIT License.
+MIT License. See [`LICENSE`](LICENSE).
