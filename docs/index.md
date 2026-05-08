@@ -4,6 +4,12 @@
   <img src="assets/banner.png" width="920" alt="Bayesian-Agent banner"/>
 </div>
 
+<p align="center">
+  📚 <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
+  🐙 <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a> |
+  📄 arXiv Coming Soon
+</p>
+
 Bayesian-Agent is a Bayesian self-evolving layer for turning verified agent trajectories into reusable, evidence-weighted Skills and SOPs across agent frameworks and execution harnesses.
 
 The project focuses on the inference side of agent improvement. Instead of changing base model parameters, it changes the agent's inference environment by maintaining posterior beliefs over Skills, failure modes, token cost, and context-specific reliability.

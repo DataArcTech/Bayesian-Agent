@@ -5,9 +5,10 @@
 </div>
 
 <p align="center">
-  <a href="README.md">English</a> | <a href="README_ZH.md">中文</a> |
-  <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
-  <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a>
+  🌐 <a href="README.md">English</a> | 🇨🇳 <a href="README_ZH.md">中文</a> |
+  📚 <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
+  🐙 <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a> |
+  📄 arXiv Coming Soon
 </p>
 
 Bayesian-Agent 是一个面向跨 Agent framework / execution harness 的 Bayesian self-evolving layer，用于把 Agent 的失败轨迹转化为可复用、可验证、带 posterior 权重的 Skills 和 SOPs。
