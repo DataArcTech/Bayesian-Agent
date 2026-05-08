@@ -1,7 +1,7 @@
 # Bayesian-Agent
 
 <div align="center">
-  <img src="assets/bayesian_agent_framework_v2.svg" width="920" alt="Bayesian-Agent framework"/>
+  <img src="assets/banner.png" width="920" alt="Bayesian-Agent banner"/>
 </div>
 
 <p align="center">
@@ -13,7 +13,13 @@ Bayesian-Agent is a standalone Bayesian self-evolving agent framework for turnin
 
 > v0.4 is the first standalone release. It includes the core Bayesian Skill Evolution package, schemas, CLI utilities, experiment artifacts, and a clean GenericAgent integration boundary. GenericAgent itself is not copied, vendored, or forked.
 
-## Overview
+## 📅 News
+
+- **2026-05-09:** Released Bayesian-Agent v0.4 as a standalone package with core Bayesian Skill Evolution primitives, schemas, CLI utilities, and experiment artifacts.
+- **2026-05-09:** Added the optional GenericAgent adapter boundary without copying or vendoring GenericAgent.
+- **2026-05-09:** Published bilingual project documentation and the Bayesian-Agent framework diagram.
+
+## 🌟 Overview
 
 Agent engineering is moving through three layers:
 
@@ -33,7 +39,7 @@ In that setting, **Skills** and **SOPs** become first-class engineering assets. 
 
 Bayesian-Agent asks a simple question: if Skills are hypotheses about how to solve tasks, why should they evolve by anecdote instead of evidence?
 
-## Core Idea
+## 🧠 Core Idea
 
 Most LLM engineering interventions fall into two MECE routes:
 
@@ -64,7 +70,7 @@ P(success | theta, C, skill)
 
 After each verified trajectory, the framework updates a posterior belief over that Skill. The next run receives posterior-weighted Skill context instead of unfiltered memory.
 
-## Core Features
+## 📋 Core Features
 
 - **Evidence-weighted Skill evolution**: update Skill beliefs from verified success and failure trajectories.
 - **Bayesian Skill registry**: maintain Beta posteriors, failure modes, token cost, latency, turns, and context distribution.
@@ -74,7 +80,7 @@ After each verified trajectory, the framework updates a posterior belief over th
 - **Framework-agnostic boundary**: integrate with GenericAgent and other harnesses through adapters instead of vendoring their code.
 - **Standard-library-first core**: v0.4 has no runtime dependency beyond Python.
 
-## Self-Evolution Mechanism
+## 🧬 Self-Evolution Mechanism
 
 ```text
 [Agent Trajectory]
@@ -118,7 +124,7 @@ The default rewrite policy is intentionally small:
 | dominant failures | retire or rewrite |
 | sparse evidence | explore |
 
-## Install
+## 🚀 Install
 
 ```bash
 git clone https://github.com/DataArcTech/Bayesian-Agent.git
@@ -128,7 +134,7 @@ python -m pip install -e .
 
 The package currently requires Python 3.9+ and has no runtime dependencies beyond the Python standard library.
 
-## Quick Start
+## ⚡ Quick Start
 
 Update a Bayesian Skill registry from existing agent results:
 
@@ -155,7 +161,7 @@ bayesian-agent summarize \
   --out temp/summary.json
 ```
 
-## Python API
+## 🐍 Python API
 
 ```python
 from bayesian_agent import BayesianSkillRegistry, SkillContextBuilder, TrajectoryEvidence
@@ -178,15 +184,15 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
-## Two Operating Modes
+## 🔁 Two Operating Modes
 
-### Full Self-Evolving Mode
+### 🌱 Full Self-Evolving Mode
 
 Bayesian-Agent starts from scratch, runs benchmark tasks, collects verified evidence, and evolves Skills during the run.
 
 This mode tests whether Bayesian Skill Evolution can improve an agent without relying on prior traces.
 
-### Incremental Repair Mode
+### 🛠️ Incremental Repair Mode
 
 Bayesian-Agent can also attach to an existing agent. The base agent runs first. Bayesian-Agent reads its success and failure traces, updates posterior Skill beliefs, then reruns only the failed tasks.
 
@@ -196,18 +202,18 @@ Base Agent -> Failure Traces -> Bayesian Skill Evolution -> Rerun Failures -> Hi
 
 This is the recommended production path because it improves an existing agent without retraining the model or replacing the original harness.
 
-## Experimental Results
+## 📊 Experimental Results
 
 The v0.4 prototype was validated with GenericAgent and `deepseek-v4-flash` on SOP-Bench and Lifelong AgentBench.
 
-### Baseline: GenericAgent + deepseek-v4-flash
+### 🧱 Baseline: GenericAgent + deepseek-v4-flash
 
 | Benchmark | Agent | Model | Accuracy | Input Tokens | Output Tokens | Total Tokens | Efficiency |
 |---|---|---|---:|---:|---:|---:|---:|
 | SOP-Bench | GA | deepseek-v4-flash | 80% | 1.34M | 57k | 1.39M | 11.47 |
 | Lifelong AgentBench | GA | deepseek-v4-flash | 90% | 649k | 42k | 690k | 26.07 |
 
-### Full Self-Evolving Run
+### 🌱 Full Self-Evolving Run
 
 | Benchmark | Agent | Model | Accuracy | Input Tokens | Output Tokens | Total Tokens | Efficiency |
 |---|---|---|---:|---:|---:|---:|---:|
@@ -216,7 +222,7 @@ The v0.4 prototype was validated with GenericAgent and `deepseek-v4-flash` on SO
 
 In full mode, Bayesian-Agent improved SOP-Bench from 80% to 100% while reducing token usage from 1.39M to 1.12M. Lifelong AgentBench improved from 90% to 95% with similar token cost.
 
-### Incremental Repair Run
+### 🛠️ Incremental Repair Run
 
 In incremental mode, Bayesian-Agent only reran failed GenericAgent tasks:
 
@@ -232,7 +238,7 @@ The result shows that Bayesian-Agent can work as a plug-in repair layer: it can 
 
 Experiment artifacts are stored under [`artifacts/`](artifacts/), and the method note is in [`docs/method.md`](docs/method.md).
 
-## Relationship to GenericAgent
+## 🔌 Relationship to GenericAgent
 
 The first prototype was validated inside GenericAgent, but Bayesian-Agent is not a GenericAgent fork.
 
@@ -248,7 +254,7 @@ GenericAgent remains an optional backend. Users can integrate Bayesian-Agent wit
 
 MinimalAgent adapter support is intentionally not included in v0.4.
 
-## Repository Layout
+## 🗂️ Repository Layout
 
 ```text
 bayesian_agent/
@@ -261,7 +267,7 @@ examples/               # Integration notes
 tests/                  # Standard-library unittest suite
 ```
 
-## Roadmap
+## 🧭 Roadmap
 
 - [x] Refactor the GenericAgent prototype into a standalone package core.
 - [x] Define a common trace schema for agent runs.
@@ -275,10 +281,28 @@ tests/                  # Standard-library unittest suite
 - [ ] Add richer rewrite policies and adapter examples.
 - [ ] Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
 
-## Status
+## 🚦 Status
 
 Bayesian-Agent v0.4 is an early standalone release. The package is usable for trace ingestion, Bayesian Skill belief updates, context rendering, repair planning, and result summarization. Full benchmark execution still depends on an external agent harness such as GenericAgent.
 
-## License
+## 📈 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=DataArcTech/Bayesian-Agent&type=Date)](https://www.star-history.com/#DataArcTech/Bayesian-Agent&Date)
+
+## 📝 Citation
+
+If you use Bayesian-Agent in your research or projects, please cite it as:
+
+```bibtex
+@software{bayesian_agent_2026,
+  title = {Bayesian-Agent: Bayesian Self-Evolving Agent Framework},
+  author = {{DataArcTech}},
+  year = {2026},
+  version = {0.4.0},
+  url = {https://github.com/DataArcTech/Bayesian-Agent}
+}
+```
+
+## 📄 License
 
 MIT License. See [`LICENSE`](LICENSE).
