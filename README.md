@@ -2,7 +2,46 @@
 
 Bayesian Self-Evolving Agent Framework for turning agent failures into reusable, evidence-weighted Skills and SOPs.
 
-> Code is coming soon. The current prototype was validated inside GenericAgent and is being refactored into a standalone open-source framework.
+> v0.4 is an early standalone release. The core Bayesian Skill Evolution package, schemas, CLI utilities, artifacts, and GenericAgent integration boundary are included. GenericAgent itself is not copied or vendored.
+
+![Bayesian Self-Evolving Agent Framework](assets/bayesian_agent_framework_v2.svg)
+
+## Install
+
+```bash
+git clone https://github.com/DataArcTech/Bayesian-Agent.git
+cd Bayesian-Agent
+python -m pip install -e .
+```
+
+The package has no runtime dependencies beyond the Python standard library.
+
+## Quick Start
+
+Update a Bayesian Skill registry from existing agent results:
+
+```bash
+bayesian-agent evolve \
+  --results artifacts/ga_deepseek_baseline/sop_results.json \
+  --registry temp/bayesian_skill_beliefs.json \
+  --context-out temp/skill_context.md
+```
+
+Find failed tasks for incremental repair:
+
+```bash
+bayesian-agent repair-plan \
+  --baseline artifacts/ga_deepseek_baseline/sop_results.json \
+  --out temp/failed_tasks.json
+```
+
+Summarize a run:
+
+```bash
+bayesian-agent summarize \
+  --results artifacts/bayesian_incremental/results.json \
+  --out temp/summary.json
+```
 
 ## Why Bayesian-Agent
 
@@ -86,6 +125,27 @@ Typical rewrite policies include:
 
 This turns Skill evolution from prompt folklore into an evidence-tracking process.
 
+## Python API
+
+```python
+from bayesian_agent import BayesianSkillRegistry, SkillContextBuilder, TrajectoryEvidence
+
+registry = BayesianSkillRegistry("temp/beliefs.json")
+registry.record(
+    TrajectoryEvidence(
+        task_id="sop_12",
+        skill_id="benchmark/sop_bench",
+        context="sop_bench",
+        outcome="failure",
+        failure_mode="xml_wrapped_answer",
+        total_tokens=74365,
+    )
+)
+
+skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
+print(skill_context)
+```
+
 ## Two Modes
 
 ### 1. Full Self-Evolving Mode
@@ -155,18 +215,19 @@ Bayesian-Agent is being refactored around these principles:
 
 ## Roadmap
 
-- [ ] Refactor the GenericAgent prototype into a standalone package.
-- [ ] Define a common trace schema for agent runs.
-- [ ] Implement the Bayesian Skill registry.
-- [ ] Implement full self-evolving mode.
-- [ ] Implement incremental repair mode.
-- [ ] Add benchmark runners for SOP-Bench and Lifelong AgentBench.
-- [ ] Add documentation for integrating with external agents.
-- [ ] Release reproducible experiment scripts and result artifacts.
+- [x] Refactor the GenericAgent prototype into a standalone package core.
+- [x] Define a common trace schema for agent runs.
+- [x] Implement the Bayesian Skill registry.
+- [x] Implement full self-evolving primitives.
+- [x] Implement incremental repair utilities.
+- [x] Add GenericAgent optional adapter boundary without vendoring GenericAgent.
+- [x] Release experiment result artifacts.
+- [ ] Add executable benchmark runners for external checkouts.
+- [ ] Add richer rewrite policies and adapter examples.
 
 ## Status
 
-The first prototype has been validated inside GenericAgent. The public repository currently contains project documentation only. Source code will be released after the framework is refactored out of the GenericAgent-specific implementation.
+The first prototype was validated inside GenericAgent. This repository now contains the standalone Bayesian-Agent core and CLI. Benchmark execution through GenericAgent remains an optional integration because the framework should not be a GenericAgent fork.
 
 ## Repository
 

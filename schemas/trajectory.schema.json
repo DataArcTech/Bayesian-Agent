@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DataArcTech/Bayesian-Agent/schemas/trajectory.schema.json",
+  "title": "TrajectoryEvidence",
+  "type": "object",
+  "required": ["task_id", "skill_id", "context", "outcome"],
+  "properties": {
+    "task_id": {"type": "string"},
+    "skill_id": {"type": "string"},
+    "context": {"type": "string"},
+    "outcome": {"type": "string", "enum": ["success", "failure", "failed", "error"]},
+    "input_tokens": {"type": "integer", "minimum": 0},
+    "output_tokens": {"type": "integer", "minimum": 0},
+    "total_tokens": {"type": "integer", "minimum": 0},
+    "turns": {"type": "integer", "minimum": 0},
+    "elapsed_seconds": {"type": "number", "minimum": 0},
+    "failure_mode": {"type": "string"},
+    "summary": {"type": "string"},
+    "metadata": {"type": "object"},
+    "created_at": {"type": "string"}
+  },
+  "additionalProperties": true
+}

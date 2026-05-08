@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bayesian-agent"
+version = "0.4.0"
+description = "Bayesian Self-Evolving Agent Framework for evidence-weighted Skill/SOP evolution."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+  {name = "DataArcTech"}
+]
+keywords = ["agent", "bayesian", "skill", "sop", "llm", "harness"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/DataArcTech/Bayesian-Agent"
+Repository = "https://github.com/DataArcTech/Bayesian-Agent"
+
+[project.scripts]
+bayesian-agent = "bayesian_agent.cli:entrypoint"
+
+[tool.setuptools.packages.find]
+include = ["bayesian_agent*"]

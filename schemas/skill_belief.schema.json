@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DataArcTech/Bayesian-Agent/schemas/skill_belief.schema.json",
+  "title": "SkillBelief",
+  "type": "object",
+  "required": ["skill_id", "alpha", "beta", "posterior_success", "observations"],
+  "properties": {
+    "skill_id": {"type": "string"},
+    "alpha": {"type": "number", "minimum": 0},
+    "beta": {"type": "number", "minimum": 0},
+    "posterior_success": {"type": "number", "minimum": 0, "maximum": 1},
+    "contexts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "failure_modes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "evidence": {"type": "array", "items": {"$ref": "trajectory.schema.json"}},
+    "observations": {"type": "integer", "minimum": 0},
+    "mean_tokens": {"type": "number", "minimum": 0},
+    "mean_input_tokens": {"type": "number", "minimum": 0},
+    "mean_output_tokens": {"type": "number", "minimum": 0},
+    "mean_elapsed_seconds": {"type": "number", "minimum": 0},
+    "last_updated": {"type": "string"}
+  },
+  "additionalProperties": true
+}
