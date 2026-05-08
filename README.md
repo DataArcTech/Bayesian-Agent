@@ -39,6 +39,12 @@ In that setting, **Skills** and **SOPs** become first-class engineering assets. 
 
 Bayesian-Agent asks a simple question: if Skills are hypotheses about how to solve tasks, why should they evolve by anecdote instead of evidence?
 
+<div align="center">
+  <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
+  <br/>
+  <em>Bayesian-Agent turns verified agent trajectories into posterior-weighted Skills and SOPs.</em>
+</div>
+
 ## 🧠 Core Idea
 
 Most LLM engineering interventions fall into two MECE routes:
@@ -81,6 +87,12 @@ After each verified trajectory, the framework updates a posterior belief over th
 - **Standard-library-first core**: v0.4 has no runtime dependency beyond Python.
 
 ## 🧬 Self-Evolution Mechanism
+
+<div align="center">
+  <img src="assets/bayesian_agent_framework_v2.svg" width="900" alt="Bayesian-Agent framework"/>
+  <br/>
+  <em>Bayesian Skill Evolution framework.</em>
+</div>
 
 ```text
 [Agent Trajectory]

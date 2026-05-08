@@ -39,6 +39,12 @@ Prompt 可以改善单轮回答。Context 可以改善单次决策。Harness Eng
 
 Bayesian-Agent 想回答的问题是：既然 Skill 本质上是“如何完成任务”的假设，为什么它的进化要靠经验堆叠，而不是靠证据更新？
 
+<div align="center">
+  <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
+  <br/>
+  <em>Bayesian-Agent 将经过验证的 Agent 轨迹转化为 posterior 加权的 Skills 和 SOPs。</em>
+</div>
+
 ## 🧠 核心思想
 
 从 MECE 的角度看，大语言模型系统优化只有两条路：
@@ -81,6 +87,12 @@ P(success | theta, C, skill)
 - **标准库优先**：v0.4 核心运行时不依赖 Python 标准库之外的包。
 
 ## 🧬 自我进化机制
+
+<div align="center">
+  <img src="assets/bayesian_agent_framework_v2.svg" width="900" alt="Bayesian-Agent framework"/>
+  <br/>
+  <em>Bayesian Skill Evolution 方法框架。</em>
+</div>
 
 ```text
 [Agent Trajectory]
