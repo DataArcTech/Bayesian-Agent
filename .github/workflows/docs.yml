@@ -34,9 +34,6 @@ jobs:
       - name: Install docs dependencies
         run: python -m pip install -e ".[docs]"
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
-
       - name: Build documentation
         run: mkdocs build --strict
 
