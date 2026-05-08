@@ -1,6 +1,6 @@
 # Core Concepts
 
-Bayesian-Agent treats Skill evolution as Bayesian inference over operational hypotheses.
+Bayesian-Agent treats Skill evolution as Bayesian inference over operational hypotheses. Its core contribution is not another closed agent loop, but a portable evolution layer that can run from scratch, repair existing agents incrementally, and adapt across harnesses.
 
 ## Inference Environment
 
@@ -18,7 +18,7 @@ P(X | theta, C)
 
 `theta` is the base model parameter state. `C` is the inference environment: prompts, tools, memory, retrieved context, Skills, SOPs, benchmark traces, verifier feedback, and runtime constraints.
 
-Bayesian-Agent improves `C`. It does not train or fine-tune the base model.
+Bayesian-Agent improves `C`. It does not train or fine-tune the base model, and it does not require replacing the user's existing agent framework.
 
 ## Skill as Hypothesis
 
@@ -29,6 +29,16 @@ P(success | theta, C, skill)
 ```
 
 The same Skill may work in one context and fail in another. That is why Bayesian-Agent records both outcomes and context distribution.
+
+## Three Operating Patterns
+
+Bayesian-Agent is meant to be used in three complementary ways:
+
+| Pattern | What it does | Why it matters |
+|---|---|---|
+| Full self-evolution | Runs tasks from scratch and updates Skill beliefs online. | Tests whether Skills can emerge without prior traces. |
+| Incremental repair | Reads baseline failures and reruns only failed tasks. | Improves existing agents with small additional inference cost. |
+| Cross-harness adaptation | Uses a common trajectory schema and adapters. | Lets Bayesian Skill evolution move across agent frameworks. |
 
 ## Trajectory Evidence
 

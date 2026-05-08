@@ -1,4 +1,4 @@
-# Bayesian-Agent
+# Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
 
 <div align="center">
   <img src="assets/banner.png" width="920" alt="Bayesian-Agent banner"/>
@@ -10,13 +10,19 @@
   <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a>
 </p>
 
-Bayesian-Agent 是一个独立的 Bayesian Self-Evolving Agent 框架，用于把 Agent 的失败轨迹转化为可复用、可验证、带 posterior 权重的 Skills 和 SOPs。
+Bayesian-Agent 是一个面向跨 Agent framework / execution harness 的 Bayesian self-evolving layer，用于把 Agent 的失败轨迹转化为可复用、可验证、带 posterior 权重的 Skills 和 SOPs。
+
+它不是又一个封闭的 monolithic agent framework，而是突出三件事：
+
+- **从零自进化**：没有历史 traces 也能从完整 benchmark 或生产任务中在线沉淀 Skills。
+- **增量修复**：接到已有 Agent 后面，读取失败轨迹，只重跑需要修复的任务。
+- **跨 harness 适配**：当前适配 GenericAgent，后续可通过统一 trajectory schema 和 adapter boundary 接入其他 agent frameworks。
 
 > v0.4 是第一个独立开源版本。它包含 Bayesian Skill Evolution 核心包、Schema、CLI 工具、实验 artifacts，以及干净的 GenericAgent 集成边界。GenericAgent 本身不会被复制、vendoring 或 fork 到本仓库中。
 
 ## 📅 News
 
-- **2026-05-09:** 发布 Bayesian-Agent v0.4 独立 package，包含 Bayesian Skill Evolution 核心 primitives、schemas、CLI utilities 和实验 artifacts。
+- **2026-05-09:** 发布 Bayesian-Agent v0.4 独立 package，包含跨 harness Bayesian Skill Evolution 核心 primitives、schemas、CLI utilities 和实验 artifacts。
 - **2026-05-09:** 增加可选 GenericAgent adapter boundary，不复制、不 vendoring GenericAgent。
 - **2026-05-09:** 发布中英文项目文档和 Bayesian-Agent 方法框架图。
 
@@ -38,12 +44,12 @@ Prompt 可以改善单轮回答。Context 可以改善单次决策。Harness Eng
 - 哪些失败模式要规避
 - 什么时候停止、重试或重写流程
 
-Bayesian-Agent 想回答的问题是：既然 Skill 本质上是“如何完成任务”的假设，为什么它的进化要靠经验堆叠，而不是靠证据更新？
+Bayesian-Agent 想回答的问题是：既然 Skill 本质上是“如何完成任务”的假设，为什么它的进化要靠经验堆叠，而不是靠证据更新？我们的答案是一个框架无关的进化层：既能从零 bootstrap Skills，也能增量修复已有 Agent，还能在不同 harness 之间迁移，只要它们能产出 verified trajectories。
 
 <div align="center">
   <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
   <br/>
-  <em>Bayesian-Agent 将经过验证的 Agent 轨迹转化为 posterior 加权的 Skills 和 SOPs。</em>
+  <em>Bayesian-Agent 将任意兼容 harness 的 verified trajectories 转化为 posterior 加权的 Skills 和 SOPs。</em>
 </div>
 
 ## 🧠 核心思想
@@ -83,8 +89,9 @@ P(success | theta, C, skill)
 - **Bayesian Skill Registry**：维护 Beta posterior、失败模式、token 成本、延迟、轮次和 context 分布。
 - **面向失败模式的修复**：识别反复出现的错误，生成聚焦的 repair plan。
 - **Token-aware context 构建**：只注入真正有 posterior 证据价值的 Skill。
-- **全量与增量两种模式**：既可以从零进化，也可以作为既有 Agent 的修复层。
-- **框架无关的边界**：通过 adapters 集成 GenericAgent 或其他 harness，而不是复制它们的代码。
+- **从零全量自进化**：完整运行任务，在线收集 evidence，并在无历史 traces 的情况下进化 Skills。
+- **已有 Agent 的增量修复层**：读取 baseline agent 的失败轨迹，只重跑失败任务。
+- **跨 harness 适配**：当前集成 GenericAgent，后续通过 adapters 接入其他 agent frameworks，而不是复制它们的代码。
 - **标准库优先**：v0.4 核心运行时不依赖 Python 标准库之外的包。
 
 ## 🧬 自我进化机制
@@ -197,7 +204,7 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
-## 🔁 两种运行模式
+## 🔁 三种运行形态
 
 ### 🌱 全量 Self-Evolving Mode
 
@@ -214,6 +221,16 @@ Base Agent -> Failure Traces -> Bayesian Skill Evolution -> Rerun Failures -> Hi
 ```
 
 这是更推荐的生产路径，因为它不需要重新训练模型，也不需要替换原有 harness。
+
+### 🔌 Cross-Harness Adaptation Mode
+
+Bayesian-Agent 不绑定某一个 agent runtime。任何 agent framework 只要能产出统一 trajectory schema，并通过 adapter 接收 posterior 加权的 Skill context，都可以成为 Bayesian-Agent 的后端。
+
+```text
+Any Agent Harness -> Trajectory Schema -> Bayesian Skill Registry -> Adapter -> Next Harness Run
+```
+
+这让 Bayesian-Agent 更像一个可移植的 Skill/SOP 进化层，而不是又一个封闭 agent framework。
 
 ## 📊 实验结果
 
@@ -247,13 +264,13 @@ v0.4 原型基于 GenericAgent 与 `deepseek-v4-flash`，在 SOP-Bench 和 Lifel
 | SOP-Bench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 216k | 10k | 226k | 17.73 |
 | Lifelong AgentBench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 71k | 7k | 78k | 25.57 |
 
-这说明 Bayesian-Agent 可以作为即插即用的 repair layer：接在一个未达到 100% 准确率的 Agent 后面，用较小的增量推理成本把失败任务补齐。
+这说明 Bayesian-Agent 可以作为即插即用的 repair layer：接在一个未达到 100% 准确率的 Agent 后面，用较小的增量推理成本把失败任务补齐。这也是它区别于普通 benchmark agent 的关键：它可以站在 harness 旁边，学习它的失败，并在不替换它的情况下提升它。
 
 实验 artifacts 位于 [`artifacts/`](artifacts/)，方法说明位于 [`docs/method.md`](docs/method.md)。
 
-## 🔌 与 GenericAgent 的关系
+## 🔌 GenericAgent 与跨 Harness 适配
 
-第一个原型是在 GenericAgent 内部验证的，但 Bayesian-Agent 不是 GenericAgent fork。
+第一个原型是在 GenericAgent 内部验证的，但 Bayesian-Agent 不是 GenericAgent fork，也不只是 GenericAgent 的附属模块。
 
 开源结构是：
 
@@ -263,7 +280,9 @@ v0.4 原型基于 GenericAgent 与 `deepseek-v4-flash`，在 SOP-Bench 和 Lifel
 - `schemas/`：可移植的 trajectory 与 Skill belief schema
 - `artifacts/`：可复现实验结果文件
 
-GenericAgent 仍然只是可选后端。其他 Agent harness 只要能产出统一 trajectory schema，也可以接入 Bayesian-Agent。
+GenericAgent 是当前实验后端。其他 Agent harness 只要能产出统一 trajectory schema，并实现 adapter boundary，也可以接入 Bayesian-Agent。
+
+长期方向是让 Bayesian-Agent 成为多个 agent runtime 共享的 Bayesian Skill/SOP evolution layer：包括 GenericAgent、我们后续会上传的自研 Agent harness，以及其他外部框架。
 
 MinimalAgent adapter 在 v0.4 中按计划暂不提供。
 
@@ -293,10 +312,11 @@ tests/                  # Standard-library unittest suite
 - [ ] 增加可在外部 checkout 中执行的 benchmark runners。
 - [ ] 增加更丰富的 rewrite policies 和 adapter examples。
 - [ ] GenericAgent 边界稳定后再扩展更多 agent harness adapters。
+- [ ] 上传我们自己的 Agent harness；当前实验阶段使用 GenericAgent 作为 backend harness。
 
 ## 🚦 当前状态
 
-Bayesian-Agent v0.4 是早期独立版本。当前 package 可用于 trace ingestion、Bayesian Skill belief update、context rendering、repair planning 和 result summarization。完整 benchmark execution 仍依赖 GenericAgent 等外部 Agent harness。
+Bayesian-Agent v0.4 是早期独立版本。当前 package 可用于 trace ingestion、Bayesian Skill belief update、context rendering、repair planning 和 result summarization，并已经验证从零全量进化、增量修复、跨 harness 适配三条路径。完整 benchmark execution 当前仍使用 GenericAgent 等外部 Agent harness；后续会上传我们自己的 Agent harness。
 
 ## 📈 Star History
 
@@ -308,7 +328,7 @@ Bayesian-Agent v0.4 是早期独立版本。当前 package 可用于 trace inges
 
 ```bibtex
 @software{bayesian_agent_2026,
-  title = {Bayesian-Agent: Bayesian Self-Evolving Agent Framework},
+  title = {Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation},
   author = {{Xiaojun Wu}},
   year = {2026},
   url = {https://github.com/DataArcTech/Bayesian-Agent}

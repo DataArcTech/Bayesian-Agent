@@ -2,6 +2,12 @@
 
 This guide shows the shortest path from installation to a posterior-weighted Skill context.
 
+Bayesian-Agent supports three paths:
+
+- start from scratch and evolve Skills during a full run
+- repair only failed tasks from an existing agent run
+- adapt the same Bayesian Skill registry to another harness through an adapter
+
 ## Install
 
 ```bash

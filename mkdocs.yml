@@ -1,5 +1,5 @@
-site_name: Bayesian-Agent
-site_description: Bayesian Self-Evolving Agent Framework for evidence-weighted Skill and SOP evolution.
+site_name: "Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation"
+site_description: Bayesian-Agent is a Bayesian self-evolving agent framework with full-run evolution, incremental repair, and cross-harness adaptation.
 site_url: https://dataarctech.github.io/Bayesian-Agent/
 repo_name: DataArcTech/Bayesian-Agent
 repo_url: https://github.com/DataArcTech/Bayesian-Agent

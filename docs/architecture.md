@@ -1,6 +1,6 @@
 # Architecture
 
-Bayesian-Agent is intentionally small. The framework core is independent from any specific agent harness.
+Bayesian-Agent is intentionally small. The framework core is independent from any specific agent harness, so the same Bayesian Skill/SOP evolution loop can support full runs, incremental repair, and cross-harness adaptation.
 
 <div align="center">
   <img src="assets/bayesian_agent_framework_v2.svg" width="900" alt="Bayesian-Agent framework"/>
@@ -11,7 +11,7 @@ Bayesian-Agent is intentionally small. The framework core is independent from an
 ## Data Flow
 
 ```text
-External Agent Run
+Any Compatible Harness Run
       |
       v
 TrajectoryEvidence
@@ -26,7 +26,10 @@ SkillBelief + RewritePolicy
 SkillContextBuilder
       |
       v
-External Agent Next Run
+Adapter
+      |
+      v
+Any Compatible Harness Next Run
 ```
 
 ## Package Layout
@@ -52,9 +55,11 @@ bayesian_agent/
 
 `bayesian_agent.adapters` defines how external harnesses can connect. The GenericAgent adapter in v0.4 is intentionally a boundary placeholder, not a vendored copy of GenericAgent.
 
+This separation is what prevents Bayesian-Agent from being swallowed by the agent framework category. It is a reusable Bayesian evolution layer that can sit beside multiple harnesses rather than competing with all of them as another monolithic runtime.
+
 `schemas/` defines portable JSON shapes for trajectories and Skill beliefs.
 
-`artifacts/` contains result files from the initial GenericAgent validation.
+`artifacts/` contains result files from the initial GenericAgent validation. GenericAgent is the current experimental harness; a dedicated Bayesian-Agent harness is planned.
 
 ## Persistence Model
 

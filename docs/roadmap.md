@@ -2,6 +2,8 @@
 
 Bayesian-Agent v0.4 is an early standalone release. The core package is usable for evidence ingestion, belief updates, context rendering, repair planning, and result summarization.
 
+The roadmap is organized around the project's main advantage: Bayesian-Agent should support full self-evolution from scratch, incremental repair for existing agents, and cross-harness adaptation instead of becoming another isolated agent framework.
+
 ## Completed
 
 - Refactored the GenericAgent prototype into a standalone package core.
@@ -21,10 +23,12 @@ Bayesian-Agent v0.4 is an early standalone release. The core package is usable f
 - Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
 - Add more examples for project-specific failure-mode taxonomies.
 - Add documentation for operating Bayesian-Agent in a continuous evaluation pipeline.
+- Upload our own Bayesian-Agent harness. Current experiments use GenericAgent as the backend harness, but the project will provide a first-party harness for users who want the complete loop out of the box.
 
 ## Non-Goals for v0.4
 
 - Bayesian-Agent does not train or fine-tune base models.
 - Bayesian-Agent does not replace GenericAgent.
 - Bayesian-Agent does not copy or vendor GenericAgent.
+- Bayesian-Agent is not limited to GenericAgent.
 - MinimalAgent adapter support is not included yet.

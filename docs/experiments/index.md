@@ -1,6 +1,6 @@
 # Experiments
 
-The first Bayesian-Agent prototype was validated inside GenericAgent with `deepseek-v4-flash`.
+The first Bayesian-Agent prototype was validated inside GenericAgent with `deepseek-v4-flash`. These experiments demonstrate two advantages at once: Bayesian-Agent can run a full self-evolving loop from scratch, and it can also act as an incremental repair layer for an existing agent.
 
 ## Baseline
 
@@ -30,6 +30,8 @@ Bayesian-Agent read the GA baseline traces and reran only failed tasks.
 The full mode result shows that Bayesian Skill Evolution can improve SOP-Bench accuracy while reducing token usage.
 
 The incremental mode result is the more practical path: Bayesian-Agent can attach to a baseline agent, inspect failed tasks, and spend only a small amount of additional inference to reach 100% final accuracy on the reported runs.
+
+The cross-harness implication is the larger product direction. GenericAgent is the current experimental harness, but the Bayesian-Agent core only requires verified trajectory evidence and an adapter, so the same method can be applied to other agent frameworks.
 
 ## Artifacts
 

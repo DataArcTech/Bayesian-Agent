@@ -1,6 +1,6 @@
 # Bayesian Self-Evolving Agent Method
 
-Bayesian-Agent treats each Skill or SOP as a hypothesis about agent success under a task context.
+Bayesian-Agent treats each Skill or SOP as a hypothesis about agent success under a task context. The method is harness-agnostic: it can bootstrap Skills in a full run, repair existing agents incrementally, or transfer the same posterior Skill registry across compatible harnesses.
 
 ```text
 P(success | theta, C, h)
@@ -10,7 +10,7 @@ P(success | theta, C, h)
 - `C`: inference condition, including prompt, memory, tools, retrieved context, and harness feedback
 - `h`: Skill/SOP hypothesis
 
-The framework does not train the base model. It changes the inference environment by maintaining posterior-weighted Skill context.
+The framework does not train the base model and does not require replacing the agent runtime. It changes the inference environment by maintaining posterior-weighted Skill context that can be injected through adapters.
 
 ## Evidence
 

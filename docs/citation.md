@@ -4,7 +4,7 @@ If you use Bayesian-Agent in research, projects, or benchmarks, please cite it a
 
 ```bibtex
 @software{bayesian_agent_2026,
-  title = {Bayesian-Agent: Bayesian Self-Evolving Agent Framework},
+  title = {Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation},
   author = {{Xiaojun Wu}},
   year = {2026},
   url = {https://github.com/DataArcTech/Bayesian-Agent}

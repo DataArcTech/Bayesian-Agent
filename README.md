@@ -1,4 +1,4 @@
-# Bayesian-Agent
+# Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
 
 <div align="center">
   <img src="assets/banner.png" width="920" alt="Bayesian-Agent banner"/>
@@ -10,13 +10,19 @@
   <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a>
 </p>
 
-Bayesian-Agent is a standalone Bayesian self-evolving agent framework for turning agent failures into reusable, evidence-weighted Skills and SOPs.
+Bayesian-Agent is a Bayesian self-evolving layer for turning agent failures into reusable, evidence-weighted Skills and SOPs across agent frameworks and execution harnesses.
+
+It is designed to stand out from monolithic agent frameworks in three ways:
+
+- **Run from scratch**: start with no prior traces and evolve Skills during full benchmark or production runs.
+- **Repair incrementally**: attach to an existing agent, read its failed trajectories, and rerun only the tasks that need repair.
+- **Adapt across harnesses**: integrate with GenericAgent today, and with other agent frameworks through a portable trajectory schema and adapter boundary.
 
 > v0.4 is the first standalone release. It includes the core Bayesian Skill Evolution package, schemas, CLI utilities, experiment artifacts, and a clean GenericAgent integration boundary. GenericAgent itself is not copied, vendored, or forked.
 
 ## 📅 News
 
-- **2026-05-09:** Released Bayesian-Agent v0.4 as a standalone package with core Bayesian Skill Evolution primitives, schemas, CLI utilities, and experiment artifacts.
+- **2026-05-09:** Released Bayesian-Agent v0.4 as a standalone cross-harness Bayesian Skill Evolution package with schemas, CLI utilities, and experiment artifacts.
 - **2026-05-09:** Added the optional GenericAgent adapter boundary without copying or vendoring GenericAgent.
 - **2026-05-09:** Published bilingual project documentation and the Bayesian-Agent framework diagram.
 
@@ -38,12 +44,12 @@ In that setting, **Skills** and **SOPs** become first-class engineering assets. 
 - which failure modes to avoid
 - when to stop, retry, or rewrite the procedure
 
-Bayesian-Agent asks a simple question: if Skills are hypotheses about how to solve tasks, why should they evolve by anecdote instead of evidence?
+Bayesian-Agent asks a simple question: if Skills are hypotheses about how to solve tasks, why should they evolve by anecdote instead of evidence? The answer is a framework-agnostic evolution layer that can bootstrap Skills from scratch, repair existing agents incrementally, and move across harnesses as long as they emit verified trajectories.
 
 <div align="center">
   <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
   <br/>
-  <em>Bayesian-Agent turns verified agent trajectories into posterior-weighted Skills and SOPs.</em>
+  <em>Bayesian-Agent turns verified trajectories from any compatible harness into posterior-weighted Skills and SOPs.</em>
 </div>
 
 ## 🧠 Core Idea
@@ -83,8 +89,9 @@ After each verified trajectory, the framework updates a posterior belief over th
 - **Bayesian Skill registry**: maintain Beta posteriors, failure modes, token cost, latency, turns, and context distribution.
 - **Failure-mode-aware repair**: identify recurring errors and generate focused repair plans.
 - **Token-aware context building**: inject only the Skills with useful posterior evidence.
-- **Full and incremental modes**: evolve from scratch or attach to an existing agent as a repair layer.
-- **Framework-agnostic boundary**: integrate with GenericAgent and other harnesses through adapters instead of vendoring their code.
+- **Full self-evolution from scratch**: run all tasks, collect evidence online, and evolve Skills without prior traces.
+- **Incremental repair for existing agents**: consume failed trajectories from a baseline agent and rerun only the failed tasks.
+- **Cross-harness adaptation**: integrate with GenericAgent today and other agent frameworks through adapters instead of vendoring their code.
 - **Standard-library-first core**: v0.4 has no runtime dependency beyond Python.
 
 ## 🧬 Self-Evolution Mechanism
@@ -197,7 +204,7 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
-## 🔁 Two Operating Modes
+## 🔁 Three Operating Patterns
 
 ### 🌱 Full Self-Evolving Mode
 
@@ -214,6 +221,16 @@ Base Agent -> Failure Traces -> Bayesian Skill Evolution -> Rerun Failures -> Hi
 ```
 
 This is the recommended production path because it improves an existing agent without retraining the model or replacing the original harness.
+
+### 🔌 Cross-Harness Adaptation Mode
+
+Bayesian-Agent is not tied to a single agent runtime. Any agent framework can become a backend if it emits the common trajectory schema and accepts posterior-weighted Skill context through an adapter.
+
+```text
+Any Agent Harness -> Trajectory Schema -> Bayesian Skill Registry -> Adapter -> Next Harness Run
+```
+
+This makes Bayesian-Agent a portable Skill/SOP evolution layer rather than another closed agent framework.
 
 ## 📊 Experimental Results
 
@@ -247,13 +264,13 @@ In incremental mode, Bayesian-Agent only reran failed GenericAgent tasks:
 | SOP-Bench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 216k | 10k | 226k | 17.73 |
 | Lifelong AgentBench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 71k | 7k | 78k | 25.57 |
 
-The result shows that Bayesian-Agent can work as a plug-in repair layer: it can take an existing agent below 100% accuracy and improve it with a small amount of incremental inference.
+The result shows that Bayesian-Agent can work as a plug-in repair layer: it can take an existing agent below 100% accuracy and improve it with a small amount of incremental inference. This is the practical advantage over one-off benchmark agents: Bayesian-Agent can sit beside a harness, learn from its failures, and improve it without replacing it.
 
 Experiment artifacts are stored under [`artifacts/`](artifacts/), and the method note is in [`docs/method.md`](docs/method.md).
 
-## 🔌 Relationship to GenericAgent
+## 🔌 GenericAgent and Cross-Harness Adaptation
 
-The first prototype was validated inside GenericAgent, but Bayesian-Agent is not a GenericAgent fork.
+The first prototype was validated inside GenericAgent, but Bayesian-Agent is not a GenericAgent fork and not just a GenericAgent add-on.
 
 The open-source structure is:
 
@@ -263,7 +280,9 @@ The open-source structure is:
 - `schemas/`: portable trajectory and Skill belief schemas
 - `artifacts/`: reproducible benchmark result files
 
-GenericAgent remains an optional backend. Users can integrate Bayesian-Agent with their own agent harness by emitting the common trajectory schema.
+GenericAgent remains the current experimental backend. Users can integrate Bayesian-Agent with their own agent harness by emitting the common trajectory schema and implementing the adapter boundary.
+
+The long-term direction is to make Bayesian-Agent the Bayesian Skill/SOP evolution layer for many agent runtimes: GenericAgent, our own upcoming Agent harness, and other external frameworks.
 
 MinimalAgent adapter support is intentionally not included in v0.4.
 
@@ -293,6 +312,7 @@ tests/                  # Standard-library unittest suite
 - [ ] Add executable benchmark runners for external checkouts.
 - [ ] Add richer rewrite policies and adapter examples.
 - [ ] Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
+- [ ] Release our own Agent harness for Bayesian-Agent; current experiments use GenericAgent as the backend harness.
 
 
 ## 📈 Star History
@@ -305,7 +325,7 @@ If you use Bayesian-Agent in your research or projects, please cite it as:
 
 ```bibtex
 @software{bayesian_agent_2026,
-  title = {Bayesian-Agent: Bayesian Self-Evolving Agent Framework},
+  title = {Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation},
   author = {{Xiaojun Wu}},
   year = {2026},
   url = {https://github.com/DataArcTech/Bayesian-Agent}
