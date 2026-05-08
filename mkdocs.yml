@@ -55,6 +55,8 @@ nav:
   - Adapters: adapters.md
   - Schemas: schemas.md
   - Experiments: experiments/index.md
+  - Articles:
+      - Zhihu Repo Introduction: articles/zhihu-bayesian-agent.md
   - Method Note: method.md
   - Experiment Note: experiments.md
   - Roadmap: roadmap.md
