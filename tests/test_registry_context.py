@@ -30,6 +30,7 @@ class RegistryContextTests(unittest.TestCase):
         self.assertIn("Bayesian Skill Context", context)
         self.assertLess(context.find("skill/a"), context.find("skill/b"))
         self.assertIn("posterior_success", context)
+        self.assertIn("posterior_std", context)
 
     def test_rewrite_policy_selects_actions(self):
         registry = BayesianSkillRegistry.in_memory()

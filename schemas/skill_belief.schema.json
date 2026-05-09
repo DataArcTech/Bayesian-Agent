@@ -9,6 +9,8 @@
     "alpha": {"type": "number", "minimum": 0},
     "beta": {"type": "number", "minimum": 0},
     "posterior_success": {"type": "number", "minimum": 0, "maximum": 1},
+    "posterior_variance": {"type": "number", "minimum": 0},
+    "posterior_std": {"type": "number", "minimum": 0},
     "contexts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
     "failure_modes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
     "evidence": {"type": "array", "items": {"$ref": "trajectory.schema.json"}},

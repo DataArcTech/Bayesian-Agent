@@ -43,6 +43,21 @@ class SkillBelief:
         denom = self.alpha + self.beta
         return self.alpha / denom if denom else 0.0
 
+    @property
+    def posterior_variance(self) -> float:
+        """Variance of the Beta posterior over Skill success probability."""
+
+        denom = self.alpha + self.beta
+        if denom <= 0:
+            return 0.0
+        return (self.alpha * self.beta) / ((denom**2) * (denom + 1.0))
+
+    @property
+    def posterior_std(self) -> float:
+        """Standard deviation of the Beta posterior."""
+
+        return self.posterior_variance**0.5
+
     def update(self, event: TrajectoryEvidence) -> "SkillBelief":
         outcome = event.outcome.strip().lower()
         if outcome == "success":
@@ -72,6 +87,8 @@ class SkillBelief:
             "alpha": self.alpha,
             "beta": self.beta,
             "posterior_success": self.success_probability,
+            "posterior_variance": self.posterior_variance,
+            "posterior_std": self.posterior_std,
             "contexts": self.contexts,
             "failure_modes": self.failure_modes,
             "evidence": self.evidence[-MAX_EVIDENCE:],

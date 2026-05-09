@@ -27,6 +27,7 @@ class SkillContextBuilder:
             lines.append(
                 "- "
                 f"{belief.skill_id}: posterior_success={belief.success_probability:.3f}, "
+                f"posterior_std={belief.posterior_std:.3f}, "
                 f"alpha={belief.alpha:.1f}, beta={belief.beta:.1f}, "
                 f"observations={belief.observations}, mean_tokens={belief.mean_tokens:.1f}, "
                 f"rewrite={decision.action}, failures={failures}"

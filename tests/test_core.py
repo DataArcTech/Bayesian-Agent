@@ -34,6 +34,9 @@ class CoreModelTests(unittest.TestCase):
         self.assertEqual(belief.failure_modes["blank_cell"], 1)
         self.assertEqual(belief.mean_tokens, 20.0)
         self.assertAlmostEqual(belief.success_probability, 0.5)
+        self.assertAlmostEqual(belief.posterior_variance, 0.05)
+        self.assertAlmostEqual(belief.posterior_std, 0.05**0.5)
+        self.assertIn("posterior_std", belief.to_dict())
 
     def test_rewrite_decision_is_serializable(self):
         decision = RewriteDecision(action="patch", reason="failures cluster", confidence=0.75)
