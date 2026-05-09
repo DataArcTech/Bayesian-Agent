@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Set
+from typing import Any, Dict, Iterable, List, Mapping, Set
 
 
 BenchmarkResults = Dict[str, List[Dict[str, Any]]]
@@ -21,6 +21,40 @@ def failed_task_ids(results: Mapping[str, Iterable[Mapping[str, Any]]]) -> Dict[
         if ids:
             failed[str(benchmark)] = ids
     return failed
+
+
+def failure_mode_clusters(results: Mapping[str, Iterable[Mapping[str, Any]]]) -> Dict[str, Dict[str, List[str]]]:
+    """Group failed task ids by normalized failure mode for targeted repair."""
+
+    clusters: Dict[str, Dict[str, List[str]]] = {}
+    for benchmark, runs in results.items():
+        for run in runs:
+            task_id = run.get("task_id")
+            if not task_id or run.get("success"):
+                continue
+            mode = str(run.get("failure_mode") or run.get("error") or "unknown_failure")
+            clusters.setdefault(str(benchmark), {}).setdefault(mode, []).append(str(task_id))
+    return clusters
+
+
+def repair_report(results: Mapping[str, Iterable[Mapping[str, Any]]]) -> Dict[str, Dict[str, Any]]:
+    """Create a repair-oriented summary with failed ids and failure clusters."""
+
+    normalized = normalize_results(results)
+    failed = failed_task_ids(normalized)
+    clusters = failure_mode_clusters(normalized)
+    report: Dict[str, Dict[str, Any]] = {}
+    for benchmark, runs in normalized.items():
+        runs = list(runs)
+        failed_ids = sorted(failed.get(benchmark, set()))
+        report[benchmark] = {
+            "tasks": len(runs),
+            "failed_tasks": failed_ids,
+            "failure_count": len(failed_ids),
+            "failure_modes": {mode: sorted(ids) for mode, ids in sorted(clusters.get(benchmark, {}).items())},
+            "recommended_action": "clustered_repair" if clusters.get(benchmark) else "none",
+        }
+    return report
 
 
 def dedupe_by_task_id(runs: Iterable[Mapping[str, Any]]) -> List[Dict[str, Any]]:

@@ -5,6 +5,7 @@ from pathlib import Path
 from bayesian_agent import BayesianSkillRegistry, TrajectoryEvidence
 from bayesian_agent.core.context import SkillContextBuilder
 from bayesian_agent.core.policy import RewritePolicy
+from bayesian_agent.core.ranking import get_strategy
 
 
 class RegistryContextTests(unittest.TestCase):
@@ -31,6 +32,15 @@ class RegistryContextTests(unittest.TestCase):
         self.assertLess(context.find("skill/a"), context.find("skill/b"))
         self.assertIn("posterior_success", context)
         self.assertIn("posterior_std", context)
+
+    def test_ranking_strategies_can_change_selection_pressure(self):
+        registry = BayesianSkillRegistry.in_memory()
+        registry.record(TrajectoryEvidence(task_id="a1", skill_id="skill/proven", context="ctx", outcome="success", total_tokens=1000))
+        registry.record(TrajectoryEvidence(task_id="a2", skill_id="skill/proven", context="ctx", outcome="success", total_tokens=1000))
+        registry.record(TrajectoryEvidence(task_id="b1", skill_id="skill/cheap", context="ctx", outcome="success", total_tokens=1))
+
+        self.assertEqual(get_strategy("cost-aware").name, "cost_aware")
+        self.assertEqual(registry.top(context="ctx", strategy="cost_aware")[0].skill_id, "skill/cheap")
 
     def test_rewrite_policy_selects_actions(self):
         registry = BayesianSkillRegistry.in_memory()

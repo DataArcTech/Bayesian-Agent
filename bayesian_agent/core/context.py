@@ -13,13 +13,14 @@ class SkillContextBuilder:
         self.registry = registry
         self.policy = policy or RewritePolicy()
 
-    def render(self, task_context: str = "", limit: int = 5) -> str:
-        beliefs = self.registry.top(limit=limit, context=task_context)
+    def render(self, task_context: str = "", limit: int = 5, strategy: str = "exploit") -> str:
+        beliefs = self.registry.top(limit=limit, context=task_context, strategy=strategy)
         if not beliefs:
             return ""
         lines = [
             "### Bayesian Skill Context",
             "Use these posterior-weighted Skills/SOPs as hypotheses, not as unquestioned instructions.",
+            f"Ranking strategy: {strategy}.",
         ]
         for belief in beliefs:
             decision = self.policy.decide(belief)

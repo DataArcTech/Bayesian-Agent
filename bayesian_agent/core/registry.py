@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 
 from bayesian_agent.core.belief import SkillBelief
 from bayesian_agent.core.evidence import TrajectoryEvidence, utc_now
+from bayesian_agent.core.ranking import get_strategy
 
 
 class BayesianSkillRegistry:
@@ -60,11 +61,11 @@ class BayesianSkillRegistry:
     def beliefs(self) -> List[SkillBelief]:
         return [SkillBelief.from_dict(skill_id, raw) for skill_id, raw in self.data.get("skills", {}).items()]
 
-    def top(self, limit: int = 5, context: str = "") -> List[SkillBelief]:
+    def top(self, limit: int = 5, context: str = "", strategy: str = "exploit") -> List[SkillBelief]:
         beliefs = self.beliefs()
+        ranking = get_strategy(strategy)
 
         def score(belief: SkillBelief):
-            context_bonus = 1 if context and context in belief.contexts else 0
-            return (context_bonus, belief.success_probability, belief.observations, -belief.mean_tokens)
+            return (ranking.score(belief, context), belief.observations, -belief.mean_tokens, belief.skill_id)
 
         return sorted(beliefs, key=score, reverse=True)[:limit]

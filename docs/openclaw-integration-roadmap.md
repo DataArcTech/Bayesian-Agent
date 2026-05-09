@@ -45,10 +45,18 @@ The first practical improvement is uncertainty visibility. Posterior mean alone 
 - promising but under-tested skills;
 - unstable skills that need exploration or splitting.
 
+## Implemented in This Branch
+
+- Posterior uncertainty fields: `posterior_variance` and `posterior_std`.
+- Configurable ranking strategies: `exploit`, `explore`, `cost_aware`, and `context_aware`.
+- Workflow JSONL ingestion via `evolve-workflow-log`.
+- Failure-mode repair reports via `repair-report`.
+- Lightweight workflow standards for agentic quality gates.
+
 ## Suggested Next PRs
 
-1. Add posterior uncertainty fields and render them in context. *(small, self-contained)*
-2. Add configurable ranking strategies: exploit, explore, cost-aware, and context-match.
-3. Add an `openclaw` example exporter that converts a small JSONL task log into `TrajectoryEvidence`.
-4. Add richer repair-plan output with failure-mode clusters, not only failed task ids.
-5. Add reproducible benchmark runner scripts for published artifacts.
+1. Add reproducible benchmark runner scripts for published artifacts.
+2. Add a first-party continuous-evaluation loop that periodically ingests workflow logs and writes ranked Skill context.
+3. Add richer Bayesian policies, such as Thompson sampling or lower-confidence-bound ranking.
+4. Add a concrete OpenClaw exporter once the stable log location/schema is known.
+5. Add adapters for one additional non-GenericAgent harness to demonstrate real cross-harness transfer.

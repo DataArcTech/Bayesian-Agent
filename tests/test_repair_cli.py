@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bayesian_agent.core.repair import failed_task_ids, merge_repairs, summarize_incremental_lift
+from bayesian_agent.core.repair import failed_task_ids, merge_repairs, repair_report, summarize_incremental_lift
 from bayesian_agent.cli import main
 
 
@@ -21,9 +21,23 @@ class RepairCliTests(unittest.TestCase):
             ]
         }
 
+        baseline["sop_bench"][1]["failure_mode"] = "wrong_cell"
+
         self.assertEqual(failed_task_ids(baseline), {"sop_bench": {"sop_02"}})
+        self.assertEqual(repair_report(baseline)["sop_bench"]["failure_modes"], {"wrong_cell": ["sop_02"]})
         self.assertTrue(all(run["success"] for run in merge_repairs(baseline, repairs)["sop_bench"]))
         self.assertEqual(summarize_incremental_lift(baseline, repairs)["sop_bench"]["accuracy"], 1.0)
+
+    def test_cli_repair_report_writes_clusters(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "results.json"
+            out = Path(td) / "repair_report.json"
+            src.write_text(json.dumps({"results": {"bench": [{"task_id": "a", "success": False, "failure_mode": "missing_verify"}]}}), encoding="utf-8")
+
+            code = main(["repair-report", "--baseline", str(src), "--out", str(out)])
+
+            self.assertEqual(code, 0)
+            self.assertEqual(json.loads(out.read_text())["bench"]["failure_modes"], {"missing_verify": ["a"]})
 
     def test_cli_summarize_writes_json(self):
         with tempfile.TemporaryDirectory() as td:

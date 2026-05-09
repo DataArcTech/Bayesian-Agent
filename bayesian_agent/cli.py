@@ -10,7 +10,8 @@ from typing import Any, Iterable, Mapping, Sequence
 from bayesian_agent.core.context import SkillContextBuilder
 from bayesian_agent.core.evidence import TrajectoryEvidence
 from bayesian_agent.core.registry import BayesianSkillRegistry
-from bayesian_agent.core.repair import failed_task_ids, normalize_results, summarize, summarize_incremental_lift
+from bayesian_agent.core.repair import failed_task_ids, normalize_results, repair_report, summarize, summarize_incremental_lift
+from bayesian_agent.adapters.workflow_log import evidence_from_jsonl
 
 
 def _read_json(path: str) -> Mapping[str, Any]:
@@ -44,6 +45,14 @@ def build_parser() -> argparse.ArgumentParser:
     evolve.add_argument("--registry", required=True, help="Output registry JSON path.")
     evolve.add_argument("--context-out", default="", help="Optional rendered Skill context path.")
 
+    evolve_log = sub.add_parser("evolve-workflow-log", help="Update a registry from generic assistant workflow JSONL records.")
+    evolve_log.add_argument("--jsonl", action="append", required=True, help="Path to a workflow JSONL file.")
+    evolve_log.add_argument("--registry", required=True, help="Output registry JSON path.")
+    evolve_log.add_argument("--context-out", default="", help="Optional rendered Skill context path.")
+    evolve_log.add_argument("--default-skill-id", default="workflow/default")
+    evolve_log.add_argument("--default-context", default="workflow")
+    evolve_log.add_argument("--strategy", default="exploit", help="Context ranking strategy.")
+
     summarize_cmd = sub.add_parser("summarize", help="Summarize a results JSON file.")
     summarize_cmd.add_argument("--results", required=True)
     summarize_cmd.add_argument("--out", required=True)
@@ -51,6 +60,10 @@ def build_parser() -> argparse.ArgumentParser:
     repair = sub.add_parser("repair-plan", help="List failed task ids for incremental repair.")
     repair.add_argument("--baseline", required=True)
     repair.add_argument("--out", required=True)
+
+    repair_report_cmd = sub.add_parser("repair-report", help="Summarize failed task ids and failure-mode clusters.")
+    repair_report_cmd.add_argument("--baseline", required=True)
+    repair_report_cmd.add_argument("--out", required=True)
 
     lift = sub.add_parser("incremental-summary", help="Summarize baseline plus repair traces.")
     lift.add_argument("--baseline", required=True)
@@ -70,12 +83,29 @@ def main(argv: Sequence[str] = None) -> int:
         if args.context_out:
             Path(args.context_out).write_text(SkillContextBuilder(registry).render(), encoding="utf-8")
         return 0
+    if args.command == "evolve-workflow-log":
+        registry = BayesianSkillRegistry(args.registry)
+        for jsonl_path in args.jsonl:
+            registry.record_many(
+                evidence_from_jsonl(
+                    jsonl_path,
+                    default_skill_id=args.default_skill_id,
+                    default_context=args.default_context,
+                )
+            )
+        registry.save()
+        if args.context_out:
+            Path(args.context_out).write_text(SkillContextBuilder(registry).render(strategy=args.strategy), encoding="utf-8")
+        return 0
     if args.command == "summarize":
         _write_json(args.out, summarize(normalize_results(_read_json(args.results))))
         return 0
     if args.command == "repair-plan":
         failures = {k: sorted(v) for k, v in failed_task_ids(normalize_results(_read_json(args.baseline))).items()}
         _write_json(args.out, failures)
+        return 0
+    if args.command == "repair-report":
+        _write_json(args.out, repair_report(normalize_results(_read_json(args.baseline))))
         return 0
     if args.command == "incremental-summary":
         baseline = normalize_results(_read_json(args.baseline))
