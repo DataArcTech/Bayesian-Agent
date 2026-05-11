@@ -19,9 +19,11 @@ Bayesian-Agent is not meant to become a monolithic agent runtime. Its core value
 bayesian_agent/
   core/                 # Framework-agnostic evidence, beliefs, registry, policy, context, repair
   adapters/             # Adapter protocol and optional external harness boundaries
+  benchmarks/           # Benchmark orchestration owned by Bayesian-Agent
 schemas/                # Portable JSON schemas for trajectories and Skill beliefs
 artifacts/              # Experiment result artifacts
 docs/                   # Documentation site content
+experiments/            # Reproducible experiment entry points
 tests/                  # unittest test suite
 ```
 
@@ -36,7 +38,7 @@ External Harness Run -> trajectory-like mapping -> TrajectoryEvidence -> Bayesia
 Bayesian Skill Context -> Adapter -> External Harness Next Run
 ```
 
-An adapter should execute one task with posterior-weighted Skill context and return a trajectory-like mapping that Bayesian-Agent can normalize.
+An adapter should execute one task with posterior-weighted Skill context and return a trajectory-like mapping that Bayesian-Agent can normalize. It should not own benchmark loops, graders, Skill registries, or posterior update logic.
 
 ### 1. Start From the Protocol
 
@@ -98,7 +100,7 @@ class MyHarnessAdapter:
     def run(self, task: Mapping[str, Any], skill_context: str) -> Mapping[str, Any]:
         """Run one task and return a trajectory-like result.
 
-        Keep this method as a thin boundary around the external harness.
+        Keep this method as a thin boundary around one external harness run.
         """
         raise NotImplementedError(
             "Wire this method to your local MyHarness runner."
@@ -106,6 +108,8 @@ class MyHarnessAdapter:
 ```
 
 If the external harness has expensive imports, import them inside `run()` or behind a helper so `import bayesian_agent` remains lightweight.
+
+If your harness needs a lower-level task runner, expose it as an explicit method such as `run_task(prompt=..., workspace=..., max_turns=...)`. The GenericAgent adapter follows this pattern: it runs one prompt in one workspace and reports token usage, while SOP-Bench/Lifelong orchestration stays in `bayesian_agent/benchmarks/`.
 
 ### 3. Return a Trajectory-Like Mapping
 
@@ -153,8 +157,65 @@ Avoid:
 - copying external framework source code into `bayesian_agent/adapters/`
 - importing a large framework at module import time
 - hiding benchmark graders inside the adapter
+- depending on historical experiment scripts from another repository
 - returning only free-form text without token usage or success signal
 - changing `bayesian_agent/core/` to fit one harness
+
+## Adding Benchmark Orchestration
+
+Benchmark runners belong under `bayesian_agent/benchmarks/`, not in external harness adapters.
+
+A benchmark module should:
+
+- build isolated task workspaces
+- construct task prompts
+- call an adapter for execution
+- grade results with deterministic local logic
+- record `TrajectoryEvidence` through the Bayesian Skill registry
+- write `results.json` and a small Markdown table with accuracy, input tokens, output tokens, total tokens, and efficiency
+
+The current SOP-Bench/Lifelong runner is invoked through:
+
+```bash
+export GENERICAGENT_ROOT="/path/to/GenericAgent"
+export DEEPSEEK_API_KEY="sk-..."
+export MODEL="deepseek-v4-flash"
+
+"$GENERICAGENT_ROOT/.venv/bin/python" \
+  experiments/run_sop_lifelong.py \
+  --genericagent-root "$GENERICAGENT_ROOT" \
+  --model "$MODEL" \
+  --mode all \
+  --bench core \
+  --out-root "temp/sop_lifelong_${MODEL//-/_}"
+```
+
+Use the same script for `deepseek-v4-pro` by changing `MODEL`. Do not add model-specific scripts unless the model requires a genuinely different protocol.
+
+For incremental repair from an existing baseline:
+
+```bash
+"$GENERICAGENT_ROOT/.venv/bin/python" \
+  experiments/run_sop_lifelong.py \
+  --genericagent-root "$GENERICAGENT_ROOT" \
+  --model "$MODEL" \
+  --mode bayesian-incremental \
+  --bench core \
+  --baseline-results artifacts/ga_deepseek_baseline/sop_results.json \
+  --baseline-results artifacts/ga_deepseek_baseline/lifelong_results.json \
+  --out-root "temp/sop_lifelong_${MODEL//-/_}_incremental_from_ga"
+```
+
+### Benchmark PR Checklist
+
+Before opening a benchmark PR, make sure:
+
+- [ ] The runner is named after the benchmark, not after a paper table or temporary comparison label.
+- [ ] The adapter is used only for task execution.
+- [ ] Token accounting is included in every result row.
+- [ ] Incremental mode reruns only failed baseline tasks.
+- [ ] Heavy transcripts from imported baselines are compacted before writing new artifacts.
+- [ ] A smoke test with `--limit 1` succeeds before a full run.
 
 ### 5. Add Tests
 
@@ -228,7 +289,7 @@ Before opening a PR, make sure:
 
 ```bash
 python3 -m unittest discover -v
-python3 -m compileall bayesian_agent
+PYTHONPYCACHEPREFIX=/private/tmp/ba_pycache python3 -m compileall bayesian_agent experiments
 git diff --check
 ```
 

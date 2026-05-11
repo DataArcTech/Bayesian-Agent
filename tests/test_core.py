@@ -23,6 +23,18 @@ class CoreModelTests(unittest.TestCase):
         self.assertEqual(restored.total_tokens, 120)
         self.assertEqual(restored.metadata["expected"], "manual_review")
 
+    def test_from_run_sanitizes_non_json_metadata(self):
+        class NotJson:
+            pass
+
+        evidence = TrajectoryEvidence.from_run(
+            {"task_id": "sop_01", "success": True, "exit_reason": NotJson()},
+            skill_id="benchmark/sop_bench",
+            context="sop_bench",
+        )
+
+        self.assertIsInstance(evidence.metadata["exit_reason"], str)
+
     def test_skill_belief_updates_beta_posterior_and_cost(self):
         belief = SkillBelief(skill_id="benchmark/sop_bench")
         belief.update(TrajectoryEvidence(task_id="sop_01", skill_id=belief.skill_id, context="sop", outcome="success", total_tokens=10))

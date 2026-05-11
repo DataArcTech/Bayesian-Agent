@@ -19,7 +19,7 @@ It is designed to stand out from monolithic agent frameworks in three ways:
 - **Repair incrementally**: attach to an existing agent, read its failed trajectories, and rerun only the tasks that need repair.
 - **Adapt across harnesses**: integrate with GenericAgent today, and with other agent frameworks through a portable trajectory schema and adapter boundary.
 
-> v0.4 is the first standalone release. It includes the core Bayesian Skill Evolution package, schemas, CLI utilities, experiment artifacts, and a clean GenericAgent integration boundary. GenericAgent itself is not copied, vendored, or forked.
+> v0.4 is the first standalone release. It includes the core Bayesian Skill Evolution package, schemas, CLI utilities, experiment artifacts, and a runnable GenericAgent adapter boundary. GenericAgent itself is not copied, vendored, or forked.
 
 ## 📅 News
 
@@ -182,6 +182,38 @@ bayesian-agent summarize \
   --out temp/summary.json
 ```
 
+Run a live GenericAgent-backed SOP/Lifelong experiment. Use `--model` to switch between `deepseek-v4-flash` and `deepseek-v4-pro`:
+
+```bash
+cd Bayesian-Agent
+export GENERICAGENT_ROOT="/path/to/GenericAgent"
+export DEEPSEEK_API_KEY="sk-..."
+export MODEL="deepseek-v4-flash"
+"$GENERICAGENT_ROOT/.venv/bin/python" \
+  experiments/run_sop_lifelong.py \
+  --genericagent-root "$GENERICAGENT_ROOT" \
+  --model "$MODEL" \
+  --mode all \
+  --bench core \
+  --out-root "temp/sop_lifelong_${MODEL//-/_}"
+```
+
+Use `--limit 1` for a smoke test before running the full benchmark.
+
+Run incremental repair against an existing GA baseline by passing its result files. The script reruns only failed tasks:
+
+```bash
+"$GENERICAGENT_ROOT/.venv/bin/python" \
+  experiments/run_sop_lifelong.py \
+  --genericagent-root "$GENERICAGENT_ROOT" \
+  --model "$MODEL" \
+  --mode bayesian-incremental \
+  --bench core \
+  --baseline-results artifacts/ga_deepseek_baseline/sop_results.json \
+  --baseline-results artifacts/ga_deepseek_baseline/lifelong_results.json \
+  --out-root "temp/sop_lifelong_${MODEL//-/_}_incremental_from_ga"
+```
+
 ## 🐍 Python API
 
 ```python
@@ -262,12 +294,27 @@ In incremental mode, Bayesian-Agent only reran failed GenericAgent tasks:
 
 | Benchmark | Agent | Model | Final Accuracy | Incremental Input | Incremental Output | Incremental Total | Incremental Efficiency |
 |---|---|---|---:|---:|---:|---:|---:|
-| SOP-Bench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 216k | 10k | 226k | 17.73 |
-| Lifelong AgentBench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 71k | 7k | 78k | 25.57 |
+| SOP-Bench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 254k | 14k | 268k | 14.93 |
+| Lifelong AgentBench | GA+BayesianIncremental | deepseek-v4-flash | 100% | 129k | 10k | 139k | 14.41 |
 
 The result shows that Bayesian-Agent can work as a plug-in repair layer: it can take an existing agent below 100% accuracy and improve it with a small amount of incremental inference. This is the practical advantage over one-off benchmark agents: Bayesian-Agent can sit beside a harness, learn from its failures, and improve it without replacing it.
 
 Experiment artifacts are stored under [`artifacts/`](artifacts/), and the method note is in [`docs/method.md`](docs/method.md).
+
+To reproduce the same experiment shape with another model, change only `--model` and `--out-root`:
+
+```bash
+export MODEL="deepseek-v4-pro"
+"$GENERICAGENT_ROOT/.venv/bin/python" \
+  experiments/run_sop_lifelong.py \
+  --genericagent-root "$GENERICAGENT_ROOT" \
+  --model "$MODEL" \
+  --mode all \
+  --bench core \
+  --out-root "temp/sop_lifelong_${MODEL//-/_}"
+```
+
+The script runs three phases by default: GA baseline, Bayesian full self-evolution, and Bayesian incremental repair using the fresh baseline for the selected model. Results are written to `<out-root>/summary.md`.
 
 ## 🔌 GenericAgent and Cross-Harness Adaptation
 

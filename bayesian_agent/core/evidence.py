@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+import json
 from typing import Any, Dict, Mapping, Optional
 
 
@@ -55,7 +56,7 @@ class TrajectoryEvidence:
             "elapsed_seconds": self.elapsed_seconds,
             "failure_mode": self.failure_mode,
             "summary": self.summary,
-            "metadata": self.metadata,
+            "metadata": _json_safe(self.metadata),
             "created_at": self.created_at,
         }
 
@@ -73,7 +74,7 @@ class TrajectoryEvidence:
             elapsed_seconds=float(raw.get("elapsed_seconds") or 0.0),
             failure_mode=str(raw.get("failure_mode") or raw.get("error") or ""),
             summary=str(raw.get("summary") or ""),
-            metadata=dict(raw.get("metadata") or {}),
+            metadata=_json_safe(dict(raw.get("metadata") or {})),
             created_at=str(raw.get("created_at") or utc_now()),
         )
 
@@ -98,5 +99,19 @@ class TrajectoryEvidence:
             elapsed_seconds=float(run.get("elapsed_seconds") or 0.0),
             failure_mode=str(failure_mode if failure_mode is not None else run.get("failure_mode") or run.get("error") or ""),
             summary=str(run.get("summary") or run.get("task_id") or ""),
-            metadata={k: v for k, v in run.items() if k not in {"transcript", "usage_events"}},
+            metadata=_json_safe({k: v for k, v in run.items() if k not in {"transcript", "usage_events"}}),
         )
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    try:
+        json.dumps(value)
+        return value
+    except TypeError:
+        return repr(value)

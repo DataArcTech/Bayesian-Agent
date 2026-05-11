@@ -37,18 +37,25 @@ It returns:
 
 - a trajectory-like mapping that can be converted into `TrajectoryEvidence`
 
-## GenericAgent Boundary
+## GenericAgent Adapter
 
-The v0.4 GenericAgent adapter is intentionally thin:
+The GenericAgent adapter is intentionally thin: it runs one prompt in one workspace. Benchmark loops and Bayesian Skill evolution stay in Bayesian-Agent.
 
 ```python
 from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
 
-adapter = GenericAgentAdapter(root="/path/to/GenericAgent")
-print(adapter.integration_note())
+adapter = GenericAgentAdapter(root="/path/to/GenericAgent", model="deepseek-v4-flash")
+result = adapter.run(
+    {
+        "prompt": "Solve the task in this workspace.",
+        "workspace": "temp/task_01",
+        "max_turns": 8,
+    },
+    skill_context="### Bayesian Skill Context\n...",
+)
 ```
 
-It does not eagerly import GenericAgent and does not vendor GenericAgent source code.
+It does not eagerly import GenericAgent and does not vendor GenericAgent source code. The experiment script `experiments/run_sop_lifelong.py` uses this adapter for task execution while Bayesian-Agent owns SOP-Bench/Lifelong orchestration, evidence collection, posterior updates, and incremental repair.
 
 ## Why This Boundary Matters
 
