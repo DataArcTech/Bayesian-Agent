@@ -382,7 +382,7 @@ tests/                  # Standard-library unittest suite
 - [ ] 增加更丰富的 rewrite policies 和 adapter examples。
 - [ ] GenericAgent 边界稳定后再扩展更多 agent harness adapters。
 - [ ] 上传我们自己的 Agent harness；当前实验阶段使用 GenericAgent 作为 backend harness。
-- [ ] 从 per-Skill Beta-Bernoulli update 升级到更完整的 Bayesian inference：Skill hypotheses 的 posterior model selection、分层/上下文 Bayesian Skill reliability、用于 Skill selection 的 Thompson sampling、同时权衡准确率/token/延迟的 Bayesian decision theory、Dirichlet-Multinomial failure-mode modeling、prompt/SOP variants 的 Bayesian optimization，以及 online drift detection。
+- [ ] 从 per-Skill Beta-Bernoulli update 升级到更完整的 Bayesian reasoning，包括 Skill hypothesis inference、Bayesian Networks 等 context-aware Bayesian structure、不确定性感知的 Skill selection、Bayesian decision policies 和 online adaptation。
 
 ## 🚦 当前状态
 

@@ -382,7 +382,7 @@ tests/                  # Standard-library unittest suite
 - [ ] Add richer rewrite policies and adapter examples.
 - [ ] Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
 - [ ] Release our own Agent harness for Bayesian-Agent; current experiments use GenericAgent as the backend harness.
-- [ ] Upgrade beyond per-Skill Beta-Bernoulli updates to fuller Bayesian inference: posterior model selection over Skill hypotheses, hierarchical/contextual Bayesian Skill reliability, Thompson sampling for Skill selection, Bayesian decision theory over accuracy/token/latency utility, Dirichlet-Multinomial failure-mode modeling, Bayesian optimization for prompt/SOP variants, and online drift detection.
+- [ ] Upgrade beyond per-Skill Beta-Bernoulli updates toward richer Bayesian reasoning, including Skill hypothesis inference, context-aware Bayesian structure such as Bayesian Networks, uncertainty-aware Skill selection, Bayesian decision policies, and online adaptation.
 
 
 ## 📈 Star History
