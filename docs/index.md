@@ -14,6 +14,8 @@ Bayesian-Agent is a Bayesian self-evolving layer for turning verified agent traj
 
 The project focuses on the inference side of agent improvement. Instead of changing base model parameters, it changes the agent's inference environment by maintaining posterior beliefs over Skills, failure modes, token cost, and context-specific reliability.
 
+In v0.x, the Bayesian core is specifically a per-Skill Beta-Bernoulli posterior update over verified success/failure evidence. Fuller Bayesian model selection and uncertainty-aware Skill selection are planned in the roadmap.
+
 Bayesian-Agent is designed to avoid being just another agent framework:
 
 - **Full-run evolution from scratch**: run tasks without prior traces and evolve Skills online.

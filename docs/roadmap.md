@@ -25,6 +25,25 @@ The roadmap is organized around the project's main advantage: Bayesian-Agent sho
 - Add documentation for operating Bayesian-Agent in a continuous evaluation pipeline.
 - Upload our own Bayesian-Agent harness. Current experiments use GenericAgent as the backend harness, but the project will provide a first-party harness for users who want the complete loop out of the box.
 
+## Bayesian Algorithm Roadmap
+
+The current v0.x implementation uses per-Skill Beta-Bernoulli posterior updates:
+
+```text
+p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
+```
+
+Future releases will move toward more complete Bayesian inference:
+
+- **Posterior model selection over Skill hypotheses**: compare competing Skills directly with `P(h_k | D) ∝ P(D | h_k)P(h_k)`.
+- **Hierarchical and contextual Bayesian reliability**: share evidence across related contexts while still learning context-specific Skill performance.
+- **Thompson sampling and Bayesian bandits**: balance exploration and exploitation when choosing which Skill/SOP variant to inject.
+- **Bayesian decision theory**: select actions by expected utility, jointly considering accuracy, token cost, latency, and repair risk.
+- **Dirichlet-Multinomial failure-mode modeling**: estimate distributions over recurring failure modes instead of simple counts.
+- **Bayesian optimization for prompt/SOP variants**: search rewrite variants with sample-efficient uncertainty-aware optimization.
+- **Bayesian model averaging**: combine multiple compatible Skill variants when posterior uncertainty remains high.
+- **Sequential Bayesian drift detection**: detect when a once-reliable Skill degrades because the task distribution or harness behavior changed.
+
 ## Non-Goals for v0.4
 
 - Bayesian-Agent does not train or fine-tune base models.

@@ -84,6 +84,27 @@ P(success | theta, C, skill)
 
 After each verified trajectory, the framework updates a posterior belief over that Skill. The next run receives posterior-weighted Skill context instead of unfiltered memory.
 
+### What "Bayesian" Means in v0.x
+
+Current Bayesian-Agent v0.x uses a **Beta-Bernoulli Bayesian update** to maintain a posterior belief over each Skill/SOP's success probability. It does not yet perform full Bayesian model selection over competing Skill hypotheses.
+
+For a Skill hypothesis `h_k`, define:
+
+```text
+p_k = P(y = 1 | h_k, context)
+y_i ~ Bernoulli(p_k)
+p_k ~ Beta(alpha_0, beta_0)
+```
+
+After observing `s_k` verified successes and `f_k` verified failures:
+
+```text
+p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
+E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
+```
+
+The implementation uses `alpha_0 = beta_0 = 1`, then uses the posterior mean to rank Skills, render posterior-weighted context, and trigger rewrite actions such as `patch`, `split`, `compress`, `retire`, and `explore`.
+
 ## 📋 Core Features
 
 - **Evidence-weighted Skill evolution**: update Skill beliefs from verified success and failure trajectories.
@@ -361,6 +382,7 @@ tests/                  # Standard-library unittest suite
 - [ ] Add richer rewrite policies and adapter examples.
 - [ ] Add adapters for more agent harnesses after the GenericAgent boundary stabilizes.
 - [ ] Release our own Agent harness for Bayesian-Agent; current experiments use GenericAgent as the backend harness.
+- [ ] Upgrade beyond per-Skill Beta-Bernoulli updates to fuller Bayesian inference: posterior model selection over Skill hypotheses, hierarchical/contextual Bayesian Skill reliability, Thompson sampling for Skill selection, Bayesian decision theory over accuracy/token/latency utility, Dirichlet-Multinomial failure-mode modeling, Bayesian optimization for prompt/SOP variants, and online drift detection.
 
 
 ## 📈 Star History

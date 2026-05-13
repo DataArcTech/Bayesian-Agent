@@ -30,6 +30,32 @@ P(success | theta, C, skill)
 
 The same Skill may work in one context and fail in another. That is why Bayesian-Agent records both outcomes and context distribution.
 
+## Current Bayesian Assumption
+
+Bayesian-Agent v0.x models each Skill/SOP independently with a Beta-Bernoulli posterior:
+
+```text
+p_k = P(success | h_k, context)
+p_k ~ Beta(alpha_0, beta_0)
+y_i ~ Bernoulli(p_k)
+```
+
+After `s_k` verified successes and `f_k` verified failures:
+
+```text
+p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
+posterior_success = E[p_k | D_k]
+                  = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
+```
+
+This is a lightweight conjugate Bayesian update. It should not be confused with a full Bayesian model-selection layer over multiple competing Skill hypotheses:
+
+```text
+P(h_k | D) ∝ P(D | h_k) P(h_k)
+```
+
+Full model selection is on the roadmap.
+
 ## Three Operating Patterns
 
 Bayesian-Agent is meant to be used in three complementary ways:

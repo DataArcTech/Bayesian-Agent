@@ -84,6 +84,27 @@ P(success | theta, C, skill)
 
 每次得到经过验证的执行轨迹后，框架都会更新该 Skill 的 posterior belief。下一次运行时，Agent 拿到的是 posterior 加权后的 Skill context，而不是未经筛选的长记忆。
 
+### v0.x 里的 “Bayesian” 准确指什么
+
+当前 Bayesian-Agent v0.x 使用的是 **Beta-Bernoulli Bayesian update**：为每条 Skill/SOP 维护一个关于成功率的 posterior belief。它还没有做完整的 Bayesian model selection，也没有显式计算多个 Skill hypothesis 之间的 posterior probability。
+
+对一条 Skill hypothesis `h_k`，定义：
+
+```text
+p_k = P(y = 1 | h_k, context)
+y_i ~ Bernoulli(p_k)
+p_k ~ Beta(alpha_0, beta_0)
+```
+
+观察到 `s_k` 次验证成功、`f_k` 次验证失败后：
+
+```text
+p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
+E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
+```
+
+当前实现使用 `alpha_0 = beta_0 = 1`，然后用 posterior mean 来排序 Skills、渲染 posterior 加权 context，并触发 `patch`、`split`、`compress`、`retire`、`explore` 等 rewrite actions。
+
 ## 📋 核心特性
 
 - **证据加权的 Skill 进化**：从 verified success/failure trajectory 更新 Skill belief。
@@ -361,6 +382,7 @@ tests/                  # Standard-library unittest suite
 - [ ] 增加更丰富的 rewrite policies 和 adapter examples。
 - [ ] GenericAgent 边界稳定后再扩展更多 agent harness adapters。
 - [ ] 上传我们自己的 Agent harness；当前实验阶段使用 GenericAgent 作为 backend harness。
+- [ ] 从 per-Skill Beta-Bernoulli update 升级到更完整的 Bayesian inference：Skill hypotheses 的 posterior model selection、分层/上下文 Bayesian Skill reliability、用于 Skill selection 的 Thompson sampling、同时权衡准确率/token/延迟的 Bayesian decision theory、Dirichlet-Multinomial failure-mode modeling、prompt/SOP variants 的 Bayesian optimization，以及 online drift detection。
 
 ## 🚦 当前状态
 

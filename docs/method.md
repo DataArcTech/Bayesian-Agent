@@ -12,6 +12,35 @@ P(success | theta, C, h)
 
 The framework does not train the base model and does not require replacing the agent runtime. It changes the inference environment by maintaining posterior-weighted Skill context that can be injected through adapters.
 
+## Bayesian Formulation in v0.x
+
+The current implementation uses a Beta-Bernoulli Bayesian update for each Skill/SOP. It is Bayesian in the posterior-belief sense, but it is not yet a full Bayesian model-selection system over competing Skill hypotheses.
+
+For Skill hypothesis `h_k`, let:
+
+```text
+p_k = P(y = 1 | h_k, c)
+y_i ~ Bernoulli(p_k)
+p_k ~ Beta(alpha_0, beta_0)
+```
+
+where `y_i = 1` means a verified success and `c` is the task context. Given evidence `D_k` with `s_k` successes and `f_k` failures:
+
+```text
+p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
+E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
+```
+
+Bayesian-Agent v0.x uses `alpha_0 = beta_0 = 1`. The posterior mean is used for Skill ranking, context rendering, and rewrite policy decisions.
+
+The general Bayesian model-selection form we plan to add later is:
+
+```text
+P(h_k | D) ∝ P(D | h_k) P(h_k)
+```
+
+That would let the framework compare multiple Skill hypotheses directly, rather than only tracking each Skill's success probability independently.
+
 ## Evidence
 
 Each agent run emits `TrajectoryEvidence`:
