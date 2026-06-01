@@ -1,4 +1,4 @@
-# 从三门问题到 Bayesian-Agent：朴素贝叶斯、后天学习与 Skill 自进化
+# 从贝叶斯更新到 Bayesian-Agent：Evidence Model、后天学习与 Skill 自进化
 
 > 当前的大语言模型已经拥有非常丰富的知识和技能，但很多能力仍然需要被进一步验证。其中最重要的一类能力，是能否从经验和教训中反思，并持续改进自己的 Skills。我们把这种能力称为后天学习 **acquired learning**。
 
@@ -16,7 +16,7 @@ Acquired learning refers to knowledge or skills gained through experience, educa
 ```
 
 Bayesian-Agent 做的是第二条路：不改 base model 的权重，而是从 verified trajectories 中学习 Skill 的可靠性、适用场景、失败模式和成本，让下一次推理拿到更好的条件。**也就是经验和教训（成功的轨迹我们称之为经验，失败的轨迹我们称之为教训）**。
-或者我们也可以成为归纳学习（inductive reasoning，归纳与演绎），贝叶斯推理可以视为用演绎法搭建模型结构，用归纳法（贝叶斯更新）从数据中学习参数/假设。
+也可以把它理解成一种归纳学习（inductive reasoning）：先用演绎法搭建模型结构，再用归纳法，也就是贝叶斯更新，从数据中学习参数或假设。
 
 ## 一、从三门问题开始：贝叶斯更新到底在更新什么
 
@@ -119,11 +119,11 @@ flowchart LR
     D --> E["Decision: 换门"]
 ```
 
-严格说，三门问题讲的是贝叶斯更新，不是朴素贝叶斯。它只有一个证据事件 `O_B`。朴素贝叶斯要处理的是多个证据特征，下面单独展开。
+严格说，三门问题讲的是贝叶斯更新。Agent 的运行轨迹更复杂：一次任务会同时产生 context、failure mode、token cost、tool turns、latency、metadata 等多个证据特征。Bayesian-Agent 需要的是一个能把这些特征转成 posterior belief 的 **Bayesian Evidence Model**。
 
-## 二、朴素贝叶斯：当证据不止一个时怎么办
+## 二、Bayesian Evidence Model：当证据不止一个时怎么办
 
-朴素贝叶斯的目标通常是分类。给定一组特征 `x`，判断它属于哪个标签 `y`：
+先看一个最小化的 categorical evidence model。给定一组特征 `x`，判断它属于哪个标签 `y`：
 
 ```text
 x = {x_1, x_2, ..., x_m}
@@ -143,7 +143,7 @@ P(y | x_1, x_2, ..., x_m)
 = P(x_1, x_2, ..., x_m | y) P(y) / P(x_1, x_2, ..., x_m)
 ```
 
-如果特征很多，直接估计联合概率 `P(x_1, x_2, ..., x_m | y)` 会非常困难。朴素贝叶斯的“朴素”就在这里：它假设在给定标签 `y` 后，各个特征近似条件独立：
+如果特征很多，直接估计联合概率 `P(x_1, x_2, ..., x_m | y)` 会非常困难。v0.x 采用一个轻量的 factorized categorical likelihood：在给定标签 `y` 后，各个特征近似条件独立：
 
 ```text
 P(x_1, x_2, ..., x_m | y)
@@ -172,7 +172,7 @@ P(y = c | x)
 
 这里的对应关系是：
 
-| 项 | 朴素贝叶斯里的含义 |
+| 项 | Evidence model 里的含义 |
 |---|---|
 | Prior `P(c)` | 某个类别本来出现的概率 |
 | Likelihood <code>Π_j P(x_j &#124; c)</code> | 如果类别是 `c`，这些特征一起出现的概率近似 |
@@ -254,9 +254,9 @@ P(spam | x)
 | Prior | `P(spam)` 和 `P(normal)`，历史上垃圾邮件/普通邮件的比例 |
 | Likelihood | <code>P(contains_discount &#124; spam)</code> 等特征在某类邮件下出现的概率 |
 | Posterior | <code>P(spam &#124; x)</code>，看到这些特征后邮件是垃圾邮件的概率 |
-| Naive assumption | 给定 `spam` 或 `normal` 后，折扣、链接、陌生发件人近似独立 |
+| Factorization assumption | 给定 `spam` 或 `normal` 后，折扣、链接、陌生发件人近似独立 |
 
-这就是朴素贝叶斯的直觉：它不需要理解“折扣”和“链接”的深层语义，只要不断从历史样本里统计“哪些特征经常和哪个标签一起出现”，就可以做出可解释的概率判断。
+这就是 categorical evidence model 的直觉：它不需要理解“折扣”和“链接”的深层语义，只要不断从历史样本里统计“哪些特征经常和哪个标签一起出现”，就可以做出可解释的概率判断。在 Bayesian-Agent 里，它被定位为 v0.x 的第一个可解释 evidence backend，而不是方法的上限。
 
 ## 三、人的后天学习：一个技能是如何从经验里长出来的
 
@@ -670,7 +670,7 @@ P_h_base(failure_mode = left_expected_output_blank | failure)
 = 0.750
 ```
 
-于是朴素贝叶斯 posterior 如下：
+于是 Bayesian Evidence Model 的 posterior 如下：
 
 ```text
 score_success
@@ -968,7 +968,7 @@ Repair cost: 122k extra tokens
 
 ```text
 成功轨迹
--> Naive Bayes posterior 上升
+-> Bayesian Evidence Model posterior 上升
 -> rewrite action 从 explore 变成 compress
 -> posterior-weighted Skill context 更稳定
 -> 下一轮任务继续验证
@@ -991,14 +991,14 @@ Repair cost: 122k extra tokens
 ```text
 失败轨迹
 -> failure_mode
--> Naive Bayes belief update
+-> Bayesian Evidence Model belief update
 -> posterior-weighted Skill context
 -> 只重跑失败任务
 -> 成功轨迹回写 registry
 -> 下一轮 Skill 更可靠
 ```
 
-## 六、从 Beta-Bernoulli 到 Naive Bayes
+## 六、从 Beta-Bernoulli 到 Bayesian Evidence Model
 
 最简单的贝叶斯 Skill update 是 Beta-Bernoulli。对一条 Skill `h_k`，只看成功和失败次数：
 
@@ -1016,7 +1016,7 @@ E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 
 这个模型很清晰，但它有一个问题：它只知道“这条 Skill 总体成功率是多少”，不知道“它在哪类 context 下成功，在哪类 failure mode 下失败”。
 
-于是我们升级到 Naive Bayes。
+于是我们升级到 feature-conditioned Bayesian Evidence Model。
 
 Bayesian-Agent 当前默认把每条 Skill 的 evidence 特征离散化：
 
@@ -1096,8 +1096,8 @@ P(X | theta, C_{t+1})
 
 ```text
 Use these Skills/SOPs as hypotheses, not as unquestioned instructions.
-- skill_a: algorithm=naive_bayes, posterior_success=0.95, context_success=0.92, rewrite=compress
-- skill_b: algorithm=naive_bayes, posterior_success=0.42, context_success=0.21, rewrite=patch
+- skill_a: algorithm=categorical_bayes, posterior_success=0.95, context_success=0.92, rewrite=compress
+- skill_b: algorithm=categorical_bayes, posterior_success=0.42, context_success=0.21, rewrite=patch
 ```
 
 ```mermaid
@@ -1106,7 +1106,7 @@ flowchart LR
     B --> C["Task Execution"]
     C --> D["Verifier"]
     D --> E["Trajectory Evidence"]
-    E --> F["Naive Bayes Skill Registry"]
+    E --> F["Bayesian Evidence Registry"]
     F --> G["Posterior-weighted Skill Context"]
     G --> B
 ```
@@ -1133,16 +1133,16 @@ flowchart LR
 experience -> evidence -> posterior belief -> better Skill -> better context -> better run
 ```
 
-在我们的 deepseek-v4-flash 实验里，新的 Naive Bayes backend 已经可以作为 acquired learning layer 工作：
+在我们的 deepseek-v4-flash 实验里，新的 Bayesian Evidence Model backend 已经可以作为 acquired learning layer 工作：
 
 | Benchmark | Agent | Accuracy | Input Tokens | Output Tokens | Total Tokens | Efficiency |
 |---|---|---:|---:|---:|---:|---:|
 | SOP-Bench | GA baseline | 80% | 1.34M | 57k | 1.39M | 11.47 |
-| SOP-Bench | Bayesian Naive Bayes full | 100% | 1.13M | 57k | 1.19M | 16.82 |
-| SOP-Bench | Bayesian Naive Bayes incremental | 100% | 245k extra | 12k extra | 256k extra | 15.60 |
+| SOP-Bench | Bayesian Evidence full | 100% | 1.13M | 57k | 1.19M | 16.82 |
+| SOP-Bench | Bayesian Evidence incremental | 100% | 245k extra | 12k extra | 256k extra | 15.60 |
 | Lifelong AgentBench | GA baseline | 90% | 649k | 42k | 690k | 26.07 |
-| Lifelong AgentBench | Bayesian Naive Bayes full | 100% | 660k | 48k | 708k | 28.26 |
-| Lifelong AgentBench | Bayesian Naive Bayes incremental | 100% | 112k extra | 9k extra | 122k extra | 16.40 |
+| Lifelong AgentBench | Bayesian Evidence full | 100% | 660k | 48k | 708k | 28.26 |
+| Lifelong AgentBench | Bayesian Evidence incremental | 100% | 112k extra | 9k extra | 122k extra | 16.40 |
 
 这组结果说明两件事。
 
@@ -1190,7 +1190,7 @@ Acquired learning lets the agent learn from its own verified experience.
 
 三门问题告诉我们：信息不是“看起来还剩几个选项”，而是“这个证据在不同假设下出现的概率是多少”。
 
-朴素贝叶斯告诉我们：当证据由多个特征组成时，可以用条件独立近似，把每个特征对成功或失败的贡献统计出来。
+Bayesian Evidence Model 告诉我们：当证据由多个特征组成时，可以用一个可解释的 likelihood model，把每个特征对成功或失败的贡献统计出来；v0.x 采用的是 factorized categorical likelihood，后续可以替换成更强的贝叶斯模型。
 
 人的后天学习告诉我们：技能不是一次性写死的规则，而是在经验、反馈和训练中不断校准的操作假设。
 
@@ -1200,9 +1200,9 @@ Bayesian-Agent 把这些思想落到 LLM Agent 工程里：
 Skill = hypothesis
 Trajectory = evidence
 Verifier = supervision
-Naive Bayes = posterior update
+Evidence Model = posterior update
 Context = non-parametric learned state
 Next run = acquired learning in action
 ```
 
-这就是为什么我们认为 Skill/SOP 的进化会成为 Agent 工程里的核心能力。大模型已经足够聪明，但真正可靠的 Agent 还需要学会一件更朴素也更困难的事：从自己的经验和教训中，持续后天学习。
+这就是为什么我们认为 Skill/SOP 的进化会成为 Agent 工程里的核心能力。大模型已经足够聪明，但真正可靠的 Agent 还需要学会一件更基础也更困难的事：从自己的经验和教训中，持续后天学习。

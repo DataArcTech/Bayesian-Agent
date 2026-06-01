@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional
 
-from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
+from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS, is_categorical_bayes, normalize_algorithm
 from bayesian_agent.core.algorithms.beta_bernoulli import BetaBernoulliState
-from bayesian_agent.core.algorithms.naive_bayes import NaiveBayesState
+from bayesian_agent.core.algorithms.categorical_bayes import CategoricalBayesState
 from bayesian_agent.core.evidence import TrajectoryEvidence, utc_now
 
 
@@ -32,7 +32,7 @@ class SkillBelief:
     algorithm: str = DEFAULT_ALGORITHM
     alpha: float = 1.0
     beta: float = 1.0
-    naive_bayes: NaiveBayesState = field(default_factory=NaiveBayesState)
+    categorical_bayes: CategoricalBayesState = field(default_factory=CategoricalBayesState)
     contexts: Dict[str, int] = field(default_factory=dict)
     failure_modes: Dict[str, int] = field(default_factory=dict)
     evidence: List[Dict[str, Any]] = field(default_factory=list)
@@ -43,10 +43,13 @@ class SkillBelief:
     mean_elapsed_seconds: float = 0.0
     last_updated: str = field(default_factory=utc_now)
 
+    def __post_init__(self) -> None:
+        self.algorithm = normalize_algorithm(self.algorithm)
+
     @property
     def success_probability(self) -> float:
-        if self.algorithm == "naive_bayes":
-            return self.naive_bayes.predict_success()
+        if is_categorical_bayes(self.algorithm):
+            return self.categorical_bayes.predict_success()
         return self.beta_state.success_probability
 
     @property
@@ -54,32 +57,33 @@ class SkillBelief:
         return BetaBernoulliState(alpha=self.alpha, beta=self.beta)
 
     def predict_success_probability(self, context: str = "", features: Optional[Mapping[str, Any]] = None) -> float:
-        if self.algorithm != "naive_bayes":
+        if not is_categorical_bayes(self.algorithm):
             return self.success_probability
         merged = dict(features or {})
         if context:
             merged.setdefault("context", context)
-        return self.naive_bayes.predict_success(merged)
+        return self.categorical_bayes.predict_success(merged)
 
     def predict_failure_probability(self, context: str = "", features: Optional[Mapping[str, Any]] = None) -> float:
-        if self.algorithm != "naive_bayes":
+        if not is_categorical_bayes(self.algorithm):
             return 1.0 - self.success_probability
         merged = dict(features or {})
         if context:
             merged.setdefault("context", context)
-        return self.naive_bayes.predict_proba(merged).get("failure", 0.0)
+        return self.categorical_bayes.predict_proba(merged).get("failure", 0.0)
 
     def update(self, event: TrajectoryEvidence) -> "SkillBelief":
         if self.algorithm not in SUPPORTED_ALGORITHMS:
             raise ValueError(f"Unsupported belief algorithm: {self.algorithm}")
+        self.algorithm = normalize_algorithm(self.algorithm)
 
         outcome = event.outcome.strip().lower()
         if outcome == "success":
             self.alpha += 1.0
         elif outcome in {"failure", "failed", "error"}:
             self.beta += 1.0
-        if self.algorithm == "naive_bayes":
-            self.naive_bayes.update(event)
+        if is_categorical_bayes(self.algorithm):
+            self.categorical_bayes.update(event)
 
         context = event.context or "unknown"
         self.contexts[context] = self.contexts.get(context, 0) + 1
@@ -100,12 +104,12 @@ class SkillBelief:
     def to_dict(self) -> Dict[str, Any]:
         return {
             "skill_id": self.skill_id,
-            "algorithm": self.algorithm,
+            "algorithm": normalize_algorithm(self.algorithm),
             "alpha": self.alpha,
             "beta": self.beta,
             "posterior_success": self.success_probability,
             "beta_bernoulli": self.beta_state.to_dict(),
-            "naive_bayes": self.naive_bayes.to_dict() if self.algorithm == "naive_bayes" else {},
+            "categorical_bayes": self.categorical_bayes.to_dict() if is_categorical_bayes(self.algorithm) else {},
             "contexts": self.contexts,
             "failure_modes": self.failure_modes,
             "evidence": self.evidence[-MAX_EVIDENCE:],
@@ -120,16 +124,16 @@ class SkillBelief:
     @classmethod
     def from_dict(cls, skill_id: str, raw: Mapping[str, Any], algorithm: Optional[str] = None) -> "SkillBelief":
         raw = dict(raw or {})
-        resolved_algorithm = str(raw.get("algorithm") or (algorithm if not raw else "beta_bernoulli") or DEFAULT_ALGORITHM)
+        resolved_algorithm = normalize_algorithm(str(raw.get("algorithm") or (algorithm if not raw else "beta_bernoulli") or DEFAULT_ALGORITHM))
         if resolved_algorithm not in SUPPORTED_ALGORITHMS:
             resolved_algorithm = DEFAULT_ALGORITHM
-        naive_raw = raw.get("naive_bayes") or {}
+        categorical_raw = raw.get("categorical_bayes") or raw.get("naive_bayes") or {}
         return cls(
             skill_id=str(raw.get("skill_id") or skill_id),
             algorithm=resolved_algorithm,
             alpha=float(raw.get("alpha", 1.0)),
             beta=float(raw.get("beta", 1.0)),
-            naive_bayes=NaiveBayesState.from_dict(naive_raw),
+            categorical_bayes=CategoricalBayesState.from_dict(categorical_raw),
             contexts=dict(raw.get("contexts") or {}),
             failure_modes=dict(raw.get("failure_modes") or {}),
             evidence=list(raw.get("evidence") or []),

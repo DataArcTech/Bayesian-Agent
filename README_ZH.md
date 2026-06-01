@@ -23,7 +23,7 @@ Bayesian-Agent 是一个面向跨 Agent framework / execution harness 的 Bayesi
 
 ## 📅 News
 
-- **2026-05-31:** 将 feature-conditioned Naive Bayes 作为默认 Skill belief backend，同时保留 Beta-Bernoulli 作为可选兼容 backend。
+- **2026-05-31:** 将 Bayesian Evidence Model 作为默认 Skill belief backend：当前实现使用 categorical likelihood，同时保留 Beta-Bernoulli 作为消融和兼容 backend。
 - **2026-05-09:** 发布 Bayesian-Agent v0.4 独立 package，包含跨 harness Bayesian Skill Evolution 核心 primitives、schemas、CLI utilities 和实验 artifacts。
 - **2026-05-09:** 增加可选 GenericAgent adapter boundary，不复制、不 vendoring GenericAgent。
 - **2026-05-09:** 发布中英文项目文档和 Bayesian-Agent 方法框架图。
@@ -87,7 +87,7 @@ P(success | theta, C, skill)
 
 ### v0.x 里的 “Bayesian” 准确指什么
 
-当前 Bayesian-Agent v0.x 默认使用 **feature-conditioned Naive Bayes update**：为每条 Skill/SOP 估计它在某类证据特征下成功或失败的概率。特征包括 task context、failure mode、token bucket、turn bucket、latency bucket 以及部分 metadata。
+当前 Bayesian-Agent v0.x 默认使用 **Bayesian Evidence Model**。它的默认实现是 feature-conditioned categorical likelihood model：为每条 Skill/SOP 估计它在某类证据特征下成功或失败的概率。特征包括 task context、failure mode、token bucket、turn bucket、latency bucket 以及部分 metadata。
 
 对一条 Skill hypothesis `h_k`，证据 `D_k = {(x_i, y_i)}` 包含离散特征 `x_i` 和验证标签 `y_i in {success, failure}`：
 
@@ -97,7 +97,7 @@ P(x_j = v | y, h_k) = (N_{j,v,y} + alpha) / (N_{j,y} + alpha * |V_j|)
 P(y = success | h_k, x) ∝ P(y = success | h_k) * Π_j P(x_j | y = success, h_k)
 ```
 
-当前实现使用 `alpha = 1` 的 Laplace smoothing。它的 Bayesian 含义是：把 verified experience 作为证据，持续更新某条 Skill 在特定 context 和 runtime signature 下成功的 posterior belief。它还没有做完整的 Bayesian model selection，也没有显式计算多个 Skill hypothesis 之间的 posterior probability。
+当前实现使用 `alpha = 1` 的 Laplace smoothing。它的 Bayesian 含义是：把 verified experience 作为证据，持续更新某条 Skill 在特定 context 和 runtime signature 下成功的 posterior belief。默认 backend 对外暴露为 `algorithm="categorical_bayes"`；`algorithm="naive_bayes"` 仍作为同一套 factorized categorical likelihood 的历史兼容 alias 被接受。
 
 为了兼容和消融实验，原来的 **Beta-Bernoulli** posterior 仍然保留为可选 backend，可以使用 `algorithm="beta_bernoulli"` 或 `bayesian-agent evolve --algorithm beta_bernoulli`：
 
@@ -106,12 +106,12 @@ p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
 E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 ```
 
-两个 backend 都会进入同一套 Skill 排序、posterior 加权 context 渲染，以及 `patch`、`split`、`compress`、`retire`、`explore` 等 rewrite actions。
+两个 backend 都会进入同一套 Skill 排序、posterior 加权 context 渲染，以及 `patch`、`split`、`compress`、`retire`、`explore` 等 rewrite actions。完整的多 Skill hypothesis Bayesian model selection 在 roadmap 中，不作为 v0.x 已完成能力来宣传。
 
 ## 📋 核心特性
 
 - **证据加权的 Skill 进化**：从 verified success/failure trajectory 更新 Skill belief。
-- **Bayesian Skill Registry**：维护 Naive Bayes context-conditioned belief、可选 Beta-Bernoulli posterior、失败模式、token 成本、延迟、轮次和 context 分布。
+- **Bayesian Skill Registry**：维护 Bayesian Evidence Model belief、可选 Beta-Bernoulli posterior、失败模式、token 成本、延迟、轮次和 context 分布。
 - **面向失败模式的修复**：识别反复出现的错误，生成聚焦的 repair plan。
 - **Token-aware context 构建**：只注入真正有 posterior 证据价值的 Skill。
 - **从零全量自进化**：完整运行任务，在线收集 evidence，并在无历史 traces 的情况下进化 Skills。
@@ -151,7 +151,7 @@ E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 
 对每条 Skill 或 benchmark SOP，Bayesian-Agent 会维护：
 
-- 基于 evidence features 的 Naive Bayes 成功/失败 belief state
+- 基于 evidence features 的 Bayesian Evidence Model 成功/失败 belief state
 - 可选的全局成功率 Beta-Bernoulli posterior
 - 经过验证的成功和失败证据
 - 失败模式计数
@@ -386,7 +386,7 @@ tests/                  # Standard-library unittest suite
 - [ ] 增加更丰富的 rewrite policies 和 adapter examples。
 - [ ] GenericAgent 边界稳定后再扩展更多 agent harness adapters。
 - [ ] 上传我们自己的 Agent harness；当前实验阶段使用 GenericAgent 作为 backend harness。
-- [ ] 从 per-Skill Naive Bayes / Beta-Bernoulli update 继续升级到更完整的 Bayesian reasoning，包括 Skill hypothesis inference、用于 context/failure structure 的 Bayesian Networks、不确定性感知的 Skill selection、Bayesian decision policies 和 online adaptation。
+- [ ] 从当前 per-Skill evidence backend 继续升级到更完整的 Bayesian reasoning，包括 Skill hypothesis inference、用于 context/failure structure 的 Bayesian Networks、不确定性感知的 Skill selection、Bayesian decision policies 和 online adaptation。
 
 ## 🚦 当前状态
 

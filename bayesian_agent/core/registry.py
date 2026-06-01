@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 
-from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
+from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS, normalize_algorithm
 from bayesian_agent.core.belief import SkillBelief
 from bayesian_agent.core.evidence import TrajectoryEvidence, utc_now
 
@@ -16,10 +16,10 @@ class BayesianSkillRegistry:
 
     def __init__(self, path: Optional[Union[str, Path]] = None, algorithm: str = DEFAULT_ALGORITHM):
         self.path = Path(path) if path is not None else None
-        self.algorithm = algorithm if algorithm in SUPPORTED_ALGORITHMS else DEFAULT_ALGORITHM
+        self.algorithm = normalize_algorithm(algorithm if algorithm in SUPPORTED_ALGORITHMS else DEFAULT_ALGORITHM)
         self.data = self._load()
         self.data.setdefault("algorithm", self.algorithm)
-        self.algorithm = self.data.get("algorithm") if self.data.get("algorithm") in SUPPORTED_ALGORITHMS else self.algorithm
+        self.algorithm = normalize_algorithm(self.data.get("algorithm") if self.data.get("algorithm") in SUPPORTED_ALGORITHMS else self.algorithm)
         self.data["algorithm"] = self.algorithm
 
     @classmethod

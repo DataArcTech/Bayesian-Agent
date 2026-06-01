@@ -93,6 +93,6 @@ Rendered context is intentionally short:
 ```text
 ### Bayesian Skill Context
 Use these posterior-weighted Skills/SOPs as hypotheses, not as unquestioned instructions.
-- benchmark/sop_bench: algorithm=naive_bayes, posterior_success=0.333, context_success=0.333, alpha=1.0, beta=2.0, observations=1, mean_tokens=74365.0, rewrite=explore, failures=xml_wrapped_answer=1
+- benchmark/sop_bench: algorithm=categorical_bayes, posterior_success=0.333, context_success=0.333, alpha=1.0, beta=2.0, observations=1, mean_tokens=74365.0, rewrite=explore, failures=xml_wrapped_answer=1
 Current task files and runtime feedback remain authoritative.
 ```

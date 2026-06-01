@@ -14,7 +14,7 @@ The framework does not train the base model and does not require replacing the a
 
 ## Bayesian Formulation in v0.x
 
-The current default implementation uses a feature-conditioned Naive Bayes update for each Skill/SOP. It is Bayesian in the posterior-belief sense: verified trajectories update the probability that a Skill will succeed under an observed context and runtime signature. It is not yet a full Bayesian model-selection system over competing Skill hypotheses.
+The current default implementation uses a **Bayesian Evidence Model** for each Skill/SOP. The v0.x backend is a feature-conditioned categorical likelihood model: verified trajectories update the probability that a Skill will succeed under an observed context and runtime signature. It is not yet a full Bayesian model-selection system over competing Skill hypotheses.
 
 For Skill hypothesis `h_k`, let `D_k = {(x_i, y_i)}` be verified evidence. `y_i` is either `success` or `failure`, and `x_i` contains discrete evidence features such as context, failure mode, token bucket, turn bucket, latency bucket, and selected metadata:
 
@@ -24,7 +24,7 @@ P(x_j = v | y, h_k) = (N_{j,v,y} + alpha) / (N_{j,y} + alpha * |V_j|)
 P(y | h_k, x) ∝ P(y | h_k) * Π_j P(x_j | y, h_k)
 ```
 
-Bayesian-Agent v0.x uses `alpha = 1` Laplace smoothing. The resulting `P(success | h_k, x)` is used for Skill ranking, context rendering, and rewrite policy decisions.
+Bayesian-Agent v0.x uses `alpha = 1` Laplace smoothing. The resulting `P(success | h_k, x)` is used for Skill ranking, context rendering, and rewrite policy decisions. The public algorithm name is `categorical_bayes`; `naive_bayes` remains accepted as a legacy alias.
 
 The original Beta-Bernoulli backend is still available for compatibility and ablation:
 
@@ -61,11 +61,11 @@ Evidence should be action-verified. For example, a benchmark grader, unit test, 
 Each Skill stores a selected belief backend:
 
 ```text
-algorithm = naive_bayes        # default
+algorithm = categorical_bayes  # default Bayesian Evidence Model
 algorithm = beta_bernoulli     # optional compatibility backend
 ```
 
-For Naive Bayes, each verified event increments the class count and each extracted feature value count for the observed label. For Beta-Bernoulli, each verified success increments `alpha` and each verified failure increments `beta`.
+For `categorical_bayes`, each verified event increments the class count and each extracted feature value count for the observed label. For Beta-Bernoulli, each verified success increments `alpha` and each verified failure increments `beta`.
 
 The registry also tracks cost, context distribution, and failure modes. These statistics guide what gets injected into future context.
 

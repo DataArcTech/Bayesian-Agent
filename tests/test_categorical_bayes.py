@@ -5,13 +5,14 @@ from pathlib import Path
 
 from bayesian_agent import BayesianSkillRegistry, SkillBelief, TrajectoryEvidence
 from bayesian_agent.cli import main
-from bayesian_agent.core.algorithms.naive_bayes import NaiveBayesState, features_from_event
+from bayesian_agent.core.algorithms.categorical_bayes import CategoricalBayesState, NaiveBayesState, features_from_event
+from bayesian_agent.core.algorithms.naive_bayes import NaiveBayesState as LegacyNaiveBayesState
 from bayesian_agent.core.context import SkillContextBuilder
 
 
-class NaiveBayesAlgorithmTests(unittest.TestCase):
-    def test_naive_bayes_predicts_success_conditioned_on_context(self):
-        state = NaiveBayesState()
+class CategoricalBayesAlgorithmTests(unittest.TestCase):
+    def test_categorical_bayes_predicts_success_conditioned_on_context(self):
+        state = CategoricalBayesState()
         for idx in range(3):
             state.update(TrajectoryEvidence(task_id=f"s{idx}", skill_id="skill/a", context="sop", outcome="success"))
         for idx in range(3):
@@ -33,7 +34,7 @@ class NaiveBayesAlgorithmTests(unittest.TestCase):
         self.assertLess(lifelong_probability, 0.5)
 
     def test_recurring_failure_mode_raises_contextual_failure_posterior(self):
-        state = NaiveBayesState()
+        state = CategoricalBayesState()
         for idx in range(2):
             state.update(
                 TrajectoryEvidence(
@@ -90,14 +91,25 @@ class NaiveBayesAlgorithmTests(unittest.TestCase):
         self.assertEqual(features["metadata.model"], "deepseek-v4-flash")
         self.assertNotIn("metadata.large", features)
 
-    def test_registry_defaults_to_naive_bayes_for_new_beliefs(self):
+    def test_registry_defaults_to_categorical_bayes_for_new_beliefs(self):
         registry = BayesianSkillRegistry.in_memory()
         registry.record(TrajectoryEvidence(task_id="a", skill_id="skill/a", context="ctx", outcome="success"))
 
         belief = registry.get("skill/a")
 
-        self.assertEqual(belief.algorithm, "naive_bayes")
-        self.assertIn("naive_bayes", belief.to_dict())
+        self.assertEqual(belief.algorithm, "categorical_bayes")
+        self.assertIn("categorical_bayes", belief.to_dict())
+        self.assertIsInstance(NaiveBayesState(), CategoricalBayesState)
+
+    def test_naive_bayes_algorithm_alias_is_accepted(self):
+        registry = BayesianSkillRegistry.in_memory(algorithm="naive_bayes")
+        registry.record(TrajectoryEvidence(task_id="a", skill_id="skill/a", context="ctx", outcome="success"))
+
+        self.assertEqual(registry.algorithm, "categorical_bayes")
+        self.assertEqual(registry.get("skill/a").algorithm, "categorical_bayes")
+
+    def test_legacy_naive_bayes_import_path_is_supported(self):
+        self.assertIs(LegacyNaiveBayesState, CategoricalBayesState)
 
     def test_beta_bernoulli_backend_remains_available(self):
         belief = SkillBelief(skill_id="skill/beta", algorithm="beta_bernoulli")
@@ -133,8 +145,8 @@ class NaiveBayesAlgorithmTests(unittest.TestCase):
             self.assertEqual(belief.algorithm, "beta_bernoulli")
             self.assertAlmostEqual(belief.success_probability, 0.75)
 
-    def test_context_builder_uses_contextual_naive_bayes_probability(self):
-        registry = BayesianSkillRegistry.in_memory(algorithm="naive_bayes")
+    def test_context_builder_uses_contextual_categorical_bayes_probability(self):
+        registry = BayesianSkillRegistry.in_memory(algorithm="categorical_bayes")
         registry.record(TrajectoryEvidence(task_id="a1", skill_id="skill/a", context="sop", outcome="success"))
         registry.record(TrajectoryEvidence(task_id="a2", skill_id="skill/a", context="sop", outcome="success"))
         registry.record(TrajectoryEvidence(task_id="b1", skill_id="skill/b", context="sop", outcome="failure", failure_mode="bad"))
@@ -144,7 +156,7 @@ class NaiveBayesAlgorithmTests(unittest.TestCase):
         context = SkillContextBuilder(registry).render(task_context="sop", limit=2)
 
         self.assertLess(context.find("skill/a"), context.find("skill/b"))
-        self.assertIn("algorithm=naive_bayes", context)
+        self.assertIn("algorithm=categorical_bayes", context)
         self.assertIn("context_success", context)
 
     def test_cli_evolve_accepts_algorithm_choice(self):

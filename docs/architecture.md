@@ -66,7 +66,7 @@ This separation is what prevents Bayesian-Agent from being swallowed by the agen
 `BayesianSkillRegistry` persists beliefs as JSON:
 
 ```python
-registry = BayesianSkillRegistry("temp/beliefs.json", algorithm="naive_bayes")
+registry = BayesianSkillRegistry("temp/beliefs.json", algorithm="categorical_bayes")
 registry.record(event)
 registry.save()
 ```

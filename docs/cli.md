@@ -18,7 +18,7 @@ bayesian-agent evolve \
   --results artifacts/ga_deepseek_baseline/sop_results.json \
   --results artifacts/ga_deepseek_baseline/lifelong_results.json \
   --registry temp/beliefs.json \
-  --algorithm naive_bayes \
+  --algorithm categorical_bayes \
   --context-out temp/skill_context.md
 ```
 
@@ -28,7 +28,7 @@ Arguments:
 |---|---:|---|
 | `--results` | yes | Path to a result JSON file. Can be repeated. |
 | `--registry` | yes | Output registry JSON path. |
-| `--algorithm` | no | Belief backend. Defaults to `naive_bayes`; use `beta_bernoulli` for the legacy global success-rate posterior. |
+| `--algorithm` | no | Belief backend. Defaults to `categorical_bayes`; `naive_bayes` is accepted as a legacy alias, and `beta_bernoulli` enables the global success-rate baseline. |
 | `--context-out` | no | Optional Markdown path for rendered Skill context. |
 
 ## `repair-plan`

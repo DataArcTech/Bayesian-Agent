@@ -6,7 +6,7 @@
   "required": ["skill_id", "algorithm", "alpha", "beta", "posterior_success", "observations"],
   "properties": {
     "skill_id": {"type": "string"},
-    "algorithm": {"type": "string", "enum": ["naive_bayes", "beta_bernoulli"]},
+    "algorithm": {"type": "string", "enum": ["categorical_bayes", "naive_bayes", "beta_bernoulli"]},
     "alpha": {"type": "number", "minimum": 0},
     "beta": {"type": "number", "minimum": 0},
     "posterior_success": {"type": "number", "minimum": 0, "maximum": 1},
@@ -19,7 +19,7 @@
       },
       "additionalProperties": true
     },
-    "naive_bayes": {
+    "categorical_bayes": {
       "type": "object",
       "properties": {
         "alpha": {"type": "number", "minimum": 0},
@@ -43,6 +43,11 @@
         },
         "observations": {"type": "integer", "minimum": 0}
       },
+      "additionalProperties": true
+    },
+    "naive_bayes": {
+      "type": "object",
+      "description": "Legacy alias accepted for registries written before categorical_bayes became the public backend name.",
       "additionalProperties": true
     },
     "contexts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},

@@ -25,7 +25,7 @@ event = TrajectoryEvidence(
 ```python
 from bayesian_agent import BayesianSkillRegistry
 
-registry = BayesianSkillRegistry("temp/beliefs.json", algorithm="naive_bayes")
+registry = BayesianSkillRegistry("temp/beliefs.json", algorithm="categorical_bayes")
 belief = registry.record(event)
 
 print(belief.success_probability)
@@ -96,7 +96,7 @@ events = [
     ),
 ]
 
-registry = BayesianSkillRegistry.in_memory(algorithm="naive_bayes")
+registry = BayesianSkillRegistry.in_memory(algorithm="categorical_bayes")
 registry.record_many(events)
 
 print(SkillContextBuilder(registry).render(task_context="qa"))
@@ -108,7 +108,7 @@ The package root exports:
 
 ```python
 from bayesian_agent import BayesianSkillRegistry, SkillContextBuilder, TrajectoryEvidence
-from bayesian_agent import NaiveBayesState, BetaBernoulliState
+from bayesian_agent import CategoricalBayesState, BetaBernoulliState
 ```
 
 Lower-level types are available from `bayesian_agent.core`.

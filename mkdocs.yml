@@ -57,7 +57,7 @@ nav:
   - Experiments: experiments/index.md
   - Articles:
       - Zhihu Repo Introduction: articles/zhihu-bayesian-agent.md
-      - Naive Bayes and Acquired Learning: articles/naive-bayes-acquired-learning.md
+      - Bayesian Evidence and Acquired Learning: articles/bayesian-evidence-acquired-learning.md
   - Method Note: method.md
   - Experiment Note: experiments.md
   - Roadmap: roadmap.md

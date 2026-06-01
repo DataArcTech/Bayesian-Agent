@@ -32,7 +32,7 @@ The same Skill may work in one context and fail in another. That is why Bayesian
 
 ## Current Bayesian Assumption
 
-Bayesian-Agent v0.x models each Skill/SOP independently. The default backend is a feature-conditioned Naive Bayes posterior over verified success/failure labels:
+Bayesian-Agent v0.x models each Skill/SOP independently. The default backend is a feature-conditioned **Bayesian Evidence Model** over verified success/failure labels. Its current implementation is a categorical likelihood model:
 
 ```text
 D_k = {(x_i, y_i)}
@@ -41,7 +41,7 @@ P(x_j = v | y, h_k) = (N_{j,v,y} + alpha) / (N_{j,y} + alpha * |V_j|)
 P(success | h_k, x) ∝ P(success | h_k) * Π_j P(x_j | success, h_k)
 ```
 
-`x_i` includes context, failure mode, token bucket, turn bucket, latency bucket, and simple metadata features. The implementation uses `alpha = 1` Laplace smoothing.
+`x_i` includes context, failure mode, token bucket, turn bucket, latency bucket, and simple metadata features. The implementation uses `alpha = 1` Laplace smoothing. The public algorithm name is `categorical_bayes`; `naive_bayes` is accepted as a legacy alias for the same factorized categorical likelihood.
 
 The earlier Beta-Bernoulli backend remains available as an optional global success-rate model:
 
@@ -88,8 +88,8 @@ Evidence should come from a benchmark grader, test suite, deterministic checker,
 Each Skill stores the selected belief algorithm and its posterior state:
 
 ```text
-algorithm = naive_bayes        # default, context-conditioned
-algorithm = beta_bernoulli     # optional, global success rate
+algorithm = categorical_bayes  # default Bayesian Evidence Model
+algorithm = beta_bernoulli     # optional global success-rate baseline
 ```
 
 The registry also tracks mean token cost, failure modes, and context counts.
