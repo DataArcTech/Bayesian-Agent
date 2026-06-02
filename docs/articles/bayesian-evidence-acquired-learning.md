@@ -515,12 +515,12 @@ P_h(success) = 1 / 2 = 0.500
 rewrite = explore
 ```
 
-每完成一个任务，benchmark verifier 会给出 `success` 或 `failure`。Bayesian-Agent 立刻把这条 trajectory 写入 Skill registry，然后下一道题拿到更新后的 posterior-weighted Skill context。
+每完成一个任务，benchmark verifier 会给出 `success` 或 `failure`。Bayesian-Agent 立刻把这条 trajectory 写入 Skill registry。下一道题使用的是由 posterior 驱动选择/改写后的模型可执行 Skill/SOP 文本；原始 posterior 数字保存在审计 artifact 中。
 
 这和“最后统一总结一次经验”不同。它是在线更新：
 
 ```text
-task_i -> verifier -> evidence_i -> registry_i+1 -> context_i+1 -> task_i+1
+task_i -> verifier -> evidence_i -> registry_i+1 -> model_facing_skill_text_i+1 -> task_i+1
 ```
 
 #### SOP-Bench full mode
@@ -753,10 +753,10 @@ reason = failures cluster around left_expected_output_blank
   failure_mode=left_expected_output_blank) 上升到 0.750
 
 rewrite:
-  注入 failure-mode-specific patch context，显式约束 raw category + non-empty verification
+  生成 failure-mode-specific patch context，显式约束 raw category + non-empty verification
 
 后续相似 case:
-  带 patch context 的 Skill 连续成功
+  带 patch/guardrail 的模型可执行 Skill 文本连续成功
 
 新的后验:
   P_h_base(success) 从 0.500 -> 0.571 -> 0.625 -> 0.667
@@ -970,7 +970,7 @@ Repair cost: 122k extra tokens
 成功轨迹
 -> Bayesian Evidence Model posterior 上升
 -> rewrite action 从 explore 变成 compress
--> posterior-weighted Skill context 更稳定
+-> 模型可执行 Skill/SOP 文本更稳定
 -> 下一轮任务继续验证
 ```
 
@@ -992,7 +992,7 @@ Repair cost: 122k extra tokens
 失败轨迹
 -> failure_mode
 -> Bayesian Evidence Model belief update
--> posterior-weighted Skill context
+-> failure-mode-specific patch/guardrail
 -> 只重跑失败任务
 -> 成功轨迹回写 registry
 -> 下一轮 Skill 更可靠
@@ -1092,12 +1092,17 @@ C_{t+1} = RenderContext(S_{t+1}, task_context)
 P(X | theta, C_{t+1})
 ```
 
-也就是说，模型参数没变，但推理条件变了。Agent 不再只是“带着一长串记忆继续猜”，而是拿到 posterior-weighted Skill context：
+也就是说，模型参数没变，但推理条件变了。Agent 不再只是“带着一长串记忆继续猜”，而是拿到由 posterior 驱动生成的模型可执行 Skill/SOP 文本：
 
 ```text
-Use these Skills/SOPs as hypotheses, not as unquestioned instructions.
-- skill_a: algorithm=categorical_bayes, posterior_success=0.95, context_success=0.92, rewrite=compress
-- skill_b: algorithm=categorical_bayes, posterior_success=0.42, context_success=0.21, rewrite=patch
+### Bayesian Failure-Mode Patches: sop_bench
+- failure_mode=left_expected_output_blank observed=2
+  - After writing, re-read test_set_with_outputs.csv and confirm the target row's expected_output is non-empty.
+  - If the target cell is empty, write the computed raw category string before finishing.
+
+### Benchmark SOP Guardrails: sop_bench
+- Compute only the target row and write only its expected_output cell.
+- Write the raw category string only; never write XML tags, Markdown, quotes, or explanations.
 ```
 
 ```mermaid
@@ -1107,7 +1112,7 @@ flowchart LR
     C --> D["Verifier"]
     D --> E["Trajectory Evidence"]
     E --> F["Bayesian Evidence Registry"]
-    F --> G["Posterior-weighted Skill Context"]
+    F --> G["Model-facing Skill Patches / Guardrails"]
     G --> B
 ```
 

@@ -8,7 +8,8 @@ if [ -f .env ]; then
 fi
 
 MODEL="${MODEL:-deepseek-v4-flash}"
-MODE="${MODE:-all}"
+# MODE="${MODE:-all}"
+MODE="${MODE:-bayesian-full}"
 BENCH="${BENCH:-core}"
 GENERICAGENT_ROOT="${GENERICAGENT_ROOT:-../GenericAgent}"
 PYTHON_BIN="${PYTHON_BIN:-$GENERICAGENT_ROOT/.venv/bin/python}"

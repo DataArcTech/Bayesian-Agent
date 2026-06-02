@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 from bayesian_agent.core.context import SkillContextBuilder
 from bayesian_agent.core.evidence import TrajectoryEvidence
+from bayesian_agent.core.policy import RewritePolicy
 from bayesian_agent.core.registry import BayesianSkillRegistry
 
 
@@ -57,19 +60,22 @@ def seed_registry_from_results(registry: BayesianSkillRegistry, benchmark_runs: 
             record_benchmark_run(registry, benchmark, run)
 
 
-def build_benchmark_skill_context(benchmark: str, registry: BayesianSkillRegistry) -> str:
-    """Render posterior Skill context plus benchmark-specific guardrails."""
+def build_benchmark_posterior_context(benchmark: str, registry: BayesianSkillRegistry) -> str:
+    """Render posterior belief state for artifact inspection, not model input."""
 
-    posterior = SkillContextBuilder(registry).render(task_context=benchmark, limit=5)
+    return SkillContextBuilder(registry).render(task_context=benchmark, limit=5, strict_context=True)
+
+
+def build_benchmark_skill_context(benchmark: str, registry: BayesianSkillRegistry) -> str:
+    """Render model-facing failure patches plus benchmark-specific guardrails."""
+
     rules = _stable_rules(benchmark)
     patches = _failure_mode_patch_rules(benchmark, registry)
-    if not posterior and not rules and not patches:
+    if not rules and not patches:
         return ""
     lines = []
-    if posterior:
-        lines.append(posterior)
     if patches:
-        lines.extend(["", f"### Bayesian Failure-Mode Patches: {benchmark}"])
+        lines.append(f"### Bayesian Failure-Mode Patches: {benchmark}")
         for failure_mode, count, patch_rules in patches:
             lines.append(f"- failure_mode={failure_mode} observed={count}")
             lines.extend(f"  - {rule}" for rule in patch_rules)
@@ -77,6 +83,53 @@ def build_benchmark_skill_context(benchmark: str, registry: BayesianSkillRegistr
         lines.extend(["", f"### Benchmark SOP Guardrails: {benchmark}"])
         lines.extend(f"- {rule}" for rule in rules)
     return "\n".join(line for line in lines if line is not None).strip()
+
+
+def save_skill_evolution_snapshot(
+    *,
+    out_root: Path,
+    benchmark: str,
+    task_id: str,
+    stage: str,
+    registry: BayesianSkillRegistry,
+    context: str,
+    result: Mapping[str, Any] = None,
+) -> Mapping[str, Any]:
+    """Persist per-task Skill evolution context and belief snapshots."""
+
+    if stage not in {"before", "after"}:
+        raise ValueError(f"Unsupported Skill evolution snapshot stage: {stage}")
+
+    task_dir = Path(out_root) / "skill_evolution" / benchmark / str(task_id)
+    task_dir.mkdir(parents=True, exist_ok=True)
+
+    context_path = task_dir / f"skill_context_{stage}.md"
+    posterior_context_path = task_dir / f"posterior_context_{stage}.md"
+    belief_path = task_dir / f"belief_{stage}.json"
+    snapshot_path = task_dir / f"snapshot_{stage}.json"
+    context_path.write_text(context or "", encoding="utf-8")
+    posterior_context_path.write_text(build_benchmark_posterior_context(benchmark, registry), encoding="utf-8")
+
+    state = _benchmark_skill_state(benchmark, registry)
+    _write_json(belief_path, state)
+
+    payload = {
+        "version": 1,
+        "benchmark": benchmark,
+        "task_id": str(task_id),
+        "stage": stage,
+        "skill_id": state["skill_id"],
+        "registry_path": str(registry.path) if registry.path is not None else "",
+        "context_path": str(context_path),
+        "posterior_context_path": str(posterior_context_path),
+        "belief_path": str(belief_path),
+        "result": _compact_result(result or {}),
+    }
+    if result is not None:
+        payload["evidence"] = evidence_from_run(benchmark, result).to_dict()
+    _write_json(snapshot_path, payload)
+    _append_skill_evolution_index(Path(out_root), payload, snapshot_path)
+    return payload
 
 
 def _stable_rules(benchmark: str):
@@ -146,3 +199,54 @@ def _patch_rule_catalog(benchmark: str):
             ],
         }
     return {}
+
+
+def _benchmark_skill_state(benchmark: str, registry: BayesianSkillRegistry):
+    skill_id = f"benchmark/{benchmark}"
+    known = skill_id in registry.data.get("skills", {})
+    belief = registry.get(skill_id)
+    decision = RewritePolicy().decide(belief)
+    return {
+        "skill_id": skill_id,
+        "known": known,
+        "belief": belief.to_dict(),
+        "rewrite_decision": decision.to_dict(),
+    }
+
+
+def _compact_result(result: Mapping[str, Any]):
+    compact = {}
+    for key, value in dict(result or {}).items():
+        if key in {"transcript", "usage_events"}:
+            continue
+        compact[key] = value
+    return compact
+
+
+def _append_skill_evolution_index(out_root: Path, payload: Mapping[str, Any], snapshot_path: Path) -> None:
+    index_path = Path(out_root) / "skill_evolution" / "index.json"
+    if index_path.exists():
+        try:
+            index = json.loads(index_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            index = {"version": 1, "snapshots": []}
+    else:
+        index = {"version": 1, "snapshots": []}
+
+    entry = {
+        "benchmark": payload["benchmark"],
+        "task_id": payload["task_id"],
+        "stage": payload["stage"],
+        "skill_id": payload["skill_id"],
+        "snapshot_path": str(snapshot_path),
+        "context_path": payload["context_path"],
+        "posterior_context_path": payload["posterior_context_path"],
+        "belief_path": payload["belief_path"],
+    }
+    index.setdefault("snapshots", []).append(entry)
+    _write_json(index_path, index)
+
+
+def _write_json(path: Path, data: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2, default=str), encoding="utf-8")

@@ -1,6 +1,6 @@
 # Quick Start
 
-This guide shows the shortest path from installation to a posterior-weighted Skill context.
+This guide shows the shortest path from installation to a Bayesian Skill registry and its audit/context outputs.
 
 Bayesian-Agent supports three paths:
 
@@ -34,7 +34,7 @@ This command:
 - reads benchmark or agent run traces
 - converts each run into `TrajectoryEvidence`
 - updates the corresponding Skill posterior
-- optionally renders reusable Skill context for a future run
+- optionally renders a posterior audit context for inspection or custom adapter use
 
 ## Plan Incremental Repair
 
@@ -88,11 +88,11 @@ print(SkillContextBuilder(registry).render(task_context="sop_bench"))
 
 ## Expected Output Shape
 
-Rendered context is intentionally short:
+The generic `SkillContextBuilder` rendering is intentionally short. Treat it as an audit/debug view of the posterior state unless your adapter explicitly wants this format:
 
 ```text
-### Bayesian Skill Context
-Use these posterior-weighted Skills/SOPs as hypotheses, not as unquestioned instructions.
+### Bayesian Posterior Audit
+Posterior summaries are for ranking, rewrite decisions, and debugging; model-facing prompts should use executable Skill/SOP text.
 - benchmark/sop_bench: algorithm=categorical_bayes, posterior_success=0.333, context_success=0.333, alpha=1.0, beta=2.0, observations=1, mean_tokens=74365.0, rewrite=explore, failures=xml_wrapped_answer=1
 Current task files and runtime feedback remain authoritative.
 ```

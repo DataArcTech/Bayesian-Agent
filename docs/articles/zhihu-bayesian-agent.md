@@ -16,7 +16,7 @@
 
 这就是我们开源 **Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation** 的原因。
 
-Bayesian-Agent 不是又一个试图替代所有人的 Agent runtime。它更像一个可以挂在不同 Agent harness 旁边的 **Bayesian Skill/SOP evolution layer**：从 Agent 的成功和失败轨迹中提取证据，维护每条 Skill 的 posterior belief，再把更可靠、更省 token、更贴近当前任务的 Skill context 注入下一次运行。
+Bayesian-Agent 不是又一个试图替代所有人的 Agent runtime。它更像一个可以挂在不同 Agent harness 旁边的 **Bayesian Skill/SOP evolution layer**：从 Agent 的成功和失败轨迹中提取证据，维护每条 Skill 的 posterior belief，再把 posterior 决策转成更可靠、更省 token、更贴近当前任务的模型可执行 Skill/SOP 文本。
 
 ## 一句话介绍
 
@@ -32,7 +32,7 @@ P(success | theta, C, skill)
 - `C` 是推理环境，包括 prompt、context、tools、memory、harness feedback
 - `skill` 是可复用的任务流程或 SOP
 
-每次 Agent 执行任务后，Bayesian-Agent 会读取经过验证的 trajectory evidence，更新 Skill 的 posterior belief，并在下一次运行时生成 posterior-weighted Skill context。
+每次 Agent 执行任务后，Bayesian-Agent 会读取经过验证的 trajectory evidence，更新 Skill 的 posterior belief，并在下一次运行时生成由 posterior 驱动的 Skill patches、guardrails 或压缩后的 SOP 文本。原始 posterior 数字保存在 artifact 中用于审计，而不是默认直接塞进 benchmark prompt。
 
 换句话说，它不是“把失败经历都塞进记忆里”，而是问：
 
@@ -157,7 +157,7 @@ Bayesian-Agent 最重要的定位，是 **cross-harness adaptation**。
 Bayesian-Agent 把边界定义在两件事上：
 
 - 外部 Agent 需要产出 `TrajectoryEvidence`
-- 外部 Agent 能接收 posterior-weighted Skill context
+- 外部 Agent 能接收模型可执行的 Skill/SOP 文本
 
 最小 adapter contract 是：
 
@@ -179,7 +179,7 @@ v0.4 已经包含：
 - Bayesian Evidence Model belief update
 - optional Beta-Bernoulli posterior backend
 - failure-mode-aware rewrite policy
-- posterior-weighted context builder
+- posterior audit context builder
 - incremental repair utilities
 - result summarization CLI
 - GenericAgent optional adapter boundary

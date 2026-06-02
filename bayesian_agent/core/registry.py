@@ -71,8 +71,10 @@ class BayesianSkillRegistry:
             for skill_id, raw in self.data.get("skills", {}).items()
         ]
 
-    def top(self, limit: int = 5, context: str = "") -> List[SkillBelief]:
+    def top(self, limit: int = 5, context: str = "", strict_context: bool = False) -> List[SkillBelief]:
         beliefs = self.beliefs()
+        if strict_context and context:
+            beliefs = [belief for belief in beliefs if context in belief.contexts]
 
         def score(belief: SkillBelief):
             context_bonus = 1 if context and context in belief.contexts else 0

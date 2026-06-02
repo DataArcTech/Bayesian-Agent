@@ -72,6 +72,35 @@ bayesian-agent incremental-summary \
 
 This command is useful for measuring the additional inference cost required to repair failed tasks.
 
+## `replay-skill-artifacts`
+
+Rebuild per-task Skill evolution artifacts from an existing `results.json` without rerunning the model.
+
+```bash
+bayesian-agent replay-skill-artifacts \
+  --results results/sop_lifelong_deepseek_v4_flash/bayesian_full/results.json
+```
+
+By default, artifacts are written next to the result file:
+
+```text
+<result-dir>/skill_evolution/
+  index.json
+  <benchmark>/<task_id>/
+    skill_context_before.md
+    skill_context_after.md
+    posterior_context_before.md
+    posterior_context_after.md
+    belief_before.json
+    belief_after.json
+    snapshot_before.json
+    snapshot_after.json
+```
+
+`skill_context_*.md` stores the exact model-facing Skill/SOP text. `posterior_context_*.md` stores posterior summaries for audit/debugging and is not part of the built-in benchmark prompt.
+
+Use `--out-root` when the run root is different from the result file's parent directory.
+
 ## Result File Assumptions
 
 The CLI accepts benchmark-style JSON result files that can be normalized into benchmark names and run lists. Each run should contain at least:

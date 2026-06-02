@@ -1,4 +1,4 @@
-"""Posterior-weighted Skill context rendering."""
+"""Posterior audit rendering for Skill beliefs."""
 
 from __future__ import annotations
 
@@ -7,19 +7,19 @@ from bayesian_agent.core.registry import BayesianSkillRegistry
 
 
 class SkillContextBuilder:
-    """Render concise Skill/SOP context from posterior beliefs."""
+    """Render concise posterior audit summaries from Skill beliefs."""
 
     def __init__(self, registry: BayesianSkillRegistry, policy: RewritePolicy = None):
         self.registry = registry
         self.policy = policy or RewritePolicy()
 
-    def render(self, task_context: str = "", limit: int = 5) -> str:
-        beliefs = self.registry.top(limit=limit, context=task_context)
+    def render(self, task_context: str = "", limit: int = 5, strict_context: bool = False) -> str:
+        beliefs = self.registry.top(limit=limit, context=task_context, strict_context=strict_context)
         if not beliefs:
             return ""
         lines = [
-            "### Bayesian Skill Context",
-            "Use these posterior-weighted Skills/SOPs as hypotheses, not as unquestioned instructions.",
+            "### Bayesian Posterior Audit",
+            "Posterior summaries are for ranking, rewrite decisions, and debugging; model-facing prompts should use executable Skill/SOP text.",
         ]
         for belief in beliefs:
             decision = self.policy.decide(belief)

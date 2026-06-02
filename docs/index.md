@@ -25,7 +25,7 @@ Bayesian-Agent is designed to avoid being just another agent framework:
 <div align="center">
   <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
   <br/>
-  <em>Verified trajectories from compatible harnesses become posterior-weighted Skills and SOPs.</em>
+  <em>Verified trajectories from compatible harnesses become evidence-ranked Skills and executable SOP patches.</em>
 </div>
 
 ## Why It Exists

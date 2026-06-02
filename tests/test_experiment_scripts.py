@@ -3,7 +3,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from bayesian_agent.benchmarks.sop_lifelong import compact_baseline_run, incremental_task_filter, prepare_belief_store
+from bayesian_agent.benchmarks.sop_lifelong import compact_baseline_run, incremental_task_filter, prepare_belief_store, replay_skill_evolution_artifacts
 from bayesian_agent.core.evidence import TrajectoryEvidence
 from experiments.run_sop_lifelong import build_run_plan, load_env_file
 
@@ -39,6 +39,36 @@ class SopLifelongExperimentTests(unittest.TestCase):
             reset = prepare_belief_store(out_root, "bayesian-full")
 
             self.assertEqual(reset.beliefs(), [])
+
+    def test_replay_skill_evolution_artifacts_from_results_payload(self):
+        with tempfile.TemporaryDirectory() as td:
+            out_root = Path(td)
+            artifacts = replay_skill_evolution_artifacts(
+                out_root,
+                {
+                    "results": {
+                        "sop_bench": [
+                            {
+                                "task_id": "sop_01",
+                                "success": True,
+                                "total_tokens": 10,
+                                "output_contract": "csv_expected_output",
+                            }
+                        ]
+                    }
+                },
+            )
+
+            self.assertTrue((artifacts / "index.json").exists())
+            self.assertTrue((artifacts / "sop_bench" / "sop_01" / "skill_context_before.md").exists())
+            self.assertTrue((artifacts / "sop_bench" / "sop_01" / "skill_context_after.md").exists())
+            self.assertTrue((artifacts / "sop_bench" / "sop_01" / "posterior_context_before.md").exists())
+            self.assertTrue((artifacts / "sop_bench" / "sop_01" / "posterior_context_after.md").exists())
+            skill_context_after = (artifacts / "sop_bench" / "sop_01" / "skill_context_after.md").read_text()
+            posterior_context_after = (artifacts / "sop_bench" / "sop_01" / "posterior_context_after.md").read_text()
+            self.assertIn("Benchmark SOP Guardrails", skill_context_after)
+            self.assertNotIn("posterior_success=", skill_context_after)
+            self.assertIn("posterior_success=0.667", posterior_context_after)
 
     def test_load_env_file_uses_standard_library(self):
         old_value = os.environ.pop("BAYESIAN_AGENT_TEST_ENV", None)

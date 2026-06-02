@@ -22,6 +22,33 @@ export MODEL="deepseek-v4-flash"
 
 The default plan runs GA baseline, Bayesian full self-evolution, and Bayesian incremental repair. Results are written to `<out-root>/summary.md`.
 
+Bayesian runs also write a per-task Skill evolution trail:
+
+```text
+<run-root>/skill_evolution/
+  index.json
+    <benchmark>/<task_id>/
+    skill_context_before.md
+    skill_context_after.md
+    posterior_context_before.md
+    posterior_context_after.md
+    belief_before.json
+    belief_after.json
+    snapshot_before.json
+    snapshot_after.json
+```
+
+The `before` Skill context is the exact model-facing Skill/SOP text injected into the model for that task. For the built-in benchmarks, it contains executable `Bayesian Failure-Mode Patches` plus stable benchmark guardrails, not raw posterior numbers.
+
+The `after` Skill context is rendered after the verifier result is recorded, so it represents the next model-facing Skill version produced by the Bayesian update. The paired `posterior_context_before.md` and `posterior_context_after.md` files keep the posterior summaries for audit/debugging.
+
+Older result directories can be backfilled without rerunning the model:
+
+```bash
+bayesian-agent replay-skill-artifacts \
+  --results results/sop_lifelong_deepseek_v4_flash/bayesian_full/results.json
+```
+
 For smoke testing, add `--limit 1`. To switch to `deepseek-v4-pro`, set `MODEL=deepseek-v4-pro`; the script itself is the same.
 
 To repair an existing GA baseline instead of using a fresh baseline from the same run, pass the baseline result files:

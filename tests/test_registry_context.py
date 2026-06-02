@@ -27,7 +27,7 @@ class RegistryContextTests(unittest.TestCase):
 
         context = SkillContextBuilder(registry).render(task_context="ctx", limit=2)
 
-        self.assertIn("Bayesian Skill Context", context)
+        self.assertIn("Bayesian Posterior Audit", context)
         self.assertLess(context.find("skill/a"), context.find("skill/b"))
         self.assertIn("posterior_success", context)
 

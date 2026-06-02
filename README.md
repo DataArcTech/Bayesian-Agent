@@ -51,7 +51,7 @@ Bayesian-Agent asks a simple question: if Skills are hypotheses about how to sol
 <div align="center">
   <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
   <br/>
-  <em>Bayesian-Agent turns verified trajectories from any compatible harness into posterior-weighted Skills and SOPs.</em>
+  <em>Bayesian-Agent turns verified trajectories from any compatible harness into evidence-ranked Skills and executable SOP patches.</em>
 </div>
 
 ## 🧠 Core Idea
@@ -83,7 +83,7 @@ Bayesian-Agent treats each Skill or SOP as a hypothesis about success:
 P(success | theta, C, skill)
 ```
 
-After each verified trajectory, the framework updates a posterior belief over that Skill. The next run receives posterior-weighted Skill context instead of unfiltered memory.
+After each verified trajectory, the framework updates a posterior belief over that Skill. The posterior is used internally for Skill ranking, rewrite decisions, and failure-mode patches; model-facing benchmark prompts receive executable Skill/SOP text instead of raw probability summaries.
 
 ### What "Bayesian" Means in v0.x
 
@@ -106,14 +106,14 @@ p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
 E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 ```
 
-Both backends feed the same Skill ranking, posterior-weighted context rendering, and rewrite actions such as `patch`, `split`, `compress`, `retire`, and `explore`. Full Bayesian model selection over competing Skill hypotheses is planned, but not claimed in v0.x.
+Both backends feed the same Skill ranking, posterior audit rendering, and rewrite actions such as `patch`, `split`, `compress`, `retire`, and `explore`. Full Bayesian model selection over competing Skill hypotheses is planned, but not claimed in v0.x.
 
 ## 📋 Core Features
 
 - **Evidence-weighted Skill evolution**: update Skill beliefs from verified success and failure trajectories.
 - **Bayesian Skill registry**: maintain Bayesian Evidence Model beliefs, optional Beta-Bernoulli posteriors, failure modes, token cost, latency, turns, and context distribution.
 - **Failure-mode-aware repair**: identify recurring errors and generate focused repair plans.
-- **Token-aware context building**: inject only the Skills with useful posterior evidence.
+- **Token-aware context building**: select concise, evidence-backed Skill/SOP text; benchmark prompts receive executable patches and guardrails, while posterior numbers stay in artifacts.
 - **Full self-evolution from scratch**: run all tasks, collect evidence online, and evolve Skills without prior traces.
 - **Incremental repair for existing agents**: consume failed trajectories from a baseline agent and rerun only the failed tasks.
 - **Cross-harness adaptation**: integrate with GenericAgent today and other agent frameworks through adapters instead of vendoring their code.
@@ -143,7 +143,7 @@ Both backends feed the same Skill ranking, posterior-weighted context rendering,
 [Rewrite Policy: compress, patch, split, retire, explore]
       |
       v
-[Posterior-Weighted Skill Context]
+[Executable Skill Patches / Guardrails]
       |
       v
 [Next Agent Run]
@@ -262,6 +262,8 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
+`SkillContextBuilder` renders a compact posterior audit view. The built-in SOP/Lifelong runners convert posterior decisions into executable failure-mode patches and guardrails before adding them to model prompts.
+
 ## 🔁 Three Operating Patterns
 
 ### 🌱 Full Self-Evolving Mode
@@ -282,7 +284,7 @@ This is the recommended production path because it improves an existing agent wi
 
 ### 🔌 Cross-Harness Adaptation Mode
 
-Bayesian-Agent is not tied to a single agent runtime. Any agent framework can become a backend if it emits the common trajectory schema and accepts posterior-weighted Skill context through an adapter.
+Bayesian-Agent is not tied to a single agent runtime. Any agent framework can become a backend if it emits the common trajectory schema and accepts model-facing Skill/SOP text through an adapter.
 
 ```text
 Any Agent Harness -> Trajectory Schema -> Bayesian Skill Registry -> Adapter -> Next Harness Run

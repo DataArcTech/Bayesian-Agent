@@ -59,6 +59,10 @@ def build_parser() -> argparse.ArgumentParser:
     lift.add_argument("--repairs", required=True)
     lift.add_argument("--out", required=True)
 
+    replay = sub.add_parser("replay-skill-artifacts", help="Rebuild per-task Skill evolution artifacts from results JSON.")
+    replay.add_argument("--results", required=True)
+    replay.add_argument("--out-root", default="", help="Run root. Defaults to the results file parent directory.")
+
     return parser
 
 
@@ -83,6 +87,14 @@ def main(argv: Sequence[str] = None) -> int:
         baseline = normalize_results(_read_json(args.baseline))
         repairs = normalize_results(_read_json(args.repairs))
         _write_json(args.out, summarize_incremental_lift(baseline, repairs))
+        return 0
+    if args.command == "replay-skill-artifacts":
+        from bayesian_agent.benchmarks.sop_lifelong import replay_skill_evolution_artifacts
+
+        results_path = Path(args.results)
+        out_root = Path(args.out_root) if args.out_root else results_path.parent
+        artifacts_root = replay_skill_evolution_artifacts(out_root, _read_json(str(results_path)))
+        print(artifacts_root)
         return 0
     raise ValueError(f"Unknown command: {args.command}")
 

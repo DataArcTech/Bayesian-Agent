@@ -7,7 +7,7 @@ Bayesian-Agent is designed to integrate with external agent harnesses without co
 Bayesian-Agent separates Skill evolution from task execution:
 
 ```text
-Harness executes -> Bayesian-Agent learns -> Adapter injects posterior Skill context -> Harness reruns
+Harness executes -> Bayesian-Agent learns -> Adapter injects model-facing Skill/SOP text -> Harness reruns
 ```
 
 That separation enables three deployment styles:
@@ -31,7 +31,7 @@ class AgentAdapter(Protocol):
 The adapter receives:
 
 - a task object from the external benchmark or application
-- posterior-weighted Skill context from Bayesian-Agent
+- model-facing Skill/SOP text selected or patched by Bayesian-Agent
 
 It returns:
 
@@ -51,7 +51,7 @@ result = adapter.run(
         "workspace": "temp/task_01",
         "max_turns": 8,
     },
-    skill_context="### Bayesian Skill Context\n...",
+    skill_context="### Bayesian Failure-Mode Patches\n...",
 )
 ```
 
@@ -69,7 +69,7 @@ External systems should emit:
 - token usage
 - runtime metadata
 
-Bayesian-Agent can then update beliefs and render the next Skill context.
+Bayesian-Agent can then update beliefs, keep posterior audit artifacts, and render the next model-facing Skill/SOP text.
 
 ## Planned Bayesian-Agent Harness
 

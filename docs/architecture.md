@@ -41,7 +41,7 @@ bayesian_agent/
     belief.py      # SkillBelief and RewriteDecision
     registry.py    # JSON-backed BayesianSkillRegistry
     policy.py      # default rewrite policy
-    context.py     # posterior-weighted context renderer
+    context.py     # posterior audit and Skill context rendering
     repair.py      # result normalization and repair summaries
   adapters/
     base.py        # AgentAdapter protocol

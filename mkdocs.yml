@@ -58,6 +58,7 @@ nav:
   - Articles:
       - Zhihu Repo Introduction: articles/zhihu-bayesian-agent.md
       - Bayesian Evidence and Acquired Learning: articles/bayesian-evidence-acquired-learning.md
+      - Complex Skill Rewrite Example: articles/complex-bayesian-rewrite-example.md
   - Method Note: method.md
   - Experiment Note: experiments.md
   - Roadmap: roadmap.md
