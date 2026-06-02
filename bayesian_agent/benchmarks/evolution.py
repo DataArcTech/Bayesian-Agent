@@ -12,6 +12,9 @@ from bayesian_agent.core.policy import RewritePolicy
 from bayesian_agent.core.registry import BayesianSkillRegistry
 
 
+ACTIVE_PATCH_MIN_SUPPORT = 2
+
+
 def classify_failure(benchmark: str, run: Mapping[str, Any]) -> str:
     """Classify common benchmark failures into reusable evidence labels."""
 
@@ -161,7 +164,7 @@ def _failure_mode_patch_rules(benchmark: str, registry: BayesianSkillRegistry):
         if belief.skill_id != f"benchmark/{benchmark}" and benchmark not in belief.contexts:
             continue
         for failure_mode, count in belief.failure_modes.items():
-            if count > 0:
+            if count >= ACTIVE_PATCH_MIN_SUPPORT:
                 counts[failure_mode] = counts.get(failure_mode, 0) + int(count)
 
     patches = []

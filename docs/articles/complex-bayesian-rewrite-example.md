@@ -434,7 +434,7 @@ P_h(failure | x_risk) ≈ 0.997
 2. left_expected_output_blank 这类失败簇仍然需要被 guardrail 约束。
 ```
 
-所以当前 v0.x 里，即使后续 repair 成功，`failure_modes` 计数仍然会留在 registry 中。只要这个 recurring failure mode 还在，context 里就会继续保留相关 patch。这是保守的，但对 benchmark repair 和生产环境都更安全。
+所以当前 v0.x 里，即使后续 repair 成功，`failure_modes` 计数仍然会留在 registry 中。第一次出现的 failure mode 只作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，context 里才会保留相关 active patch。这比“一错就改 skill”更稳，也能降低单个异常样本导致过拟合的风险。
 
 ## 十、这个例子说明了什么
 
@@ -457,7 +457,7 @@ rewrite 触发:
   当前 RewritePolicy 看到同一 failure mode 出现 2 次，触发 patch
 
 context 改写:
-  benchmark-specific patch rules 被注入下一轮 prompt
+  benchmark-specific patch rules 被注入下一轮 prompt；单次失败只进入 audit，不进入 active prompt patch
 
 repair 成功:
   成功 evidence 回写 registry，健康轨迹的 posterior_success 上升

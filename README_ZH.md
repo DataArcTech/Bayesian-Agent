@@ -113,6 +113,7 @@ E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 - **证据加权的 Skill 进化**：从 verified success/failure trajectory 更新 Skill belief。
 - **Bayesian Skill Registry**：维护 Bayesian Evidence Model belief、可选 Beta-Bernoulli posterior、失败模式、token 成本、延迟、轮次和 context 分布。
 - **面向失败模式的修复**：识别反复出现的错误，生成聚焦的 repair plan。
+- **抗过拟合的 patch 激活**：单次失败只作为审计证据保存；同一 failure mode 至少出现两次验证失败后，才把 patch 提升到 benchmark prompt。
 - **Token-aware context 构建**：选择简洁、有证据支持的 Skill/SOP 文本；benchmark prompt 接收可执行 patches 和 guardrails，posterior 数字保存在 artifacts 中。
 - **从零全量自进化**：完整运行任务，在线收集 evidence，并在无历史 traces 的情况下进化 Skills。
 - **已有 Agent 的增量修复层**：读取 baseline agent 的失败轨迹，只重跑失败任务。
@@ -262,7 +263,7 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
-`SkillContextBuilder` 渲染的是简洁的 posterior 审计视图。内置 SOP/Lifelong runners 会先把 posterior 决策转成可执行的 failure-mode patches 和 guardrails，再加入模型 prompt。
+`SkillContextBuilder` 渲染的是简洁的 posterior 审计视图。内置 SOP/Lifelong runners 会先把反复出现、posterior 有证据支持的 failure mode 转成可执行 patches 和 guardrails，再加入模型 prompt。
 
 ## 🔁 三种运行形态
 

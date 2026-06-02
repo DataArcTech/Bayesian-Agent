@@ -32,7 +32,7 @@ P(success | theta, C, skill)
 - `C` 是推理环境，包括 prompt、context、tools、memory、harness feedback
 - `skill` 是可复用的任务流程或 SOP
 
-每次 Agent 执行任务后，Bayesian-Agent 会读取经过验证的 trajectory evidence，更新 Skill 的 posterior belief，并在下一次运行时生成由 posterior 驱动的 Skill patches、guardrails 或压缩后的 SOP 文本。原始 posterior 数字保存在 artifact 中用于审计，而不是默认直接塞进 benchmark prompt。
+每次 Agent 执行任务后，Bayesian-Agent 会读取经过验证的 trajectory evidence，更新 Skill 的 posterior belief，并在下一次运行时生成由 posterior 驱动的 Skill patches、guardrails 或压缩后的 SOP 文本。原始 posterior 数字保存在 artifact 中用于审计，而不是默认直接塞进 benchmark prompt。为了避免过拟合，单次失败只作为 candidate evidence；同一 failure mode 至少出现两次后，才会激活进入 benchmark prompt 的 patch。
 
 换句话说，它不是“把失败经历都塞进记忆里”，而是问：
 

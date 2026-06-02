@@ -113,6 +113,7 @@ Both backends feed the same Skill ranking, posterior audit rendering, and rewrit
 - **Evidence-weighted Skill evolution**: update Skill beliefs from verified success and failure trajectories.
 - **Bayesian Skill registry**: maintain Bayesian Evidence Model beliefs, optional Beta-Bernoulli posteriors, failure modes, token cost, latency, turns, and context distribution.
 - **Failure-mode-aware repair**: identify recurring errors and generate focused repair plans.
+- **Overfitting-resistant patch activation**: keep single failures as audit evidence, and promote a failure-mode patch into the benchmark prompt only after at least two verified occurrences.
 - **Token-aware context building**: select concise, evidence-backed Skill/SOP text; benchmark prompts receive executable patches and guardrails, while posterior numbers stay in artifacts.
 - **Full self-evolution from scratch**: run all tasks, collect evidence online, and evolve Skills without prior traces.
 - **Incremental repair for existing agents**: consume failed trajectories from a baseline agent and rerun only the failed tasks.
@@ -262,7 +263,7 @@ skill_context = SkillContextBuilder(registry).render(task_context="sop_bench")
 print(skill_context)
 ```
 
-`SkillContextBuilder` renders a compact posterior audit view. The built-in SOP/Lifelong runners convert posterior decisions into executable failure-mode patches and guardrails before adding them to model prompts.
+`SkillContextBuilder` renders a compact posterior audit view. The built-in SOP/Lifelong runners convert recurring posterior-backed failure modes into executable patches and guardrails before adding them to model prompts.
 
 ## 🔁 Three Operating Patterns
 

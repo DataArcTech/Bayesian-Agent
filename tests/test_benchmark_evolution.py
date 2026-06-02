@@ -15,7 +15,7 @@ from bayesian_agent.core.registry import BayesianSkillRegistry
 
 
 class BenchmarkEvolutionTests(unittest.TestCase):
-    def test_sop_failure_context_is_owned_by_bayesian_agent(self):
+    def test_single_failure_mode_is_audit_only_not_active_patch(self):
         registry = BayesianSkillRegistry.in_memory()
         registry.record(
             TrajectoryEvidence(
@@ -30,10 +30,11 @@ class BenchmarkEvolutionTests(unittest.TestCase):
 
         context = build_benchmark_skill_context("sop_bench", registry)
 
-        self.assertIn("Bayesian Failure-Mode Patches", context)
         self.assertIn("Benchmark SOP Guardrails", context)
         self.assertIn("rows[row_index - 1]", context)
         self.assertIn("raw category string", context)
+        self.assertNotIn("Bayesian Failure-Mode Patches", context)
+        self.assertNotIn("failure_mode=left_expected_output_blank", context)
         self.assertNotIn("Bayesian Skill Context", context)
         self.assertNotIn("Bayesian Posterior Audit", context)
         self.assertNotIn("posterior_success=", context)

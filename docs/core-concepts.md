@@ -108,4 +108,4 @@ The default policy maps posterior state to small, inspectable actions:
 
 These actions are recommendations. External harnesses decide how to rewrite, rerun, or retire Skills.
 
-The bundled SOP-Bench and Lifelong runners implement one concrete `patch` behavior: known failure modes are converted into short failure-mode-specific guardrails in the next prompt. This keeps the current v0.x implementation honest: it patches the inference context for the same Skill belief, rather than silently creating a separate child Skill hypothesis.
+The bundled SOP-Bench and Lifelong runners implement one concrete `patch` behavior: recurring known failure modes are converted into short failure-mode-specific guardrails in the next prompt. A single failure is recorded in `belief_*.json` and `posterior_context_*.md` as candidate evidence, but it is not promoted into model-facing patch text until the same failure mode has at least two verified occurrences. This keeps the current v0.x implementation honest: it patches the inference context for the same Skill belief, rather than silently creating a separate child Skill hypothesis.

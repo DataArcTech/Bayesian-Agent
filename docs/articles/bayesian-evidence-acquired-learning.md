@@ -716,7 +716,7 @@ rewrite = patch
 reason = failures cluster around left_expected_output_blank
 ```
 
-改写后的 Skill context 不是泛泛地说“仔细一点”，而是把失败模式变成可执行约束。当前 v0.x 实现会在下一轮 prompt 里注入类似这样的 patch section：
+改写后的 Skill context 不是泛泛地说“仔细一点”，而是把反复出现的失败模式变成可执行约束。当前 v0.x 实现会先把单次失败作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，才会在下一轮 prompt 里注入类似这样的 active patch section：
 
 ```text
 ### Bayesian Failure-Mode Patches: sop_bench

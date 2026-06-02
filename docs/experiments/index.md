@@ -38,7 +38,7 @@ Bayesian runs also write a per-task Skill evolution trail:
     snapshot_after.json
 ```
 
-The `before` Skill context is the exact model-facing Skill/SOP text injected into the model for that task. For the built-in benchmarks, it contains executable `Bayesian Failure-Mode Patches` plus stable benchmark guardrails, not raw posterior numbers.
+The `before` Skill context is the exact model-facing Skill/SOP text injected into the model for that task. For the built-in benchmarks, it contains stable benchmark guardrails and any active `Bayesian Failure-Mode Patches`, not raw posterior numbers. A patch becomes active only after the same failure mode has at least two verified occurrences.
 
 The `after` Skill context is rendered after the verifier result is recorded, so it represents the next model-facing Skill version produced by the Bayesian update. The paired `posterior_context_before.md` and `posterior_context_after.md` files keep the posterior summaries for audit/debugging.
 
