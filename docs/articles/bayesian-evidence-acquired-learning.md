@@ -143,7 +143,7 @@ P(y | x_1, x_2, ..., x_m)
 = P(x_1, x_2, ..., x_m | y) P(y) / P(x_1, x_2, ..., x_m)
 ```
 
-如果特征很多，直接估计联合概率 `P(x_1, x_2, ..., x_m | y)` 会非常困难。v0.x 采用一个轻量的 factorized categorical likelihood：在给定标签 `y` 后，各个特征近似条件独立：
+如果特征很多，直接估计联合概率 `P(x_1, x_2, ..., x_m | y)` 会非常困难。v0.5 采用一个轻量的 factorized categorical likelihood：在给定标签 `y` 后，各个特征近似条件独立：
 
 ```text
 P(x_1, x_2, ..., x_m | y)
@@ -256,7 +256,7 @@ P(spam | x)
 | Posterior | <code>P(spam &#124; x)</code>，看到这些特征后邮件是垃圾邮件的概率 |
 | Factorization assumption | 给定 `spam` 或 `normal` 后，折扣、链接、陌生发件人近似独立 |
 
-这就是 categorical evidence model 的直觉：它不需要理解“折扣”和“链接”的深层语义，只要不断从历史样本里统计“哪些特征经常和哪个标签一起出现”，就可以做出可解释的概率判断。在 Bayesian-Agent 里，它被定位为 v0.x 的第一个可解释 evidence backend，而不是方法的上限。
+这就是 categorical evidence model 的直觉：它不需要理解“折扣”和“链接”的深层语义，只要不断从历史样本里统计“哪些特征经常和哪个标签一起出现”，就可以做出可解释的概率判断。在 Bayesian-Agent 里，它被定位为 v0.5 的第一个可解释 evidence backend，而不是方法的上限。
 
 ## 三、人的后天学习：一个技能是如何从经验里长出来的
 
@@ -716,7 +716,7 @@ rewrite = patch
 reason = failures cluster around left_expected_output_blank
 ```
 
-改写后的 Skill context 不是泛泛地说“仔细一点”，而是把反复出现的失败模式变成可执行约束。当前 v0.x 实现会先把单次失败作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，才会在下一轮 prompt 里注入类似这样的 active patch section：
+改写后的 Skill context 不是泛泛地说“仔细一点”，而是把反复出现的失败模式变成可执行约束。当前 v0.5 实现会先把单次失败作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，才会在下一轮 prompt 里注入类似这样的 active patch section：
 
 ```text
 ### Bayesian Failure-Mode Patches: sop_bench
@@ -1195,7 +1195,7 @@ Acquired learning lets the agent learn from its own verified experience.
 
 三门问题告诉我们：信息不是“看起来还剩几个选项”，而是“这个证据在不同假设下出现的概率是多少”。
 
-Bayesian Evidence Model 告诉我们：当证据由多个特征组成时，可以用一个可解释的 likelihood model，把每个特征对成功或失败的贡献统计出来；v0.x 采用的是 factorized categorical likelihood，后续可以替换成更强的贝叶斯模型。
+Bayesian Evidence Model 告诉我们：当证据由多个特征组成时，可以用一个可解释的 likelihood model，把每个特征对成功或失败的贡献统计出来；v0.5 采用的是 factorized categorical likelihood，后续可以替换成更强的贝叶斯模型。
 
 人的后天学习告诉我们：技能不是一次性写死的规则，而是在经验、反馈和训练中不断校准的操作假设。
 

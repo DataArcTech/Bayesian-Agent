@@ -27,7 +27,7 @@ The roadmap is organized around the project's main advantage: Bayesian-Agent sho
 
 ## Bayesian Algorithm Direction
 
-The current v0.x implementation defaults to a per-Skill Bayesian Evidence Model with a categorical likelihood backend and keeps Beta-Bernoulli as an optional compatibility backend.
+The current v0.5 implementation defaults to a per-Skill Bayesian Evidence Model with a categorical likelihood backend and keeps Beta-Bernoulli as an optional compatibility backend.
 
 Future releases will move toward broader Bayesian reasoning:
 

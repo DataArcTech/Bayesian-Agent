@@ -85,9 +85,9 @@ P(success | theta, C, skill)
 
 After each verified trajectory, the framework updates a posterior belief over that Skill. The posterior is used internally for Skill ranking, rewrite decisions, and failure-mode patches; model-facing benchmark prompts receive executable Skill/SOP text instead of raw probability summaries.
 
-### What "Bayesian" Means in v0.x
+### What "Bayesian" Means in v0.5
 
-Current Bayesian-Agent v0.x defaults to a **Bayesian Evidence Model** for each Skill/SOP. The default implementation is a feature-conditioned categorical likelihood model: it estimates whether a Skill will succeed under observed evidence features such as task context, failure mode, token bucket, turn bucket, latency bucket, and selected metadata.
+Current Bayesian-Agent v0.5 defaults to a **Bayesian Evidence Model** for each Skill/SOP. The default implementation is a feature-conditioned categorical likelihood model: it estimates whether a Skill will succeed under observed evidence features such as task context, failure mode, token bucket, turn bucket, latency bucket, and selected metadata.
 
 For a Skill hypothesis `h_k`, evidence `D_k = {(x_i, y_i)}` contains discrete features `x_i` and verified labels `y_i in {success, failure}`:
 
@@ -99,6 +99,19 @@ P(y = success | h_k, x) ∝ P(y = success | h_k) * Π_j P(x_j | y = success, h_k
 
 The implementation uses Laplace smoothing with `alpha = 1`. This is Bayesian in the posterior-belief sense: verified experience updates the probability of a Skill succeeding under a particular context and runtime signature. The default backend is exposed as `algorithm="categorical_bayes"`; `algorithm="naive_bayes"` remains accepted as a legacy alias for the same factorized categorical likelihood.
 
+The current likelihood model uses **five fixed categorical evidence terms plus optional short metadata terms**:
+
+| Evidence term | Why it is included |
+|---|---|
+| `context` | Captures task family, benchmark, or harness context. |
+| `failure_mode` | Captures reusable error patterns that can become concrete Skill/SOP patches. |
+| `token_bucket` | Captures whether a trajectory succeeded cheaply or only after expensive search. |
+| `turn_bucket` | Captures recovery loops and interaction complexity. |
+| `latency_bucket` | Captures slow tool, data, or API paths that may require different SOPs. |
+| `metadata.*` | Adds harness-specific short scalar diagnostics without baking one harness schema into the core. |
+
+`metadata.*` features are included only when the value is a short scalar (`str`, `int`, `float`, or `bool`, with string length at most 80). Runtime numbers are bucketed before entering the likelihood model so sparse exact values do not dominate early evidence.
+
 For compatibility and ablation, the original **Beta-Bernoulli** posterior is still available via `algorithm="beta_bernoulli"` or `bayesian-agent evolve --algorithm beta_bernoulli`:
 
 ```text
@@ -106,7 +119,7 @@ p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
 E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 ```
 
-Both backends feed the same Skill ranking, posterior audit rendering, and rewrite actions such as `patch`, `split`, `compress`, `retire`, and `explore`. Full Bayesian model selection over competing Skill hypotheses is planned, but not claimed in v0.x.
+Both backends feed the same Skill ranking, posterior audit rendering, and rewrite actions such as `patch`, `split`, `compress`, `retire`, and `explore`. Full Bayesian model selection over competing Skill hypotheses is planned, but not claimed in v0.5.
 
 ## 📋 Core Features
 
@@ -161,15 +174,17 @@ For each Skill or benchmark SOP, Bayesian-Agent maintains:
 - context distribution
 - rewrite policy recommendations
 
-The default rewrite policy is intentionally small:
+The default rewrite policy is intentionally small and matches the current implementation:
 
-| Posterior signal | Policy action |
-|---|---|
-| repeated verified success | compress or reinforce |
-| clustered failures | patch |
-| mixed outcomes across contexts | split or specialize |
-| dominant failures | retire or rewrite |
-| sparse evidence | explore |
+| Policy action | Current trigger | Why |
+|---|---|---|
+| `explore` | no observations, or posterior remains uncertain | Avoids rewriting before verified evidence exists. |
+| `retire` | `beta >= 4` and `success_probability < 0.45` | Avoids retiring after one or two unlucky failures, but removes clearly harmful Skills. |
+| `patch` | one `failure_mode` appears at least twice | Treats repeated failures as actionable evidence while avoiding one-off overfitting. |
+| `split` | at least 3 contexts and at least 4 observations | Prevents one broad SOP from covering incompatible task contexts. |
+| `compress` | at least 3 observations and `success_probability >= 0.72` | Distills stable Skills to reduce token cost after enough positive evidence. |
+
+These thresholds are conservative v0.5 heuristics, not claims of optimality. The design goal is an inspectable posterior-driven policy that can be swapped out by downstream harnesses.
 
 ## 🚀 Install
 

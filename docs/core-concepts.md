@@ -32,7 +32,7 @@ The same Skill may work in one context and fail in another. That is why Bayesian
 
 ## Current Bayesian Assumption
 
-Bayesian-Agent v0.x models each Skill/SOP independently. The default backend is a feature-conditioned **Bayesian Evidence Model** over verified success/failure labels. Its current implementation is a categorical likelihood model:
+Bayesian-Agent v0.5 models each Skill/SOP independently. The default backend is a feature-conditioned **Bayesian Evidence Model** over verified success/failure labels. Its current implementation is a categorical likelihood model:
 
 ```text
 D_k = {(x_i, y_i)}
@@ -41,7 +41,20 @@ P(x_j = v | y, h_k) = (N_{j,v,y} + alpha) / (N_{j,y} + alpha * |V_j|)
 P(success | h_k, x) ∝ P(success | h_k) * Π_j P(x_j | success, h_k)
 ```
 
-`x_i` includes context, failure mode, token bucket, turn bucket, latency bucket, and simple metadata features. The implementation uses `alpha = 1` Laplace smoothing. The public algorithm name is `categorical_bayes`; `naive_bayes` is accepted as a legacy alias for the same factorized categorical likelihood.
+`x_i` includes five fixed likelihood terms plus optional short metadata terms:
+
+| Term | Purpose |
+|---|---|
+| `context` | Models benchmark, task family, or harness-specific context. |
+| `failure_mode` | Records repeated, actionable error patterns. |
+| `token_bucket` | Models token efficiency and search-heavy trajectories. |
+| `turn_bucket` | Models interaction complexity and recovery loops. |
+| `latency_bucket` | Models slow tool, data, or API paths. |
+| `metadata.*` | Adds harness-specific short scalar diagnostics. |
+
+So the current model has `5 fixed terms + 0..N metadata terms`, not a fixed total feature count. Metadata is included only for short scalar values (`str`, `int`, `float`, `bool`, with `len(str(value)) <= 80`). Runtime values are bucketed to keep the categorical likelihood stable under small online datasets.
+
+The implementation uses `alpha = 1` Laplace smoothing. The public algorithm name is `categorical_bayes`; `naive_bayes` is accepted as a legacy alias for the same factorized categorical likelihood.
 
 The earlier Beta-Bernoulli backend remains available as an optional global success-rate model:
 
@@ -96,16 +109,16 @@ The registry also tracks mean token cost, failure modes, and context counts.
 
 ## Rewrite Policy
 
-The default policy maps posterior state to small, inspectable actions:
+The default policy maps posterior state to five small, inspectable actions:
 
-| Signal | Action |
-|---|---|
-| no evidence | `explore` |
-| stable success | `compress` |
-| repeated failure mode | `patch` |
-| mixed contexts | `split` |
-| dominant failures | `retire` |
+| Action | Current trigger | Rationale |
+|---|---|---|
+| `explore` | no observations, or no stronger rule fires | Keep collecting evidence while the posterior is sparse or uncertain. |
+| `retire` | `beta >= 4` and `success_probability < 0.45` | Avoid retiring after one or two unlucky failures, but remove clearly harmful Skills. |
+| `patch` | one failure mode appears at least twice | Convert recurring failures into concrete guardrails while avoiding one-off overfitting. |
+| `split` | at least 3 contexts and at least 4 observations | Separate broad Skills when one SOP spans incompatible contexts. |
+| `compress` | at least 3 observations and `success_probability >= 0.72` | Distill stable Skills to reduce future token cost. |
 
-These actions are recommendations. External harnesses decide how to rewrite, rerun, or retire Skills.
+The checks run in implementation order: no evidence, retire, patch, split, compress, then fallback explore. These actions are recommendations. External harnesses decide how to rewrite, rerun, or retire Skills.
 
-The bundled SOP-Bench and Lifelong runners implement one concrete `patch` behavior: recurring known failure modes are converted into short failure-mode-specific guardrails in the next prompt. A single failure is recorded in `belief_*.json` and `posterior_context_*.md` as candidate evidence, but it is not promoted into model-facing patch text until the same failure mode has at least two verified occurrences. This keeps the current v0.x implementation honest: it patches the inference context for the same Skill belief, rather than silently creating a separate child Skill hypothesis.
+The bundled SOP-Bench and Lifelong runners implement one concrete `patch` behavior: recurring known failure modes are converted into short failure-mode-specific guardrails in the next prompt. A single failure is recorded in `belief_*.json` and `posterior_context_*.md` as candidate evidence, but it is not promoted into model-facing patch text until the same failure mode has at least two verified occurrences. This keeps the current v0.5 implementation honest: it patches the inference context for the same Skill belief, rather than silently creating a separate child Skill hypothesis.

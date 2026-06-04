@@ -85,9 +85,9 @@ P(success | theta, C, skill)
 
 每次得到经过验证的执行轨迹后，框架都会更新该 Skill 的 posterior belief。posterior 用于内部 Skill 排序、rewrite 决策和 failure-mode patch 生成；benchmark 的真实模型输入只接收可执行 Skill/SOP 文本，而不是原始概率摘要。
 
-### v0.x 里的 “Bayesian” 准确指什么
+### v0.5 里的 “Bayesian” 准确指什么
 
-当前 Bayesian-Agent v0.x 默认使用 **Bayesian Evidence Model**。它的默认实现是 feature-conditioned categorical likelihood model：为每条 Skill/SOP 估计它在某类证据特征下成功或失败的概率。特征包括 task context、failure mode、token bucket、turn bucket、latency bucket 以及部分 metadata。
+当前 Bayesian-Agent v0.5 默认使用 **Bayesian Evidence Model**。它的默认实现是 feature-conditioned categorical likelihood model：为每条 Skill/SOP 估计它在某类证据特征下成功或失败的概率。特征包括 task context、failure mode、token bucket、turn bucket、latency bucket 以及部分 metadata。
 
 对一条 Skill hypothesis `h_k`，证据 `D_k = {(x_i, y_i)}` 包含离散特征 `x_i` 和验证标签 `y_i in {success, failure}`：
 
@@ -99,6 +99,19 @@ P(y = success | h_k, x) ∝ P(y = success | h_k) * Π_j P(x_j | y = success, h_k
 
 当前实现使用 `alpha = 1` 的 Laplace smoothing。它的 Bayesian 含义是：把 verified experience 作为证据，持续更新某条 Skill 在特定 context 和 runtime signature 下成功的 posterior belief。默认 backend 对外暴露为 `algorithm="categorical_bayes"`；`algorithm="naive_bayes"` 仍作为同一套 factorized categorical likelihood 的历史兼容 alias 被接受。
 
+当前 likelihood model 使用 **5 个固定 categorical evidence 项，加上可选的短 metadata 项**：
+
+| Evidence 项 | 为什么放进去 |
+|---|---|
+| `context` | 表示任务族、benchmark 或 harness 场景。 |
+| `failure_mode` | 记录可复用的错误模式，后续可以转成具体 Skill/SOP patch。 |
+| `token_bucket` | 区分低成本成功和高 token 搜索式成功。 |
+| `turn_bucket` | 表示交互复杂度和是否出现反复恢复循环。 |
+| `latency_bucket` | 表示慢工具、慢数据源、慢 API 等执行路径。 |
+| `metadata.*` | 接收 harness 特有的短标量诊断信息，但不把某个 harness schema 写死进 core。 |
+
+`metadata.*` 只接收短标量值：`str`、`int`、`float`、`bool`，并且字符串长度不超过 80。token、turn、latency 先离散成 bucket 再进入 likelihood model，避免早期样本里精确数值过稀疏。
+
 为了兼容和消融实验，原来的 **Beta-Bernoulli** posterior 仍然保留为可选 backend，可以使用 `algorithm="beta_bernoulli"` 或 `bayesian-agent evolve --algorithm beta_bernoulli`：
 
 ```text
@@ -106,7 +119,7 @@ p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
 E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 ```
 
-两个 backend 都会进入同一套 Skill 排序、posterior 审计渲染，以及 `patch`、`split`、`compress`、`retire`、`explore` 等 rewrite actions。完整的多 Skill hypothesis Bayesian model selection 在 roadmap 中，不作为 v0.x 已完成能力来宣传。
+两个 backend 都会进入同一套 Skill 排序、posterior 审计渲染，以及 `patch`、`split`、`compress`、`retire`、`explore` 等 rewrite actions。完整的多 Skill hypothesis Bayesian model selection 在 roadmap 中，不作为 v0.5 已完成能力来宣传。
 
 ## 📋 核心特性
 
@@ -161,15 +174,17 @@ E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 - context 分布
 - rewrite policy 建议
 
-默认 rewrite policy 保持小而清晰：
+默认 rewrite policy 保持小而清晰，并和当前代码实现一致：
 
-| Posterior 信号 | Policy 动作 |
-|---|---|
-| 多次验证成功 | compress 或 reinforce |
-| 失败模式聚集 | patch |
-| 不同 context 下表现分化 | split 或 specialize |
-| 失败占主导 | retire 或 rewrite |
-| 证据稀疏 | explore |
+| Policy 动作 | 当前触发条件 | 为什么这样设 |
+|---|---|---|
+| `explore` | 没有观测，或 posterior 仍不确定 | 没有 verified evidence 前不急着改 Skill。 |
+| `retire` | `beta >= 4` 且 `success_probability < 0.45` | 避免一两次偶然失败就废弃 Skill，但会移除明显有害的 Skill。 |
+| `patch` | 某个 `failure_mode` 至少出现 2 次 | 把重复失败当成可行动证据，同时降低单样本过拟合。 |
+| `split` | context 至少 3 个，观测至少 4 次 | 避免一条过宽 SOP 覆盖互相不兼容的任务场景。 |
+| `compress` | 观测至少 3 次，且 `success_probability >= 0.72` | 在成功证据稳定后压缩 Skill，降低 token 成本。 |
+
+这些阈值是 v0.5 的保守启发式，不宣称最优。当前目标是提供一套可审计、可替换的 posterior-driven rewrite policy。
 
 ## 🚀 安装
 

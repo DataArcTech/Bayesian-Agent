@@ -12,7 +12,7 @@ P(y | h_k, x) ∝ P(y | h_k) * Π_j P(x_j | y, h_k)
 
 ## 一、当前实现到底使用哪些 evidence features
 
-Bayesian-Agent v0.x 的默认 backend 是 `categorical_bayes`。对每条 `TrajectoryEvidence`，当前实现会抽取这些离散特征：
+Bayesian-Agent v0.5 的默认 backend 是 `categorical_bayes`。对每条 `TrajectoryEvidence`，当前实现会抽取这些离散特征：
 
 ```text
 features = {
@@ -237,7 +237,7 @@ left_expected_output_blank + high token bucket + long turns + high latency
 
 ## 六、真正触发 Skill rewrite 的条件是什么
 
-这里要非常精确。当前 v0.x 的 `RewritePolicy` 并不是直接读取上面的 `P_h(failure | x_risk)` 来决定 rewrite。
+这里要非常精确。当前 v0.5 的 `RewritePolicy` 并不是直接读取上面的 `P_h(failure | x_risk)` 来决定 rewrite。
 
 当前代码中的触发顺序可以概括为：
 
@@ -285,7 +285,7 @@ Current task files and runtime feedback remain authoritative.
 
 - `posterior_success`：用于 Skill 排序和审计展示。
 - feature-conditioned posterior：用于解释某个 failure cluster 为什么危险。
-- `failure_modes` count：当前 v0.x 里实际触发 `patch` 的规则。
+- `failure_modes` count：当前 v0.5 里实际触发 `patch` 的规则。
 
 ## 七、patch 不是泛泛提醒，而是 failure-mode-specific guardrail
 
@@ -304,7 +304,7 @@ failure_mode = left_expected_output_blank
   - If the target cell is empty, write the computed raw category string before finishing.
 ```
 
-这就是 Skill rewrite 在当前 v0.x 里的具体形态：它不是直接生成一个全新的 child Skill，也不是更新模型参数，而是在下一轮 prompt/context 中加入针对失败模式的可执行约束。
+这就是 Skill rewrite 在当前 v0.5 里的具体形态：它不是直接生成一个全新的 child Skill，也不是更新模型参数，而是在下一轮 prompt/context 中加入针对失败模式的可执行约束。
 
 这个 patch 会和稳定的 benchmark guardrails 一起进入下一轮任务 context，例如：
 
@@ -434,7 +434,7 @@ P_h(failure | x_risk) ≈ 0.997
 2. left_expected_output_blank 这类失败簇仍然需要被 guardrail 约束。
 ```
 
-所以当前 v0.x 里，即使后续 repair 成功，`failure_modes` 计数仍然会留在 registry 中。第一次出现的 failure mode 只作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，context 里才会保留相关 active patch。这比“一错就改 skill”更稳，也能降低单个异常样本导致过拟合的风险。
+所以当前 v0.5 里，即使后续 repair 成功，`failure_modes` 计数仍然会留在 registry 中。第一次出现的 failure mode 只作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，context 里才会保留相关 active patch。这比“一错就改 skill”更稳，也能降低单个异常样本导致过拟合的风险。
 
 ## 十、这个例子说明了什么
 
@@ -472,7 +472,7 @@ repair 成功:
 2. **Likelihood**：context、failure mode、token bucket、turn bucket、latency bucket、metadata 都以 categorical likelihood 的形式统计。
 3. **Posterior**：新 evidence 改变下一轮 Skill 排序、failure patch、context 渲染和 repair 行为。
 
-同时也要准确地说，v0.x 不是完整的 Bayesian model selection。它还没有把多个 child Skill hypothesis 放进一个统一的后验竞争框架：
+同时也要准确地说，v0.5 不是完整的 Bayesian model selection。它还没有把多个 child Skill hypothesis 放进一个统一的后验竞争框架：
 
 ```text
 P(h_k | D) ∝ P(D | h_k) P(h_k)
