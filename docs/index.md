@@ -16,6 +16,8 @@ The project focuses on the inference side of agent improvement. Instead of chang
 
 In v0.5, the default Bayesian core is a per-Skill **Bayesian Evidence Model** over verified success/failure evidence and context/runtime features. The current implementation uses a categorical likelihood backend exposed as `categorical_bayes`; the old `naive_bayes` name remains a compatibility alias. The earlier Beta-Bernoulli update remains available as an optional ablation backend. Fuller Bayesian model selection and uncertainty-aware Skill selection are planned in the roadmap.
 
+Agent runs are expensive: tokens are expensive, latency is high, benchmark cases are limited, and real production failures are even rarer. When samples are scarce, each sample is costly, and we cannot wait for large-sample statistics to stabilize, Bayesian modeling lets Bayesian-Agent combine prior belief, uncertainty, and new verified evidence into more stable Skill rewrite decisions.
+
 Bayesian-Agent is designed to avoid being just another agent framework:
 
 - **Full-run evolution from scratch**: run tasks without prior traces and evolve Skills online.
@@ -72,6 +74,7 @@ mkdocs serve
 
 - Start with the [Quick Start](quick-start.md).
 - Read the [Core Concepts](core-concepts.md) if you want the Bayesian framing.
+- Read [Why Bayesian for Skill Evolution](articles/why-bayesian-for-skill-evolution.md) for the small-sample, cost-sensitive motivation.
 - Use the [CLI](cli.md) to update a registry from traces.
 - Read [Adapters](adapters.md) to understand how Bayesian-Agent moves across harnesses.
 - Inspect [Experiments](experiments/index.md) for the GenericAgent + `deepseek-v4-flash` validation.

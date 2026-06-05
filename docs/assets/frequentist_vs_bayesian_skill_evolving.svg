@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050" role="img" aria-labelledby="title desc">
+  <title id="title">Skill Evolving: Frequentist vs Bayesian</title>
+  <desc id="desc">A side-by-side comparison of frequency counting and Bayesian posterior modeling for agent skill evolution.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="46%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#eef7f4"/>
+    </linearGradient>
+    <linearGradient id="freqGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="bayesGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ea580c"/>
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/>
+    </marker>
+    <style>
+      .title { font: 800 62px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #0f172a; letter-spacing: 0; }
+      .subtitle { font: 400 27px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #475569; letter-spacing: 0; }
+      .panelTitle { font: 800 38px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #0f172a; letter-spacing: 0; }
+      .panelSub { font: 500 23px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #475569; letter-spacing: 0; }
+      .step { font: 700 23px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #0f172a; letter-spacing: 0; }
+      .text { font: 400 21px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #334155; letter-spacing: 0; }
+      .small { font: 400 18px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; fill: #64748b; letter-spacing: 0; }
+      .mono { font: 700 22px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; fill: #0f172a; letter-spacing: 0; }
+      .white { fill: #ffffff; }
+      .freq { fill: #c2410c; }
+      .bayes { fill: #0f766e; }
+      .danger { fill: #b91c1c; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1050" fill="url(#background)"/>
+
+  <text x="96" y="92" class="title">Skill Evolving: 频率学派 vs 贝叶斯派</text>
+  <text x="100" y="138" class="subtitle">同样是看执行轨迹并改 Skill，区别在于：计数式阈值，还是 posterior belief 驱动的决策。</text>
+
+  <g transform="translate(110 188)">
+    <rect width="1580" height="104" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+    <circle cx="52" cy="52" r="31" fill="#f59e0b"/>
+    <path d="M52 31 L72 69 H32 Z" fill="#fff"/>
+    <text x="104" y="45" class="step">Agent 每跑一个 case 都很贵</text>
+    <text x="104" y="77" class="text">tokens 贵、latency 高、benchmark case 少、真实业务失败更少；不能等大样本统计稳定后再学习。</text>
+  </g>
+
+  <g transform="translate(110 346)">
+    <rect width="740" height="550" rx="32" fill="#ffffff" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="740" height="96" rx="32" fill="url(#freqGrad)"/>
+    <text x="42" y="61" class="panelTitle white">频率学派式 Skill Repair</text>
+    <text x="42" y="128" class="panelSub">核心问题：小样本下计数容易极端</text>
+
+    <g transform="translate(42 164)">
+      <rect width="160" height="70" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+      <text x="31" y="30" class="step">Trajectory</text>
+      <text x="38" y="55" class="small">执行轨迹</text>
+      <line x1="174" y1="35" x2="226" y2="35" stroke="#ea580c" stroke-width="4" marker-end="url(#arrowOrange)"/>
+      <rect x="240" width="132" height="70" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+      <text x="279" y="30" class="step">Count</text>
+      <text x="269" y="55" class="small">成功/失败</text>
+      <line x1="386" y1="35" x2="438" y2="35" stroke="#ea580c" stroke-width="4" marker-end="url(#arrowOrange)"/>
+      <rect x="452" width="196" height="70" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+      <text x="488" y="30" class="step">Threshold</text>
+      <text x="486" y="55" class="small">达到阈值就改</text>
+    </g>
+
+    <g transform="translate(42 274)">
+      <rect width="656" height="82" rx="20" fill="#fef2f2"/>
+      <text x="24" y="34" class="mono">success_rate = s / n</text>
+      <text x="24" y="64" class="text danger">1/1 = 100%，0/1 = 0%；一次样本就可能过度自信或过度悲观。</text>
+    </g>
+
+    <g transform="translate(42 384)">
+      <rect width="656" height="108" rx="20" fill="#fff7ed"/>
+      <text x="24" y="34" class="step">决策方式</text>
+      <text x="24" y="67" class="text">失败次数超过阈值 -> patch Skill</text>
+      <text x="24" y="97" class="text">成功次数足够多 -> 保留或压缩 Skill</text>
+    </g>
+
+    <text x="42" y="526" class="small">适合：样本多、分布稳定、统计频率已经可靠的场景。</text>
+  </g>
+
+  <g transform="translate(950 346)">
+    <rect width="740" height="550" rx="32" fill="#ffffff" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="740" height="96" rx="32" fill="url(#bayesGrad)"/>
+    <text x="42" y="61" class="panelTitle white">贝叶斯式 Skill Evolution</text>
+    <text x="42" y="128" class="panelSub">核心优势：小样本下保留不确定性，并持续更新 belief</text>
+
+    <g transform="translate(42 164)">
+      <rect width="128" height="70" rx="18" fill="#ecfeff" stroke="#99f6e4"/>
+      <text x="36" y="30" class="step">Prior</text>
+      <text x="37" y="55" class="small">先验</text>
+      <line x1="142" y1="35" x2="190" y2="35" stroke="#0f766e" stroke-width="4" marker-end="url(#arrowTeal)"/>
+      <rect x="204" width="154" height="70" rx="18" fill="#ecfeff" stroke="#99f6e4"/>
+      <text x="242" y="30" class="step">Evidence</text>
+      <text x="231" y="55" class="small">新执行轨迹</text>
+      <line x1="372" y1="35" x2="420" y2="35" stroke="#0f766e" stroke-width="4" marker-end="url(#arrowTeal)"/>
+      <rect x="434" width="180" height="70" rx="18" fill="#ecfeff" stroke="#99f6e4"/>
+      <text x="474" y="30" class="step">Posterior</text>
+      <text x="482" y="55" class="small">后验信念</text>
+    </g>
+
+    <g transform="translate(42 274)">
+      <rect width="656" height="82" rx="20" fill="#ecfeff"/>
+      <text x="24" y="34" class="mono">posterior ∝ likelihood × prior</text>
+      <text x="24" y="64" class="text bayes">Beta(1,1) + 1 success -> 66.7%，不会因为一次成功就变成 100%。</text>
+    </g>
+
+    <g transform="translate(42 384)">
+      <rect width="656" height="108" rx="20" fill="#eff6ff"/>
+      <text x="24" y="34" class="step">决策方式</text>
+      <text x="24" y="67" class="text">posterior + failure clustering -> patch / split / compress / retire</text>
+      <text x="24" y="97" class="text">context、failure mode、token、turn、latency、metadata 一起成为证据</text>
+    </g>
+
+    <text x="42" y="526" class="small">适合：小样本、高成本、可验证、在线持续改进的 Agent 场景。</text>
+  </g>
+
+  <g transform="translate(250 940)">
+    <rect width="1300" height="62" rx="31" fill="#0f172a"/>
+    <text x="58" y="39" class="white" style="font: 700 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; letter-spacing: 0;">
+      从“错了几次？”升级为“在这些证据条件下，这条 Skill 还值得相信吗？”
+    </text>
+  </g>
+</svg>

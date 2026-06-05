@@ -85,6 +85,14 @@ P(success | theta, C, skill)
 
 每次得到经过验证的执行轨迹后，框架都会更新该 Skill 的 posterior belief。posterior 用于内部 Skill 排序、rewrite 决策和 failure-mode patch 生成；benchmark 的真实模型输入只接收可执行 Skill/SOP 文本，而不是原始概率摘要。
 
+### 为什么用贝叶斯，而不是普通频率计数
+
+Bayesian-Agent 的表层行为看起来确实像 failure-driven Skill repair：检查执行轨迹，看错在哪里，然后针对性改 Skill。贝叶斯建模的优势在于，框架不只保存 patch，还会维护“这条 Skill 在什么条件下值得相信”的 posterior belief。
+
+Agent 每跑一个 case 都很贵：tokens 贵、latency 高、benchmark case 少、真实业务失败更少。在样本少、每个样本很贵、不能等到大样本统计稳定时，贝叶斯可以把先验、不确定性和新证据统一起来，做更稳健的决策。
+
+所以 Bayesian-Agent 尤其适合小样本、高成本、可验证、可持续积累经验的 Agent Skill/SOP 进化场景。完整解释见 [为什么 Bayesian-Agent 要用贝叶斯建模 Skill 进化](docs/articles/why-bayesian-for-skill-evolution.md)。
+
 ### v0.5 里的 “Bayesian” 准确指什么
 
 当前 Bayesian-Agent v0.5 默认使用 **Bayesian Evidence Model**。它的默认实现是 feature-conditioned categorical likelihood model：为每条 Skill/SOP 估计它在某类证据特征下成功或失败的概率。特征包括 task context、failure mode、token bucket、turn bucket、latency bucket 以及部分 metadata。

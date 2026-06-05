@@ -85,6 +85,14 @@ P(success | theta, C, skill)
 
 After each verified trajectory, the framework updates a posterior belief over that Skill. The posterior is used internally for Skill ranking, rewrite decisions, and failure-mode patches; model-facing benchmark prompts receive executable Skill/SOP text instead of raw probability summaries.
 
+### Why Bayesian Instead of Plain Frequency Counting
+
+The surface behavior of Bayesian-Agent may look like failure-driven Skill repair: inspect a trajectory, find what went wrong, and patch the Skill. The Bayesian advantage is that the framework does not only store the patch. It also maintains a posterior belief about when the Skill should be trusted.
+
+Agent runs are expensive: tokens are expensive, latency is high, benchmark cases are limited, and real production failures are even rarer. When samples are scarce, each sample is costly, and we cannot wait for large-sample statistics to stabilize, Bayesian modeling lets Bayesian-Agent combine prior belief, uncertainty, and new verified evidence into more stable decisions.
+
+This is why Bayesian-Agent is especially useful for sample-scarce, cost-sensitive, online Skill/SOP evolution. Read the full explanation in [Why Bayesian for Skill Evolution](docs/articles/why-bayesian-for-skill-evolution.md).
+
 ### What "Bayesian" Means in v0.5
 
 Current Bayesian-Agent v0.5 defaults to a **Bayesian Evidence Model** for each Skill/SOP. The default implementation is a feature-conditioned categorical likelihood model: it estimates whether a Skill will succeed under observed evidence features such as task context, failure mode, token bucket, turn bucket, latency bucket, and selected metadata.
