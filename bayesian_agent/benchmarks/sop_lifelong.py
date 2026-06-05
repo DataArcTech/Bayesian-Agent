@@ -25,6 +25,7 @@ from bayesian_agent.core.repair import (
     summarize,
     summarize_incremental_lift,
 )
+from bayesian_agent.harness import HarnessTask, ensure_harness
 
 
 DEFAULT_DATA_ROOT = Path(__file__).resolve().parents[3] / "GA-Technical-Report" / "datasets"
@@ -41,6 +42,7 @@ def run_sop_lifelong(
     limit: int = 0,
     max_turns: int = 8,
     baseline_paths: Optional[Sequence[str]] = None,
+    agent_name: str = "",
 ) -> Mapping[str, Any]:
     """Run SOP-Bench and/or Lifelong AgentBench."""
 
@@ -51,6 +53,7 @@ def run_sop_lifelong(
     bayesian_enabled = mode in {"bayesian-full", "bayesian-incremental"}
     out_root.mkdir(parents=True, exist_ok=True)
     registry = prepare_belief_store(out_root, mode)
+    harness = ensure_harness(adapter, cortex_path=out_root / "cortical_memory.json", registry=registry)
 
     baseline_results = load_results_from_paths(baseline_paths or [], selected) if mode == "bayesian-incremental" else {}
     only_failed = failed_task_ids(baseline_results) if baseline_results else {}
@@ -60,7 +63,7 @@ def run_sop_lifelong(
     results: MutableMapping[str, Any] = {}
     if "sop_bench" in selected:
         results["sop_bench"] = run_sop_bench(
-            adapter,
+            harness,
             data_root=data_root,
             out_root=out_root,
             registry=registry,
@@ -71,7 +74,7 @@ def run_sop_lifelong(
         )
     if "lifelong_agentbench" in selected:
         results["lifelong_agentbench"] = run_lifelong_bench(
-            adapter,
+            harness,
             data_root=data_root,
             out_root=out_root,
             registry=registry,
@@ -107,7 +110,7 @@ def run_sop_lifelong(
         "skill_evolution_artifacts": str(out_root / "skill_evolution") if bayesian_enabled else "",
     }
     write_json(out_root / "results.json", payload)
-    write_table(out_root / "table.md", summaries, model=model, agent_name=agent_name_for_mode(mode))
+    write_table(out_root / "table.md", summaries, model=model, agent_name=agent_name or agent_name_for_mode(mode))
     return payload
 
 
@@ -161,7 +164,7 @@ def replay_skill_evolution_artifacts(out_root: Path, results_payload: Mapping[st
 
 
 def run_sop_bench(
-    adapter,
+    harness,
     *,
     data_root: Path,
     out_root: Path,
@@ -184,19 +187,28 @@ def run_sop_bench(
         workspace = out_root / "sop_bench" / f"task_{idx:02d}"
         setup_sop_workspace(bench_dir, workspace)
         prompt = build_sop_prompt(idx, workspace)
+        skill_context = ""
         if bayesian_enabled:
-            context = build_benchmark_skill_context("sop_bench", registry)
+            skill_context = build_benchmark_skill_context("sop_bench", registry)
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark="sop_bench",
                 task_id=task_id,
                 stage="before",
                 registry=registry,
-                context=context,
+                context=skill_context,
             )
-            if context:
-                prompt = f"{context}\n\n{prompt}"
-        run = adapter.run_task(prompt=prompt, workspace=workspace, max_turns=max_turns)
+        run = harness.run_task(
+            HarnessTask(
+                task_id=task_id,
+                prompt=prompt,
+                workspace=workspace,
+                max_turns=max_turns,
+                skill_context=skill_context,
+                memory_context=bayesian_enabled,
+                task_context="sop_bench",
+            )
+        )
         got = read_sop_answer(workspace, idx)
         expected = row["expected_output"].strip()
         result = {
@@ -210,7 +222,15 @@ def run_sop_bench(
         result["failure_mode"] = classify_failure("sop_bench", result)
         results.append(result)
         if bayesian_enabled:
-            record_benchmark_run(registry, "sop_bench", result)
+            harness.record_outcome(
+                result,
+                skill_id="benchmark/sop_bench",
+                context="sop_bench",
+                success=bool(result["success"]),
+                failure_mode=str(result["failure_mode"]),
+                summary=task_id,
+                metadata={"benchmark": "sop_bench"},
+            )
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark="sop_bench",
@@ -225,7 +245,7 @@ def run_sop_bench(
 
 
 def run_lifelong_bench(
-    adapter,
+    harness,
     *,
     data_root: Path,
     out_root: Path,
@@ -250,19 +270,28 @@ def run_lifelong_bench(
         workspace = out_root / "lifelong_agentbench" / f"task_{int(key):02d}"
         setup_lifelong_workspace(entry, workspace)
         prompt = build_lifelong_prompt(entry, workspace)
+        skill_context = ""
         if bayesian_enabled:
-            context = build_benchmark_skill_context("lifelong_agentbench", registry)
+            skill_context = build_benchmark_skill_context("lifelong_agentbench", registry)
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark="lifelong_agentbench",
                 task_id=task_id,
                 stage="before",
                 registry=registry,
-                context=context,
+                context=skill_context,
             )
-            if context:
-                prompt = f"{context}\n\n{prompt}"
-        run = adapter.run_task(prompt=prompt, workspace=workspace, max_turns=max_turns)
+        run = harness.run_task(
+            HarnessTask(
+                task_id=task_id,
+                prompt=prompt,
+                workspace=workspace,
+                max_turns=max_turns,
+                skill_context=skill_context,
+                memory_context=bayesian_enabled,
+                task_context="lifelong_agentbench",
+            )
+        )
         got_sql = read_lifelong_answer(workspace, run)
         expected_sql = entry["answer_info"]["sql"]
         success = False
@@ -283,7 +312,15 @@ def run_lifelong_bench(
         result["failure_mode"] = classify_failure("lifelong_agentbench", result)
         results.append(result)
         if bayesian_enabled:
-            record_benchmark_run(registry, "lifelong_agentbench", result)
+            harness.record_outcome(
+                result,
+                skill_id="benchmark/lifelong_agentbench",
+                context="lifelong_agentbench",
+                success=bool(result["success"]),
+                failure_mode=str(result["failure_mode"]),
+                summary=task_id,
+                metadata={"benchmark": "lifelong_agentbench"},
+            )
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark="lifelong_agentbench",

@@ -11,7 +11,6 @@ from typing import Any, Iterable, Mapping, MutableMapping, Optional, Sequence
 from bayesian_agent.benchmarks.evolution import (
     build_benchmark_skill_context,
     classify_failure,
-    record_benchmark_run,
     save_skill_evolution_snapshot,
     seed_registry_from_results,
 )
@@ -26,6 +25,7 @@ from bayesian_agent.benchmarks.sop_lifelong import (
 )
 from bayesian_agent.core.registry import BayesianSkillRegistry
 from bayesian_agent.core.repair import failed_task_ids, merge_repairs, summarize, summarize_incremental_lift
+from bayesian_agent.harness import HarnessTask, ensure_harness
 
 
 BENCHMARK = "realfin_benchmark"
@@ -41,6 +41,7 @@ def run_realfin(
     limit: int = 0,
     max_turns: int = 8,
     baseline_paths: Optional[Sequence[str]] = None,
+    agent_name: str = "",
 ) -> Mapping[str, Any]:
     """Run RealFin-Bench with optional Bayesian Skill evolution."""
 
@@ -50,6 +51,7 @@ def run_realfin(
     bayesian_enabled = mode in {"bayesian-full", "bayesian-incremental"}
     out_root.mkdir(parents=True, exist_ok=True)
     registry = prepare_belief_store(out_root, mode)
+    harness = ensure_harness(adapter, cortex_path=out_root / "cortical_memory.json", registry=registry)
 
     baseline_results = (
         load_results_from_paths(baseline_paths or [], {BENCHMARK})
@@ -62,7 +64,7 @@ def run_realfin(
 
     results: MutableMapping[str, Any] = {
         BENCHMARK: run_realfin_bench(
-            adapter,
+            harness,
             data_root=data_root,
             out_root=out_root,
             registry=registry,
@@ -100,12 +102,12 @@ def run_realfin(
         "cache_manifest": str(build_realfin_cache_manifest(data_root)["manifest_path"]),
     }
     write_json(out_root / "results.json", payload)
-    write_table(out_root / "table.md", summaries, model=model, agent_name=agent_name_for_mode(mode))
+    write_table(out_root / "table.md", summaries, model=model, agent_name=agent_name or agent_name_for_mode(mode))
     return payload
 
 
 def run_realfin_bench(
-    adapter,
+    harness,
     *,
     data_root: Path,
     out_root: Path,
@@ -126,23 +128,34 @@ def run_realfin_bench(
     for pos, task in enumerate(tasks, 1):
         task_id = str(task["id"])
         workspace = out_root / BENCHMARK / task_id
-        setup_realfin_workspace(task, data_root=data_root, workspace=workspace)
-        prompt = build_realfin_prompt(task, workspace)
-        if bayesian_enabled:
-            context = build_benchmark_skill_context(BENCHMARK, registry)
-            save_skill_evolution_snapshot(
-                out_root=out_root,
-                benchmark=BENCHMARK,
-                task_id=task_id,
-                stage="before",
-                registry=registry,
-                context=context,
-            )
-            if context:
-                prompt = f"{context}\n\n{prompt}"
+        run = load_existing_adapter_run(harness, workspace)
+        if run is None:
+            setup_realfin_workspace(task, data_root=data_root, workspace=workspace)
+            prompt = build_realfin_prompt(task, workspace)
+            skill_context = ""
+            if bayesian_enabled:
+                skill_context = build_benchmark_skill_context(BENCHMARK, registry)
+                save_skill_evolution_snapshot(
+                    out_root=out_root,
+                    benchmark=BENCHMARK,
+                    task_id=task_id,
+                    stage="before",
+                    registry=registry,
+                    context=skill_context,
+                )
 
-        turns = max_turns or max(3, int(task.get("timeout_seconds", 300) or 300) // 60)
-        run = adapter.run_task(prompt=prompt, workspace=workspace, max_turns=turns)
+            turns = max_turns or max(3, int(task.get("timeout_seconds", 300) or 300) // 60)
+            run = harness.run_task(
+                HarnessTask(
+                    task_id=task_id,
+                    prompt=prompt,
+                    workspace=workspace,
+                    max_turns=turns,
+                    skill_context=skill_context,
+                    memory_context=bayesian_enabled,
+                    task_context=BENCHMARK,
+                )
+            )
         scores, success, error = grade_realfin_task(task, run, workspace)
         result = {
             **run,
@@ -159,7 +172,15 @@ def run_realfin_bench(
         result["failure_mode"] = classify_failure(BENCHMARK, result)
         results.append(result)
         if bayesian_enabled:
-            record_benchmark_run(registry, BENCHMARK, result)
+            harness.record_outcome(
+                result,
+                skill_id=f"benchmark/{BENCHMARK}",
+                context=BENCHMARK,
+                success=bool(result["success"]),
+                failure_mode=str(result["failure_mode"]),
+                summary=task_id,
+                metadata={"benchmark": BENCHMARK},
+            )
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark=BENCHMARK,
@@ -175,6 +196,13 @@ def run_realfin_bench(
             flush=True,
         )
     return results
+
+
+def load_existing_adapter_run(adapter, workspace: Path):
+    loader = getattr(adapter, "load_run_from_workspace", None)
+    if not loader:
+        return None
+    return loader(workspace)
 
 
 def load_realfin_tasks(data_root: Path):

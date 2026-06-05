@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run Bayesian-Agent benchmarks with GenericAgent as the execution harness."""
+"""Run Bayesian-Agent benchmarks through the BA harness core."""
 
 from __future__ import annotations
 
@@ -16,9 +16,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from bayesian_agent.adapters.bayesian_agent import NativeBayesianAgentAdapter
+from bayesian_agent.adapters.claude_code import ClaudeCodeAdapter
 from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
+from bayesian_agent.adapters.mini_swe_agent import MiniSWEAgentAdapter
 from bayesian_agent.benchmarks.realfin import run_realfin
 from bayesian_agent.benchmarks.sop_lifelong import DEFAULT_DATA_ROOT, run_sop_lifelong
+from bayesian_agent.harness import AgentHarness
 
 
 BENCH_CHOICES = ("core", "sop", "lifelong", "realfin")
@@ -84,7 +88,12 @@ def build_run_plan(mode: str, out_root: Path, baseline_paths: Sequence[str]) -> 
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run Bayesian-Agent benchmarks through GenericAgent.")
+    parser = argparse.ArgumentParser(description="Run Bayesian-Agent benchmarks through the BA harness core.")
+    parser.add_argument(
+        "--harness",
+        choices=["bayesian-agent", "genericagent", "claude-code", "mini-swe-agent"],
+        default="bayesian-agent",
+    )
     parser.add_argument("--mode", choices=["all", "baseline", "bayesian-full", "bayesian-incremental"], default="all")
     parser.add_argument("--bench", choices=BENCH_CHOICES, default="core")
     parser.add_argument("--model", default="deepseek-v4-flash")
@@ -103,17 +112,53 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--host-header", default="", help="Optional Host header for fixed-IP provider routing.")
     parser.add_argument("--protocol", choices=["openai", "anthropic"], default="openai")
     parser.add_argument("--disable-ssl-verify", action="store_true", help="Disable Python requests SSL verification for this run.")
+    parser.add_argument("--claude-cli", default="claude", help="Claude Code CLI path for --harness claude-code.")
+    parser.add_argument("--claude-permission-mode", default="bypassPermissions")
+    parser.add_argument("--claude-timeout", type=int, default=900)
+    parser.add_argument("--claude-max-budget-usd", type=float, default=0.0)
+    parser.add_argument("--mini-swe-agent-root", default="", help="Local mini-swe-agent checkout. Defaults to discovery.")
+    parser.add_argument("--mini-swe-config", default="default", help="mini-swe-agent config spec.")
+    parser.add_argument("--mini-swe-env-timeout", type=int, default=60)
+    parser.add_argument("--mini-swe-wall-time-limit", type=int, default=0)
+    parser.add_argument("--native-timeout", type=int, default=180, help="Native BA harness request/tool timeout seconds.")
+    parser.add_argument("--native-max-tokens", type=int, default=4096)
+    parser.add_argument("--native-temperature", type=float, default=0.0)
     parser.add_argument("--baseline-results", action="append", default=[], help="Baseline results.json for incremental mode.")
     parser.add_argument("--dry-run", action="store_true", help="Print planned runs without calling the model.")
     return parser
 
 
-def main(argv: Sequence[str] = None) -> int:
-    args = build_parser().parse_args(argv)
-    load_env_file()
-    args.api_key_env = args.api_key_env or "DEEPSEEK_API_KEY"
-    benchmark_runs = build_benchmark_runs(args.bench, args.model, args.out_root)
-    adapter = GenericAgentAdapter(
+def build_adapter(args: argparse.Namespace):
+    if args.harness == "bayesian-agent":
+        return NativeBayesianAgentAdapter(
+            model=args.model,
+            api_key_env=args.api_key_env,
+            base_url=args.base_url,
+            timeout_seconds=args.native_timeout,
+            max_tokens=args.native_max_tokens,
+            temperature=args.native_temperature,
+            verify_ssl=not args.disable_ssl_verify,
+            host_header=args.host_header,
+        )
+    if args.harness == "claude-code":
+        return ClaudeCodeAdapter(
+            model=args.model,
+            cli_path=args.claude_cli,
+            permission_mode=args.claude_permission_mode,
+            timeout_seconds=args.claude_timeout,
+            max_budget_usd=args.claude_max_budget_usd or None,
+        )
+    if args.harness == "mini-swe-agent":
+        return MiniSWEAgentAdapter(
+            root=args.mini_swe_agent_root or None,
+            model=args.model,
+            api_key_env=args.api_key_env,
+            base_url=args.base_url,
+            config=args.mini_swe_config,
+            environment_timeout=args.mini_swe_env_timeout,
+            wall_time_limit_seconds=args.mini_swe_wall_time_limit,
+        )
+    return GenericAgentAdapter(
         root=args.genericagent_root or None,
         model=args.model,
         api_key_env=args.api_key_env,
@@ -124,8 +169,23 @@ def main(argv: Sequence[str] = None) -> int:
         host_header=args.host_header,
     )
 
+
+def build_harness(adapter) -> AgentHarness:
+    if isinstance(adapter, AgentHarness):
+        return adapter
+    return AgentHarness(adapter)
+
+
+def main(argv: Sequence[str] = None) -> int:
+    args = build_parser().parse_args(argv)
+    load_env_file()
+    args.api_key_env = args.api_key_env or "DEEPSEEK_API_KEY"
+    benchmark_runs = build_benchmark_runs(args.bench, args.model, args.out_root)
+    adapter = build_adapter(args)
+    harness = build_harness(adapter)
+
     if args.dry_run:
-        print_dry_run(adapter, args, benchmark_runs)
+        print_dry_run(harness, args, benchmark_runs)
         return 0
 
     for benchmark in benchmark_runs:
@@ -144,7 +204,7 @@ def main(argv: Sequence[str] = None) -> int:
                     )
             print(f"[experiment] starting {benchmark.bench}:{spec.name} -> {spec.out}", flush=True)
             started = time.time()
-            result = run_selected_benchmark(adapter, args, spec, benchmark.bench)
+            result = run_selected_benchmark(harness, args, spec, benchmark.bench)
             completed.append(
                 {
                     "name": spec.name,
@@ -157,12 +217,12 @@ def main(argv: Sequence[str] = None) -> int:
                 }
             )
             print(f"[experiment] finished {benchmark.bench}:{spec.name}", flush=True)
-        write_experiment_summary(out_root, args.model, benchmark.bench, completed)
+        write_experiment_summary(out_root, args.model, benchmark.bench, completed, harness=args.harness)
     return 0
 
 
 def run_selected_benchmark(
-    adapter: GenericAgentAdapter,
+    adapter,
     args: argparse.Namespace,
     spec: ExperimentRun,
     bench: str,
@@ -176,6 +236,7 @@ def run_selected_benchmark(
         "limit": args.limit,
         "max_turns": args.max_turns,
         "baseline_paths": spec.baseline_paths,
+        "agent_name": agent_name_for_harness(args.harness, spec.mode),
     }
     if bench == "realfin":
         return run_realfin(**common)
@@ -183,12 +244,18 @@ def run_selected_benchmark(
 
 
 def print_dry_run(
-    adapter: GenericAgentAdapter,
+    adapter,
     args: argparse.Namespace,
     benchmark_runs: Sequence[BenchmarkRun],
 ) -> None:
+    backend = adapter.adapter if isinstance(adapter, AgentHarness) else adapter
     header = {
-        "genericagent_root": str(adapter.resolve_root()),
+        "harness": args.harness,
+        "ba_harness_core": isinstance(adapter, AgentHarness),
+        "harness_root": str(backend.resolve_root()) if hasattr(backend, "resolve_root") else "",
+        "native_first_party": isinstance(backend, NativeBayesianAgentAdapter),
+        "claude_cli": backend.cli_path if isinstance(backend, ClaudeCodeAdapter) else "",
+        "mini_swe_config": backend.config if isinstance(backend, MiniSWEAgentAdapter) else "",
         "data_root": str(Path(args.data_root).resolve()),
         "model": args.model,
         "requested_bench": args.bench,
@@ -203,6 +270,21 @@ def print_dry_run(
             print(f"[{spec.name}] mode={spec.mode} out={spec.out}")
             if spec.baseline_paths:
                 print("baseline_results=" + ",".join(spec.baseline_paths))
+
+
+def agent_name_for_harness(harness: str, mode: str) -> str:
+    base = {
+        "bayesian-agent": "BA",
+        "genericagent": "GA",
+        "claude-code": "ClaudeCode",
+        "mini-swe-agent": "MiniSWEAgent",
+    }.get(harness, harness)
+    mode = mode.replace("_", "-")
+    if mode == "bayesian-incremental":
+        return f"{base}+BayesianIncremental"
+    if mode == "bayesian-full":
+        return f"{base}+Bayesian"
+    return base
 
 
 def load_env_file(path: Path = None) -> None:
@@ -227,12 +309,13 @@ def write_experiment_summary(
     model: str,
     bench: str,
     completed: Sequence[Mapping[str, object]],
+    harness: str = "genericagent",
 ) -> None:
     title = benchmark_title(bench)
     lines = [
         f"# {title}: {model}",
         "",
-        "This experiment uses GenericAgent as the execution harness and Bayesian-Agent for benchmark orchestration and Skill evolution.",
+        f"This experiment uses Bayesian-Agent harness core with {agent_name_for_harness(harness, 'baseline')} as the backend and Bayesian Skill evolution.",
         "",
     ]
     for item in completed:

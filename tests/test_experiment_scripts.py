@@ -1,10 +1,16 @@
 import unittest
 import os
 import tempfile
+from argparse import Namespace
 from pathlib import Path
 
+from bayesian_agent.adapters.bayesian_agent import NativeBayesianAgentAdapter
+from bayesian_agent.adapters.claude_code import ClaudeCodeAdapter
+from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
+from bayesian_agent.adapters.mini_swe_agent import MiniSWEAgentAdapter
 from bayesian_agent.benchmarks.sop_lifelong import compact_baseline_run, incremental_task_filter, prepare_belief_store, replay_skill_evolution_artifacts
 from bayesian_agent.core.evidence import TrajectoryEvidence
+from bayesian_agent.harness import AgentHarness
 from experiments import run_benchmarks
 from experiments.run_benchmarks import build_run_plan, load_env_file
 
@@ -36,6 +42,50 @@ class SopLifelongExperimentTests(unittest.TestCase):
             [spec.out_root for spec in explicit_specs],
             [Path("/tmp/ba-core/sop"), Path("/tmp/ba-core/lifelong")],
         )
+
+    def test_build_adapter_selects_claude_code_or_genericagent(self):
+        base = {
+            "model": "deepseek-v4-flash",
+            "genericagent_root": "../GenericAgent",
+            "api_key_env": "DEEPSEEK_API_KEY",
+            "base_url": "https://api.deepseek.com",
+            "anthropic_base_url": "https://api.deepseek.com/anthropic",
+            "protocol": "openai",
+            "disable_ssl_verify": False,
+            "host_header": "",
+            "claude_cli": "claude",
+            "claude_permission_mode": "bypassPermissions",
+            "claude_timeout": 900,
+            "claude_max_budget_usd": 0.0,
+            "mini_swe_agent_root": "../mini-swe-agent",
+            "mini_swe_config": "default",
+            "mini_swe_env_timeout": 60,
+            "mini_swe_wall_time_limit": 0,
+            "native_timeout": 180,
+            "native_max_tokens": 4096,
+            "native_temperature": 0.0,
+        }
+
+        native = run_benchmarks.build_adapter(Namespace(**{**base, "harness": "bayesian-agent"}))
+        self.assertIsInstance(run_benchmarks.build_adapter(Namespace(**{**base, "harness": "genericagent"})), GenericAgentAdapter)
+        claude = run_benchmarks.build_adapter(Namespace(**{**base, "harness": "claude-code"}))
+        mini = run_benchmarks.build_adapter(Namespace(**{**base, "harness": "mini-swe-agent"}))
+
+        self.assertIsInstance(native, NativeBayesianAgentAdapter)
+        self.assertIn("first-party", native.integration_note())
+        self.assertIsInstance(claude, ClaudeCodeAdapter)
+        self.assertEqual(claude.model, "deepseek-v4-flash")
+        self.assertIsInstance(mini, MiniSWEAgentAdapter)
+        self.assertEqual(mini.model, "deepseek-v4-flash")
+
+    def test_build_harness_wraps_selected_adapter(self):
+        class Adapter:
+            pass
+
+        harness = run_benchmarks.build_harness(Adapter())
+
+        self.assertIsInstance(harness, AgentHarness)
+        self.assertIsInstance(harness.adapter, Adapter)
 
     def test_incremental_filter_runs_zero_tasks_for_bench_without_failures(self):
         baseline_results = {"sop_bench": [{"task_id": "sop_01", "success": True}]}

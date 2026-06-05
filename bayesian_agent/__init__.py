@@ -16,21 +16,31 @@ from bayesian_agent.core.context import SkillContextBuilder
 from bayesian_agent.core.evidence import TrajectoryEvidence
 from bayesian_agent.core.policy import RewritePolicy
 from bayesian_agent.core.registry import BayesianSkillRegistry
+from bayesian_agent.harness import AgentHarness, HarnessTask, NativeBayesianAgentAdapter, ensure_harness
+from bayesian_agent.memory import CorticalMemory, HippocampusMemory, StateMemory, ThreeLayerMemory
 
 __all__ = [
+    "AgentHarness",
     "BayesianSkillRegistry",
     "BetaBernoulliState",
     "CATEGORICAL_BAYES",
+    "CorticalMemory",
     "CategoricalBayesState",
     "DEFAULT_ALGORITHM",
+    "HarnessTask",
+    "HippocampusMemory",
     "NAIVE_BAYES_ALIAS",
     "NaiveBayesState",
+    "NativeBayesianAgentAdapter",
     "RewriteDecision",
     "RewritePolicy",
     "SkillBelief",
     "SkillContextBuilder",
+    "StateMemory",
     "SUPPORTED_ALGORITHMS",
+    "ThreeLayerMemory",
     "TrajectoryEvidence",
+    "ensure_harness",
     "features_from_event",
     "normalize_algorithm",
 ]
