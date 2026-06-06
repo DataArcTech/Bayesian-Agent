@@ -36,6 +36,74 @@ roots under `results/claude_code_smoke/`.
 | deepseek-v4-pro[1m] | Lifelong AgentBench | 20/20 (100%) | 1,552,632 | 12.88 | none |
 | deepseek-v4-pro[1m] | RealFin-Bench | 26/40 (65%) | 27,034,780 | 0.96 | 14 tasks |
 
+## Bayesian-Agent Modes with Claude Code Backend
+
+These runs use Claude Code as the task execution backend and Bayesian-Agent for
+benchmark orchestration, verifier grading, Skill evidence updates, and
+failure-mode patch injection.
+
+Evidence type: newly run / verified local artifact, 2026-06-06 to 2026-06-07.
+Metrics were read from:
+
+```text
+results/claude_code/{deepseek_v4_flash,deepseek_v4_pro_1m}/{sop,lifelong,realfin}/{baseline,bayesian_full,bayesian_incremental}/results.json
+```
+
+Commands used the same shape for all three benchmarks:
+
+```bash
+python experiments/run_benchmarks.py \
+  --harness claude-code \
+  --model "$MODEL" \
+  --bench "$BENCH" \
+  --mode "$MODE" \
+  --out-root "results/claude_code/${MODEL_SLUG}/${BENCH}"
+```
+
+For `bayesian_incremental`, the runner received the matching Claude Code
+baseline `results.json` and reran only failed tasks.
+
+### deepseek-v4-flash
+
+| Benchmark | Mode | Score | Repaired | Input Tokens | Output Tokens | Total Tokens | Efficiency | Cumulative Tokens |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| SOP-Bench | baseline | 18/20 (90.0%) | - | 5.81M | 78k | 5.89M | 3.06 | - |
+| SOP-Bench | bayesian_full | 20/20 (100.0%) | - | 3.39M | 55k | 3.44M | 5.81 | - |
+| SOP-Bench | bayesian_incremental | 20/20 (100.0%) | 2/2 | 360k | 6k | 366k | 5.46 | 6.25M |
+| Lifelong AgentBench | baseline | 20/20 (100.0%) | - | 1.53M | 25k | 1.55M | 12.88 | - |
+| Lifelong AgentBench | bayesian_full | 20/20 (100.0%) | - | 1.54M | 24k | 1.57M | 12.77 | - |
+| Lifelong AgentBench | bayesian_incremental | 20/20 (100.0%) | 0/0 | 0 | 0 | 0 | 0.00 | 1.55M |
+| RealFin-Bench | baseline | 31/40 (77.5%) | - | 48.57M | 841k | 49.41M | 0.63 | - |
+| RealFin-Bench | bayesian_full | 32/40 (80.0%) | - | 47.18M | 774k | 47.95M | 0.67 | - |
+| RealFin-Bench | bayesian_incremental | 35/40 (87.5%) | 4/9 | 7.04M | 152k | 7.19M | 0.56 | 56.61M |
+
+### deepseek-v4-pro[1m]
+
+| Benchmark | Mode | Score | Repaired | Input Tokens | Output Tokens | Total Tokens | Efficiency | Cumulative Tokens |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| SOP-Bench | baseline | 13/20 (65.0%) | - | 2.71M | 50k | 2.76M | 4.71 | - |
+| SOP-Bench | bayesian_full | 19/20 (95.0%) | - | 2.78M | 45k | 2.82M | 6.74 | - |
+| SOP-Bench | bayesian_incremental | 20/20 (100.0%) | 7/7 | 958k | 20k | 977k | 7.16 | 3.74M |
+| Lifelong AgentBench | baseline | 20/20 (100.0%) | - | 1.53M | 24k | 1.55M | 12.88 | - |
+| Lifelong AgentBench | bayesian_full | 20/20 (100.0%) | - | 1.55M | 24k | 1.57M | 12.74 | - |
+| Lifelong AgentBench | bayesian_incremental | 20/20 (100.0%) | 0/0 | 0 | 0 | 0 | 0.00 | 1.55M |
+| RealFin-Bench | baseline | 26/40 (65.0%) | - | 26.53M | 509k | 27.03M | 0.96 | - |
+| RealFin-Bench | bayesian_full | 27/40 (67.5%) | - | 32.04M | 691k | 32.73M | 0.82 | - |
+| RealFin-Bench | bayesian_incremental | 30/40 (75.0%) | 4/14 | 14.15M | 296k | 14.45M | 0.28 | 41.48M |
+
+Notes:
+
+- Incremental rows report repair-only token usage. `Cumulative Tokens` reports
+  baseline cost plus the incremental repair run cost.
+- Lifelong AgentBench had no failed baseline tasks, so the incremental run
+  performed no model calls and records `0` repair tokens for both models.
+- SOP-Bench shows the clearest benefit. With `deepseek-v4-flash`, Bayesian
+  full self-evolution reaches 100% while using fewer total tokens than the
+  Claude Code baseline. With `deepseek-v4-pro[1m]`, incremental repair fixes
+  all 7 baseline failures and raises final accuracy from 65.0% to 100.0%.
+- RealFin-Bench benefits from incremental repair on both models: `deepseek-v4-flash`
+  rises from 77.5% to 87.5%, and `deepseek-v4-pro[1m]` rises from 65.0% to 75.0%.
+
 ## Smoke Results
 
 | Model | Benchmark | Accuracy | Total Tokens | Efficiency | Failed Tasks |

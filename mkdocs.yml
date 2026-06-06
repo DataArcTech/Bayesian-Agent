@@ -55,7 +55,10 @@ nav:
   - Python API: python-api.md
   - Adapters: adapters.md
   - Schemas: schemas.md
-  - Experiments: experiments/index.md
+  - Experiments:
+      - Overview: experiments/index.md
+      - Claude Code Backend: experiments/claude-code.md
+      - mini-swe-agent Backend: experiments/mini-swe-agent.md
   - Articles:
       - Zhihu Repo Introduction: articles/zhihu-bayesian-agent.md
       - Bayesian Evidence and Acquired Learning: articles/bayesian-evidence-acquired-learning.md
