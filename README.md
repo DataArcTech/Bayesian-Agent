@@ -11,9 +11,9 @@
   📄 arXiv Coming Soon
 </p>
 
-Bayesian-Agent is a Bayesian self-evolving layer for turning agent failures into reusable, evidence-weighted Skills and SOPs across agent frameworks and execution harnesses.
+Bayesian-Agent is a Bayesian self-evolving layer for turning verified agent trajectories into reusable, evidence-weighted Skills and SOPs across agent frameworks and execution harnesses.
 
-It is designed to stand out from monolithic agent frameworks in three ways:
+It supports three usage patterns:
 
 - **Run from scratch**: start with no prior traces and evolve Skills during full benchmark or production runs.
 - **Repair incrementally**: attach to an existing agent, read its failed trajectories, and rerun only the tasks that need repair.
@@ -26,21 +26,15 @@ It is designed to stand out from monolithic agent frameworks in three ways:
 - **2026-06-05:** Added full-sample native-harness results for SOP-Bench, Lifelong AgentBench, and RealFin-Bench with `deepseek-v4-flash` and `deepseek-v4-pro`; see [Experimental Results](#-experimental-results).
 - **2026-06-05:** Added the first-party Bayesian-Agent native harness. It runs its own LLM loop, workspace tools, three-layer memory, and trajectory capture; GenericAgent, mini-swe-agent, and Claude Code remain optional compatibility backends. See the [Native Harness design note](docs/native-harness.md).
 - **2026-05-31:** Added the Bayesian Evidence Model as the default Skill belief backend, with a categorical likelihood implementation and a legacy Beta-Bernoulli backend for ablations.
-- **2026-05-09:** Released Bayesian-Agent v0.4 as a standalone cross-harness Bayesian Skill Evolution package with schemas, CLI utilities, and experiment artifacts.
+- **2026-05-09:** Released Bayesian-Agent as a standalone cross-harness Bayesian Skill Evolution package with schemas, CLI utilities, and experiment artifacts.
 - **2026-05-09:** Added the optional GenericAgent adapter boundary without copying or vendoring GenericAgent.
 - **2026-05-09:** Published bilingual project documentation and the Bayesian-Agent framework diagram.
 
 ## 🌟 Overview
 
-Agent engineering is moving through three layers:
+Prompt Engineering improves task instructions. Context Engineering controls what evidence the model sees at inference time. Harness Engineering puts the model inside an observable, executable, recoverable system with tools, files, tests, memory, logs, and failure recovery.
 
-1. **Prompt Engineering**: write better task instructions.
-2. **Context Engineering**: decide what evidence the model can see at inference time.
-3. **Harness Engineering**: put the model inside an observable, executable, recoverable system.
-
-Prompting can improve one answer. Context can improve one decision. Harness Engineering is what lets an agent work across tools, files, tests, memory, logs, and failure recovery.
-
-In that setting, **Skills** and **SOPs** become first-class engineering assets. A good Skill is not just a longer prompt. It is compressed operational knowledge:
+In this setting, **Skills** and **SOPs** become first-class engineering assets. A good Skill is compressed operational knowledge:
 
 - what to inspect first
 - which tools to use
@@ -48,7 +42,7 @@ In that setting, **Skills** and **SOPs** become first-class engineering assets. 
 - which failure modes to avoid
 - when to stop, retry, or rewrite the procedure
 
-Bayesian-Agent asks a simple question: if Skills are hypotheses about how to solve tasks, why should they evolve by anecdote instead of evidence? The answer is a framework-agnostic evolution layer that can bootstrap Skills from scratch, repair existing agents incrementally, and move across harnesses as long as they emit verified trajectories.
+Bayesian-Agent treats Skills as hypotheses about how to solve tasks. Verified trajectories become evidence for updating, ranking, rewriting, compressing, or retiring those Skills. The same evolution layer can bootstrap Skills from scratch, repair existing agents incrementally, and move across harnesses that emit compatible trajectories.
 
 <div align="center">
   <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>
@@ -93,7 +87,7 @@ The surface behavior of Bayesian-Agent may look like failure-driven Skill repair
 
 Agent runs are expensive: tokens are expensive, latency is high, benchmark cases are limited, and real production failures are even rarer. When samples are scarce, each sample is costly, and we cannot wait for large-sample statistics to stabilize, Bayesian modeling lets Bayesian-Agent combine prior belief, uncertainty, and new verified evidence into more stable decisions.
 
-This is why Bayesian-Agent is especially useful for sample-scarce, cost-sensitive, online Skill/SOP evolution. Read the full explanation in [Why Bayesian for Skill Evolution](docs/articles/why-bayesian-for-skill-evolution.md).
+Bayesian-Agent is most useful for sample-scarce, cost-sensitive, online Skill/SOP evolution. Read the full explanation in [Why Bayesian for Skill Evolution](docs/articles/why-bayesian-for-skill-evolution.md).
 
 ### What "Bayesian" Means in v0.5
 
@@ -299,34 +293,6 @@ print(skill_context)
 
 `SkillContextBuilder` renders a compact posterior audit view. The built-in SOP/Lifelong runners convert recurring posterior-backed failure modes into executable patches and guardrails before adding them to model prompts.
 
-## 🔁 Three Operating Patterns
-
-### 🌱 Full Self-Evolving Mode
-
-Bayesian-Agent starts from scratch, runs benchmark tasks, collects verified evidence, and evolves Skills during the run.
-
-This mode tests whether Bayesian Skill Evolution can improve an agent without relying on prior traces.
-
-### 🛠️ Incremental Repair Mode
-
-Bayesian-Agent can also attach to an existing agent. The base agent runs first. Bayesian-Agent reads its success and failure traces, updates posterior Skill beliefs, then reruns only the failed tasks.
-
-```text
-Base Agent -> Failure Traces -> Bayesian Skill Evolution -> Rerun Failures -> Higher Accuracy
-```
-
-This is the recommended production path because it improves an existing agent without retraining the model or replacing the original harness.
-
-### 🔌 Cross-Harness Adaptation Mode
-
-Bayesian-Agent is not tied to a single agent runtime. Any agent framework can become a backend if it emits the common trajectory schema and accepts model-facing Skill/SOP text through an adapter.
-
-```text
-Any Agent Harness -> Trajectory Schema -> Bayesian Skill Registry -> Adapter -> Next Harness Run
-```
-
-This makes Bayesian-Agent a portable Skill/SOP evolution layer rather than another closed agent framework.
-
 ## 📊 Experimental Results
 
 Bayesian-Agent now has its own native harness. The results below are full-sample runs with no `--limit`: SOP-Bench and Lifelong AgentBench use 20 tasks each, and RealFin-Bench uses 40 tasks.
@@ -357,7 +323,7 @@ Bayesian-Agent now has its own native harness. The results below are full-sample
 | deepseek-v4-pro | bayesian_full | 28/40 (70.0%) | 9.91M | `results/native_harness_deepseek_v4_pro_full/realfin_retry` |
 | deepseek-v4-pro | bayesian_incremental | 31/40 final, 5/14 repaired | 4.59M incremental | `results/native_harness_deepseek_v4_pro_full/realfin_retry` |
 
-Compared with the earlier GA-backed artifacts, BA native improves the full RealFin final score on `deepseek-v4-pro` from 68% to 77.5%, but it spends more tokens because the first-party harness deliberately keeps the runtime minimal and lets the model inspect cached market data directly. On SOP/Lifelong, BA native reaches 95-100% full-sample accuracy while using less token budget than the historical GA-backed full runs.
+Compared with earlier GA-backed artifacts, BA native improves the full RealFin final score on `deepseek-v4-pro` from 68% to 77.5%. It spends more tokens because the first-party harness keeps the runtime minimal and lets the model inspect cached market data directly. On SOP/Lifelong, BA native reaches 95-100% full-sample accuracy with lower token use than the historical GA-backed full runs.
 
 ### 🧱 Published GA Validation: GenericAgent + deepseek-v4-flash
 
@@ -399,7 +365,7 @@ The earlier RealFin validation used GenericAgent as the execution backend with `
 | RealFin-Bench | GA+Bayesian | deepseek-v4-pro | 65% | 3.70M | `results/realfin_deepseek_v4_pro_20260602` |
 | RealFin-Bench | GA+BayesianIncremental | deepseek-v4-pro | 68% | 1.72M incremental | `results/realfin_deepseek_v4_pro_20260602` |
 
-The result shows that Bayesian-Agent can work as a plug-in repair layer: it can take an existing agent below 100% accuracy and improve it with a small amount of incremental inference. This is the practical advantage over one-off benchmark agents: Bayesian-Agent can sit beside a harness, learn from its failures, and improve it without replacing it.
+In incremental mode, Bayesian-Agent uses an existing agent's failed trajectories, updates Skill beliefs, and reruns only the failed tasks. The repair-only token columns report the additional inference cost.
 
 Experiment artifacts are stored under [`artifacts/`](artifacts/) and [`results/`](results/), and the method note is in [`docs/method.md`](docs/method.md). The native harness design note is in [`docs/native-harness.md`](docs/native-harness.md).
 
@@ -420,7 +386,7 @@ The script runs three phases by default: selected-harness baseline, Bayesian ful
 
 ## 🔌 Native Harness and Cross-Harness Adaptation
 
-The first prototype was validated inside GenericAgent, but Bayesian-Agent now has its own execution harness. It is not a GenericAgent fork and not just a GenericAgent add-on.
+Bayesian-Agent ships a native harness plus adapter boundaries for external agent runtimes. The first prototype was validated inside GenericAgent; v0.5 keeps GenericAgent as an optional compatibility backend.
 
 The open-source structure is:
 
@@ -473,6 +439,12 @@ tests/                  # Standard-library unittest suite
 - [ ] Add adapters for more agent harnesses after the current boundaries stabilize.
 - [ ] Move beyond the current per-Skill evidence backend toward richer Bayesian reasoning, including Skill hypothesis inference, Bayesian Networks for context/failure structure, uncertainty-aware Skill selection, Bayesian decision policies, and online adaptation.
 
+## 📝 Articles
+
+- [Bayesian Agent (1): 让 Harness 与 Skills 的 Self-Evolving 过程不再黑盒、没有方向，走向贝叶斯信念](https://zhuanlan.zhihu.com/p/2036275199008565089)
+- [Bayesian-Agent (2): 不仅是又一个 agent framework，而是可跨 harness 的 Bayesian Evolution Layer](https://zhuanlan.zhihu.com/p/2036315473344714645)
+- [Bayesian-Agent (3): 从三门问题到 Bayesian-Agent：Evidence Model、后天学习与 Skill 自进化](https://zhuanlan.zhihu.com/p/2044881314734768900?share_code=10y84pyoZtQ15&utm_psn=2045452102202307791)
+- [Bayesian-Agent (4): skill evolving 为什么需要贝叶斯，我直接进化不就行了吗？](https://zhuanlan.zhihu.com/p/2046259943565686690)
 
 ## 📈 Star History
 
