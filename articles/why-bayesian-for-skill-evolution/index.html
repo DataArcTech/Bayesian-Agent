@@ -1,0 +1,1631 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Bayesian-Agent is a Bayesian self-evolving agent framework with full-run evolution, incremental repair, and cross-harness adaptation.">
+      
+      
+      
+        <link rel="canonical" href="https://dataarctech.github.io/Bayesian-Agent/articles/why-bayesian-for-skill-evolution/">
+      
+      
+        <link rel="prev" href="../complex-bayesian-rewrite-example/">
+      
+      
+        <link rel="next" href="../../method/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Why Bayesian for Skill Evolution - Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#bayesian-agent-skill" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" class="md-header__button md-logo" aria-label="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Why Bayesian for Skill Evolution
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/DataArcTech/Bayesian-Agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DataArcTech/Bayesian-Agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" class="md-nav__button md-logo" aria-label="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/DataArcTech/Bayesian-Agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DataArcTech/Bayesian-Agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../native-harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Experiments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/claude-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/mini-swe-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mini-swe-agent Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Articles
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Articles
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zhihu-bayesian-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zhihu Repo Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bayesian-evidence-acquired-learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian Evidence and Acquired Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../complex-bayesian-rewrite-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complex Skill Rewrite Example
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why Bayesian for Skill Evolution
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why Bayesian for Skill Evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一、先承认：表层动作确实是看轨迹改 Skill
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        二、频率学派式 repair 的问题：小样本下太容易极端
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三、贝叶斯带来的第一个优势：先验让小样本不极端
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        四、贝叶斯带来的第二个优势：不只看成功率，还看“在什么条件下成功”
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-posterior-driven-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        五、贝叶斯带来的第三个优势：把 patch 决策变成 posterior-driven policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        六、什么时候我们的方法更适用
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        七、什么时候它不一定更好
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        八、这套框架里“贝叶斯”已经体现在哪里
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        九、最终总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Note
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment Note
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一、先承认：表层动作确实是看轨迹改 Skill
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        二、频率学派式 repair 的问题：小样本下太容易极端
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三、贝叶斯带来的第一个优势：先验让小样本不极端
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        四、贝叶斯带来的第二个优势：不只看成功率，还看“在什么条件下成功”
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-posterior-driven-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        五、贝叶斯带来的第三个优势：把 patch 决策变成 posterior-driven policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        六、什么时候我们的方法更适用
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        七、什么时候它不一定更好
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        八、这套框架里“贝叶斯”已经体现在哪里
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        九、最终总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/DataArcTech/Bayesian-Agent/edit/main/docs/articles/why-bayesian-for-skill-evolution.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="bayesian-agent-skill">为什么 Bayesian-Agent 要用贝叶斯建模 Skill 进化<a class="headerlink" href="#bayesian-agent-skill" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>其实目前方法的本质也还是根据执行轨迹，看错哪里了去针对性地改 Skill。那么，我们采用贝叶斯方式建模这个过程的优势在哪里？贝叶斯对比频率学派的核心优势，在 Bayesian-Agent 框架下体现出来了吗？</p>
+</blockquote>
+<p>这是一个很重要的问题。因为如果一个方法最后只是“错了就 patch”，那它不需要叫 Bayesian。它最多是 failure-driven prompt repair。</p>
+<p>Bayesian-Agent 的核心主张不是“贝叶斯让 Skill 自动神奇变好”，而是：</p>
+<p><strong>Agent 每跑一个 case 都很贵：tokens 贵、latency 高、benchmark case 少、真实业务失败更少。在样本少、每个样本很贵、不能等到大样本统计稳定时，贝叶斯可以把先验、不确定性和新证据统一起来，做更稳健的决策。</strong></p>
+<p>也就是说，贝叶斯在这里解决的不是“如何写一句更强的 prompt”，而是“在稀疏、昂贵、连续到来的 verified trajectories 里，如何决定一条 Skill 是否可信、是否该改、怎么改、何时压缩或废弃”。</p>
+<p><img alt="频率学派和贝叶斯派在 Skill evolving 时的不同做法" src="../../assets/frequentist_vs_bayesian_skill_evolving.png" /></p>
+<h2 id="skill">一、先承认：表层动作确实是看轨迹改 Skill<a class="headerlink" href="#skill" title="Permanent link">&para;</a></h2>
+<p>Bayesian-Agent 的外在行为可以被简单描述成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Run task -&gt; Verify result -&gt; Inspect failure -&gt; Update Skill/SOP -&gt; Run next task
+</code></pre></div>
+<p>这和很多 self-improving agent、prompt repair、SOP refinement 方法看起来很像。</p>
+<p>例如在 SOP-Bench 中，如果 agent 算出了正确决策，但没有把目标 CSV 行的 <code>expected_output</code> 写成非空值，那么系统会把它归类为：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>failure_mode = left_expected_output_blank
+</code></pre></div>
+<p>如果这种失败重复出现，就会生成类似这样的 patch：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>After writing, re-read test_set_with_outputs.csv and confirm the target row&#39;s expected_output is non-empty.
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>If the target cell is empty, write the computed raw category string before finishing.
+</code></pre></div>
+<p>所以，表层上看，它确实是在“看错哪里，然后针对性改 Skill”。</p>
+<p>区别在于：普通 repair 只留下了一个 patch，而 Bayesian-Agent 还留下了一份可持续更新的 belief state。</p>
+<h2 id="repair">二、频率学派式 repair 的问题：小样本下太容易极端<a class="headerlink" href="#repair" title="Permanent link">&para;</a></h2>
+<p>最朴素的频率估计是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>success_rate = success_count / total_count
+</code></pre></div>
+<p>如果一条 Skill 第一次运行成功：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>success_rate = 1 / 1 = 100%
+</code></pre></div>
+<p>如果第一次运行失败：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>success_rate = 0 / 1 = 0%
+</code></pre></div>
+<p>这在大样本、稳定分布下没有问题。但 Agent Skill 进化往往不是这种环境。</p>
+<p>现实里更常见的是：</p>
+<ul>
+<li>一个 benchmark 只有几十个 case。</li>
+<li>真实业务中的失败案例更少，而且很珍贵。</li>
+<li>每次 agent 执行都要花 token、工具时间和等待成本。</li>
+<li>同一个 failure mode 可能只出现一两次，但已经足够提示一个可复用教训。</li>
+<li>LLM agent 有随机性，一次成功不代表 Skill 稳定，一次失败也不代表 Skill 完全无效。</li>
+</ul>
+<p>在这种场景下，如果只用频率计数，很容易出现两种错误：</p>
+<table>
+<thead>
+<tr>
+<th>小样本观测</th>
+<th>频率式结论</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 次成功</td>
+<td>成功率 100%</td>
+<td>过度自信，可能过早压缩或固化 Skill。</td>
+</tr>
+<tr>
+<td>1 次失败</td>
+<td>成功率 0%</td>
+<td>过度悲观，可能过早废弃或过拟合 patch。</td>
+</tr>
+<tr>
+<td>1 次罕见失败</td>
+<td>立即 patch</td>
+<td>容易把偶然噪声写进 Skill。</td>
+</tr>
+<tr>
+<td>2 次同类失败</td>
+<td>只是计数 +2</td>
+<td>没有表达“失败正在聚类”的不确定性变化。</td>
+</tr>
+</tbody>
+</table>
+<p>频率学派当然也可以加平滑、阈值和置信区间。但一旦我们开始说“不要因为一次失败就过度反应”“要保留先验”“要表达不确定性”“要根据 evidence 更新 belief”，我们其实已经在靠近贝叶斯思想。</p>
+<h2 id="_1">三、贝叶斯带来的第一个优势：先验让小样本不极端<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>在 Bayesian-Agent 中，最简单的可选 backend 是 Beta-Bernoulli posterior。</p>
+<p>设一条 Skill <code>h</code> 的真实成功概率是 <code>p_h</code>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>p_h ~ Beta(alpha_0, beta_0)
+</code></pre></div>
+<p>当观察到 <code>s_h</code> 次成功和 <code>f_h</code> 次失败后：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>p_h | D_h ~ Beta(alpha_0 + s_h, beta_0 + f_h)
+</code></pre></div>
+<p>后验均值是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>E[p_h | D_h]
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>= (alpha_0 + s_h) / (alpha_0 + beta_0 + s_h + f_h)
+</code></pre></div>
+<p>如果用一个均匀先验：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>alpha_0 = 1
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>beta_0 = 1
+</code></pre></div>
+<p>那么一次成功后：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>E[p_h | D_h] = (1 + 1) / (1 + 1 + 1) = 2/3 = 66.7%
+</code></pre></div>
+<p>一次失败后：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>E[p_h | D_h] = 1 / 3 = 33.3%
+</code></pre></div>
+<p>这和频率估计的 <code>100%</code> 或 <code>0%</code> 很不一样。</p>
+<p>贝叶斯不是不相信新证据，而是不让单个样本把 belief 推到极端。这正适合 agent skill evolution，因为一次 trajectory 往往既昂贵，又带噪声。</p>
+<h2 id="_2">四、贝叶斯带来的第二个优势：不只看成功率，还看“在什么条件下成功”<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>只用 Beta-Bernoulli 还不够。因为 Skill 的可靠性通常不是一个全局数值。</p>
+<p>一条 Skill 可能在 SOP-Bench 里很好，但在 Lifelong AgentBench 里不行。也可能在低 token 任务上很好，但在高 token、长 turn、慢工具路径里变得不可靠。</p>
+<p>所以 Bayesian-Agent v0.5 默认使用的是 feature-conditioned categorical Bayesian Evidence Model。</p>
+<p>对一条 Skill hypothesis <code>h_k</code>，每条执行轨迹会形成一条 evidence：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>D_k = {(x_i, y_i)}
+</code></pre></div>
+<p>其中：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>y_i in {success, failure}
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>x_i = trajectory evidence features
+</code></pre></div>
+<p>当前实现里的 <code>x_i</code> 包括：</p>
+<table>
+<thead>
+<tr>
+<th>Evidence feature</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context</code></td>
+<td>任务族、benchmark 或 harness 场景。</td>
+</tr>
+<tr>
+<td><code>failure_mode</code></td>
+<td>可复用的错误模式，比如 <code>left_expected_output_blank</code>。</td>
+</tr>
+<tr>
+<td><code>token_bucket</code></td>
+<td>本次执行落在哪个 token 成本区间。</td>
+</tr>
+<tr>
+<td><code>turn_bucket</code></td>
+<td>本次执行用了多少交互轮次。</td>
+</tr>
+<tr>
+<td><code>latency_bucket</code></td>
+<td>本次执行耗时落在哪个延迟区间。</td>
+</tr>
+<tr>
+<td><code>metadata.*</code></td>
+<td>harness 或 benchmark 提供的短标量诊断信息。</td>
+</tr>
+</tbody>
+</table>
+<p>模型估计：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>P(y | h_k, x) ∝ P(y | h_k) * product_j P(x_j | y, h_k)
+</code></pre></div>
+<p>这里的 <code>product_j</code> 表示对所有 evidence features 连乘。</p>
+<p>这个公式的含义是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>在 Skill h_k 下，
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>如果我观察到某个 context、failure mode、token bucket、turn bucket、latency bucket 和 metadata，
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>那么这条轨迹更像 success 还是 failure？
+</code></pre></div>
+<p>这比频率计数多了一层关键能力：它不只是问“这条 Skill 总体成功率是多少”，而是问“这条 Skill 在当前证据条件下是否可靠”。</p>
+<h2 id="patch-posterior-driven-policy">五、贝叶斯带来的第三个优势：把 patch 决策变成 posterior-driven policy<a class="headerlink" href="#patch-posterior-driven-policy" title="Permanent link">&para;</a></h2>
+<p>如果没有 belief state，rewrite policy 往往只能写成硬规则：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>失败一次就改
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>失败两次就改
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>成功三次就压缩
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>失败四次就废弃
+</code></pre></div>
+<p>这些规则有用，但缺少解释力。</p>
+<p>Bayesian-Agent 仍然保留了保守阈值，因为 v0.5 的目标是可审计、可实现，而不是把所有东西都包装成复杂推理。但这些阈值不是孤立存在的，它们围绕 posterior belief 工作。</p>
+<p>当前默认 policy 的思想是：</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>当前含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>explore</code></td>
+<td>没有足够 verified evidence，或者 posterior 仍不确定。</td>
+</tr>
+<tr>
+<td><code>patch</code></td>
+<td>同一 failure mode 至少出现 2 次，说明失败开始聚类。</td>
+</tr>
+<tr>
+<td><code>compress</code></td>
+<td>观测足够多，且 posterior success 较稳定，可以压缩 Skill 降低 token。</td>
+</tr>
+<tr>
+<td><code>split</code></td>
+<td>同一 Skill 跨多个 context，可能需要拆分成更细 SOP。</td>
+</tr>
+<tr>
+<td><code>retire</code></td>
+<td>失败证据足够多，posterior 显示该 Skill 明显不可靠。</td>
+</tr>
+</tbody>
+</table>
+<p>这样一来，Skill evolution 从：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>错了 -&gt; 改
+</code></pre></div>
+<p>变成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>观察 trajectory -&gt; 更新 belief -&gt; 判断 uncertainty 和 failure clustering -&gt; 决定 rewrite action
+</code></pre></div>
+<p>这就是 Bayesian-Agent 和普通 prompt repair 的本质差异。</p>
+<h2 id="_3">六、什么时候我们的方法更适用<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>Bayesian-Agent 最适合的不是无限大数据、离线稳定分布，而是 agent 工程里更常见的小样本、高成本、在线更新场景。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>为什么适合 Bayesian-Agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小样本 benchmark</td>
+<td>case 少，不能等频率统计稳定。</td>
+</tr>
+<tr>
+<td>真实业务失败稀缺</td>
+<td>每个失败都珍贵，需要最大化 evidence 利用率。</td>
+</tr>
+<tr>
+<td>每次执行成本高</td>
+<td>token、latency、API、工具调用都贵，不能大量试错。</td>
+</tr>
+<tr>
+<td>failure mode 可复用</td>
+<td>同类错误可以转化成后续 Skill/SOP patch。</td>
+</tr>
+<tr>
+<td>需要增量修复已有 Agent</td>
+<td>可以读取 GA、Claude Code 或其他 harness 的失败轨迹，只修失败部分。</td>
+</tr>
+<tr>
+<td>需要跨 harness 迁移</td>
+<td>posterior 绑定 normalized trajectory evidence，而不是某个框架内部状态。</td>
+</tr>
+<tr>
+<td>同时关心准确率和效率</td>
+<td>token bucket、turn bucket、latency bucket 都进入 evidence model。</td>
+</tr>
+<tr>
+<td>任务分布会持续变化</td>
+<td>posterior 可以随新轨迹在线更新，而不是固定一版 prompt。</td>
+</tr>
+</tbody>
+</table>
+<p>所以更准确的定位是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Bayesian-Agent is especially useful for sample-scarce, cost-sensitive, online Skill/SOP evolution.
+</code></pre></div>
+<p>中文可以说：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Bayesian-Agent 特别适合小样本、高成本、可验证、可持续积累经验的 Agent Skill/SOP 进化场景。
+</code></pre></div>
+<h2 id="_4">七、什么时候它不一定更好<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>贝叶斯不是魔法，也不是所有 Agent 场景都需要 Bayesian-Agent。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>为什么优势有限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>样本极多且分布稳定</td>
+<td>频率估计已经足够可靠。</td>
+</tr>
+<tr>
+<td>没有 verifier</td>
+<td>没有可靠 success/failure evidence，posterior 没有根基。</td>
+</tr>
+<tr>
+<td>failure 完全随机</td>
+<td>如果失败模式不可复用，改 Skill 意义有限。</td>
+</tr>
+<tr>
+<td>问题需要参数训练</td>
+<td>应该考虑 fine-tuning、RL 或继续预训练，而不是只改推理环境。</td>
+</tr>
+<tr>
+<td>一次性任务</td>
+<td>如果不会遇到相似 case，Skill evolution 的长期收益有限。</td>
+</tr>
+</tbody>
+</table>
+<p>这也解释了 Bayesian-Agent 的边界：它不是替代预训练、微调或 RL 的参数训练方法，而是补足 inference-time learning 的工程层。</p>
+<h2 id="_5">八、这套框架里“贝叶斯”已经体现在哪里<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>当前实现中，贝叶斯不是一个口号，而是落在几个具体对象上：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>贝叶斯体现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrajectoryEvidence</code></td>
+<td>把每次 verified run 规范成可更新证据。</td>
+</tr>
+<tr>
+<td><code>BayesianSkillRegistry</code></td>
+<td>为每条 Skill/SOP 维护 posterior belief state。</td>
+</tr>
+<tr>
+<td><code>BetaBernoulliState</code></td>
+<td>可选的全局 success/failure posterior。</td>
+</tr>
+<tr>
+<td><code>CategoricalBayesState</code></td>
+<td>默认 feature-conditioned evidence likelihood。</td>
+</tr>
+<tr>
+<td><code>RewritePolicy</code></td>
+<td>根据 posterior、failure clustering 和 evidence coverage 决定 rewrite action。</td>
+</tr>
+<tr>
+<td><code>skill_evolution</code> artifacts</td>
+<td>保存每个 task 前后的 Skill context、posterior audit 和 belief snapshot。</td>
+</tr>
+</tbody>
+</table>
+<p>不过也要诚实说明：v0.5 还不是完整的 Bayesian reasoning system。</p>
+<p>已经实现的是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>verified trajectory -&gt; Bayesian evidence update -&gt; posterior-driven Skill/SOP evolution
+</code></pre></div>
+<p>还在 roadmap 中的是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>多 Skill hypothesis model selection
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>Thompson sampling 式 Skill selection
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>Bayesian decision theory 下的 cost-aware rewrite
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>层级贝叶斯建模不同 benchmark / harness / task family
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>贝叶斯网络建模 failure causality
+</code></pre></div>
+<p>这也是我们应该对外准确表述的地方：当前版本已经把“经验修补”推进到了“证据驱动的 posterior belief update”，但不会把它夸大成完整贝叶斯智能体。</p>
+<h2 id="_6">九、最终总结<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>普通 self-evolving agent 的逻辑是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>错了就改。
+</code></pre></div>
+<p>Bayesian-Agent 想做的是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>知道为什么错，
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>知道在什么条件下错，
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>知道证据够不够支持改，
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>知道改完以后 belief 有没有真的变好。
+</code></pre></div>
+<p>频率式 repair 关注的是“出现了几次”。Bayesian-Agent 关注的是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>在当前证据条件下，这条 Skill 还值得相信吗？
+</code></pre></div>
+<p>这就是贝叶斯在 Bayesian-Agent 框架里的核心价值。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 DataArcTech
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/DataArcTech/Bayesian-Agent" target="_blank" rel="noopener" title="Bayesian-Agent on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

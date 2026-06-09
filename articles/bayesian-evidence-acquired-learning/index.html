@@ -1,0 +1,2763 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Bayesian-Agent is a Bayesian self-evolving agent framework with full-run evolution, incremental repair, and cross-harness adaptation.">
+      
+      
+      
+        <link rel="canonical" href="https://dataarctech.github.io/Bayesian-Agent/articles/bayesian-evidence-acquired-learning/">
+      
+      
+        <link rel="prev" href="../zhihu-bayesian-agent/">
+      
+      
+        <link rel="next" href="../complex-bayesian-rewrite-example/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Bayesian Evidence and Acquired Learning - Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#bayesian-agentevidence-model-skill" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" class="md-header__button md-logo" aria-label="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bayesian Evidence and Acquired Learning
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/DataArcTech/Bayesian-Agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DataArcTech/Bayesian-Agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" class="md-nav__button md-logo" aria-label="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/DataArcTech/Bayesian-Agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DataArcTech/Bayesian-Agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../native-harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Experiments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/claude-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/mini-swe-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mini-swe-agent Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Articles
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Articles
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zhihu-bayesian-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zhihu Repo Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian Evidence and Acquired Learning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian Evidence and Acquired Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一、从三门问题开始：贝叶斯更新到底在更新什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-evidence-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        二、Bayesian Evidence Model：当证据不止一个时怎么办
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、Bayesian Evidence Model：当证据不止一个时怎么办">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子：一封邮件是不是垃圾邮件
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三、人的后天学习：一个技能是如何从经验里长出来的
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-agent-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        四、Bayesian-Agent：把 Skill 当成可验证的假设
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        五、Benchmark 例子：从零进化、失败改写与增量修复
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="五、Benchmark 例子：从零进化、失败改写与增量修复">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-clean-run-posterior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 A：从零 clean run 时，posterior 如何持续升高
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="例子 A：从零 clean run 时，posterior 如何持续升高">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sop-bench-full-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOP-Bench full mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lifelong-agentbench-full-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifelong AgentBench full mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-skill-rewrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 B：从零跑，中途失败如何触发 Skill rewrite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#csop-bench-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 C：SOP-Bench 写错 CSV 输出格式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dlifelong-bench-sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 D：Lifelong-Bench SQL 任务写入了不该写的列
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beta-bernoulli-bayesian-evidence-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        六、从 Beta-Bernoulli 到 Bayesian Evidence Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        七、Bayesian-Agent 的后天学习闭环
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        八、为什么这是 LLM Agent 的关键能力
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        九、一个更准确的定义
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        十、总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../complex-bayesian-rewrite-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complex Skill Rewrite Example
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../why-bayesian-for-skill-evolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why Bayesian for Skill Evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Note
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment Note
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一、从三门问题开始：贝叶斯更新到底在更新什么
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-evidence-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        二、Bayesian Evidence Model：当证据不止一个时怎么办
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、Bayesian Evidence Model：当证据不止一个时怎么办">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子：一封邮件是不是垃圾邮件
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三、人的后天学习：一个技能是如何从经验里长出来的
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-agent-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        四、Bayesian-Agent：把 Skill 当成可验证的假设
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        五、Benchmark 例子：从零进化、失败改写与增量修复
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="五、Benchmark 例子：从零进化、失败改写与增量修复">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-clean-run-posterior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 A：从零 clean run 时，posterior 如何持续升高
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="例子 A：从零 clean run 时，posterior 如何持续升高">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sop-bench-full-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOP-Bench full mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lifelong-agentbench-full-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifelong AgentBench full mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-skill-rewrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 B：从零跑，中途失败如何触发 Skill rewrite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#csop-bench-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 C：SOP-Bench 写错 CSV 输出格式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dlifelong-bench-sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        例子 D：Lifelong-Bench SQL 任务写入了不该写的列
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beta-bernoulli-bayesian-evidence-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        六、从 Beta-Bernoulli 到 Bayesian Evidence Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        七、Bayesian-Agent 的后天学习闭环
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        八、为什么这是 LLM Agent 的关键能力
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        九、一个更准确的定义
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        十、总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/DataArcTech/Bayesian-Agent/edit/main/docs/articles/bayesian-evidence-acquired-learning.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="bayesian-agentevidence-model-skill">从贝叶斯更新到 Bayesian-Agent：Evidence Model、后天学习与 Skill 自进化<a class="headerlink" href="#bayesian-agentevidence-model-skill" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>当前的大语言模型已经拥有非常丰富的知识和技能，但很多能力仍然需要被进一步验证。其中最重要的一类能力，是能否从经验和教训中反思，并持续改进自己的 Skills。我们把这种能力称为后天学习 <strong>acquired learning</strong>。</p>
+</blockquote>
+<p><img alt="Bayesian acquired learning overview" src="../../assets/acquired_learning_bayesian_agent.png" /></p>
+<p>Acquired learning refers to knowledge or skills gained through experience, education, or training.</p>
+<p>在大语言模型系统里，这句话有一个很重要的工程含义：后天学习不一定要更新模型参数。预训练、后训练、强化学习、微调改变的是模型参数 <code>theta</code>；而 Skill、SOP、记忆、检索证据、失败案例、验证器反馈改变的是推理环境 <code>C</code>。</p>
+<p>所以我们可以把 LLM Agent 的学习分成两条路：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>参数训练学习:      theta -&gt; theta&#39;
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>非参数后天学习:    C_t -&gt; C_{t+1}
+</code></pre></div>
+<p>Bayesian-Agent 做的是第二条路：不改 base model 的权重，而是从 verified trajectories 中学习 Skill 的可靠性、适用场景、失败模式和成本，让下一次推理拿到更好的条件。<strong>也就是经验和教训（成功的轨迹我们称之为经验，失败的轨迹我们称之为教训）</strong>。
+也可以把它理解成一种归纳学习（inductive reasoning）：先用演绎法搭建模型结构，再用归纳法，也就是贝叶斯更新，从数据中学习参数或假设。</p>
+<h2 id="_1">一、从三门问题开始：贝叶斯更新到底在更新什么<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>贝叶斯公式本身非常简单：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>P(H | E) = P(E | H) P(H) / P(E)
+</code></pre></div>
+<p>其中：</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>名称</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>H</code></td>
+<td>Hypothesis / 假设</td>
+<td>我们想判断真假的事情</td>
+</tr>
+<tr>
+<td><code>E</code></td>
+<td>Evidence / 证据</td>
+<td>我们观察到的新信息</td>
+</tr>
+<tr>
+<td><code>P(H)</code></td>
+<td>Prior / 先验</td>
+<td>看到证据之前，对假设的相信程度</td>
+</tr>
+<tr>
+<td><code>P(E &#124; H)</code></td>
+<td>Likelihood / 似然</td>
+<td>如果假设为真，观察到该证据的概率</td>
+</tr>
+<tr>
+<td><code>P(H &#124; E)</code></td>
+<td>Posterior / 后验</td>
+<td>看到证据之后，对假设的更新信念</td>
+</tr>
+<tr>
+<td><code>P(E)</code></td>
+<td>Evidence / 边际概率</td>
+<td>证据整体出现的概率，也起归一化作用</td>
+</tr>
+</tbody>
+</table>
+<p>也可以写成更常用的比例形式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>posterior ∝ likelihood * prior
+</code></pre></div>
+<p>也就是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>新的信念 ∝ 证据在该假设下出现的概率 * 原来的信念
+</code></pre></div>
+<p>三门问题是最经典的贝叶斯直觉测试：</p>
+<ol>
+<li>有三扇门，一扇门后面是车，另外两扇门后面是羊。</li>
+<li>你先选一扇门，比如 A。</li>
+<li>主持人知道答案，并打开另一扇有羊的门，比如 B。</li>
+<li>你现在可以坚持 A，也可以换到 C。</li>
+</ol>
+<p>很多人的直觉会说：现在只剩两扇门，所以 A 和 C 各有 <code>1/2</code>。但正确答案是：应该换门，换到 C 的胜率是 <code>2/3</code>。</p>
+<p>关键点是：主持人的行为不是随机噪声，而是有条件的信息。主持人打开 B，不只是“少了一扇门”，而是在告诉你：“在知道车在哪的前提下，我选择打开了 B 这扇羊门。”</p>
+<p>设：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>H_A: 车在 A 后面
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>H_C: 车在 C 后面
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>O_B: 主持人打开 B
+</code></pre></div>
+<p>一开始：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>P(H_A) = 1/3
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>P(H_B) = 1/3
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>P(H_C) = 1/3
+</code></pre></div>
+<p>当你选 A 后，主持人打开 B。因为主持人不会打开你选的门，也不会打开车门，所以：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>P(O_B | H_A) = 1/2
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>P(O_B | H_C) = 1
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>P(O_B | H_B) = 0
+</code></pre></div>
+<p>用贝叶斯公式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>P(H_i | O_B) = P(O_B | H_i) P(H_i) / sum_j P(O_B | H_j) P(H_j)
+</code></pre></div>
+<p>这里的对应关系是：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>三门问题里的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prior <code>P(H_i)</code></td>
+<td>主持人开门前，车在每扇门后的概率</td>
+</tr>
+<tr>
+<td>Likelihood <code>P(O_B &#124; H_i)</code></td>
+<td>如果车在某扇门后，主持人打开 B 的概率</td>
+</tr>
+<tr>
+<td>Posterior <code>P(H_i &#124; O_B)</code></td>
+<td>主持人打开 B 后，车在某扇门后的概率</td>
+</tr>
+<tr>
+<td>Evidence <code>P(O_B)</code></td>
+<td>主持人打开 B 这个事件整体发生的概率</td>
+</tr>
+</tbody>
+</table>
+<p>于是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>P(H_A | O_B)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>= (1/2 * 1/3) / (1/2 * 1/3 + 1 * 1/3 + 0 * 1/3)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>= 1/3
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>P(H_C | O_B)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>= (1 * 1/3) / (1/2 * 1/3 + 1 * 1/3 + 0 * 1/3)
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>= 2/3
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>flowchart LR
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    A[&quot;Prior: 每扇门 1/3&quot;] --&gt; B[&quot;Observation: 主持人打开 B&quot;]
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    B --&gt; C[&quot;Likelihood: P(O_B | H_i)&quot;]
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    C --&gt; D[&quot;Posterior: A=1/3, C=2/3&quot;]
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    D --&gt; E[&quot;Decision: 换门&quot;]
+</code></pre></div>
+<p>严格说，三门问题讲的是贝叶斯更新。Agent 的运行轨迹更复杂：一次任务会同时产生 context、failure mode、token cost、tool turns、latency、metadata 等多个证据特征。Bayesian-Agent 需要的是一个能把这些特征转成 posterior belief 的 <strong>Bayesian Evidence Model</strong>。</p>
+<h2 id="bayesian-evidence-model">二、Bayesian Evidence Model：当证据不止一个时怎么办<a class="headerlink" href="#bayesian-evidence-model" title="Permanent link">&para;</a></h2>
+<p>先看一个最小化的 categorical evidence model。给定一组特征 <code>x</code>，判断它属于哪个标签 <code>y</code>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>x = {x_1, x_2, ..., x_m}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>y in {class_1, class_2, ...}
+</code></pre></div>
+<p>直接用贝叶斯公式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>P(y | x) = P(x | y) P(y) / P(x)
+</code></pre></div>
+<p>问题是 <code>x</code> 不是一个单独事件，而是一组特征：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>P(y | x_1, x_2, ..., x_m)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>= P(x_1, x_2, ..., x_m | y) P(y) / P(x_1, x_2, ..., x_m)
+</code></pre></div>
+<p>如果特征很多，直接估计联合概率 <code>P(x_1, x_2, ..., x_m | y)</code> 会非常困难。v0.5 采用一个轻量的 factorized categorical likelihood：在给定标签 <code>y</code> 后，各个特征近似条件独立：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>P(x_1, x_2, ..., x_m | y)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>≈ Π_j P(x_j | y)
+</code></pre></div>
+<p>这里的 <code>Π</code> 是大写希腊字母 Pi，在数学里表示 <strong>product / 连乘</strong>，不是累加。<code>Π_j P(x_j | y)</code> 的意思是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>P(x_1 | y) * P(x_2 | y) * ... * P(x_m | y)
+</code></pre></div>
+<p>于是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>P(y | x)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>∝ P(y) Π_j P(x_j | y)
+</code></pre></div>
+<p>归一化以后得到：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>P(y = c | x)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>= P(c) Π_j P(x_j | c) / sum_{c&#39;} P(c&#39;) Π_j P(x_j | c&#39;)
+</code></pre></div>
+<p>这里的对应关系是：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>Evidence model 里的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prior <code>P(c)</code></td>
+<td>某个类别本来出现的概率</td>
+</tr>
+<tr>
+<td>Likelihood <code>Π_j P(x_j &#124; c)</code></td>
+<td>如果类别是 <code>c</code>，这些特征一起出现的概率近似</td>
+</tr>
+<tr>
+<td>Posterior <code>P(c &#124; x)</code></td>
+<td>看到这些特征后，样本属于类别 <code>c</code> 的概率</td>
+</tr>
+<tr>
+<td>Evidence <code>P(x)</code></td>
+<td>这些特征整体出现的概率，通常用归一化分母处理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">例子：一封邮件是不是垃圾邮件<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>假设我们要判断一封邮件是不是垃圾邮件：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>y in {spam, normal}
+</code></pre></div>
+<p>观察到三个特征：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>x_1 = contains_discount      # 邮件里出现“折扣”
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>x_2 = contains_link          # 邮件里有链接
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>x_3 = sender_unknown         # 发件人陌生
+</code></pre></div>
+<p>从历史邮件里统计到：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>P(spam) = 0.30
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>P(normal) = 0.70
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>P(contains_discount | spam) = 0.80
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>P(contains_link | spam) = 0.70
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>P(sender_unknown | spam) = 0.60
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>P(contains_discount | normal) = 0.10
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>P(contains_link | normal) = 0.20
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>P(sender_unknown | normal) = 0.05
+</code></pre></div>
+<p>那么这封邮件是垃圾邮件的未归一化分数是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>score(spam)
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>= P(spam)
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  * P(contains_discount | spam)
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>  * P(contains_link | spam)
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>  * P(sender_unknown | spam)
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>= 0.30 * 0.80 * 0.70 * 0.60
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>= 0.1008
+</code></pre></div>
+<p>普通邮件的未归一化分数是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>score(normal)
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>= P(normal)
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  * P(contains_discount | normal)
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>  * P(contains_link | normal)
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  * P(sender_unknown | normal)
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>= 0.70 * 0.10 * 0.20 * 0.05
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>= 0.0007
+</code></pre></div>
+<p>归一化：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>P(spam | x)
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>= score(spam) / (score(spam) + score(normal))
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>= 0.1008 / (0.1008 + 0.0007)
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>≈ 0.993
+</code></pre></div>
+<p>所以模型会判断这封邮件大概率是垃圾邮件。</p>
+<p>这个例子里：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>对应内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prior</td>
+<td><code>P(spam)</code> 和 <code>P(normal)</code>，历史上垃圾邮件/普通邮件的比例</td>
+</tr>
+<tr>
+<td>Likelihood</td>
+<td><code>P(contains_discount &#124; spam)</code> 等特征在某类邮件下出现的概率</td>
+</tr>
+<tr>
+<td>Posterior</td>
+<td><code>P(spam &#124; x)</code>，看到这些特征后邮件是垃圾邮件的概率</td>
+</tr>
+<tr>
+<td>Factorization assumption</td>
+<td>给定 <code>spam</code> 或 <code>normal</code> 后，折扣、链接、陌生发件人近似独立</td>
+</tr>
+</tbody>
+</table>
+<p>这就是 categorical evidence model 的直觉：它不需要理解“折扣”和“链接”的深层语义，只要不断从历史样本里统计“哪些特征经常和哪个标签一起出现”，就可以做出可解释的概率判断。在 Bayesian-Agent 里，它被定位为 v0.5 的第一个可解释 evidence backend，而不是方法的上限。</p>
+<h2 id="_3">三、人的后天学习：一个技能是如何从经验里长出来的<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>假设一个人正在学习写 SQL 报表。他不是从零拥有“SQL 专家能力”的。最开始，他可能已经知道一些语法：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>SELECT, WHERE, GROUP BY, HAVING, ORDER BY
+</code></pre></div>
+<p>这相当于他的先验知识。可是，真正做任务时，他会不断遇到经验和教训：</p>
+<ul>
+<li>有些任务需要先读表结构，否则会写错列名。</li>
+<li>有些任务需要 <code>GROUP BY</code>，否则聚合结果错误。</li>
+<li>有些任务要求“只输出一条 SQL”，如果写解释文字就会失败。</li>
+<li>有些更新任务不能带自增主键列。</li>
+<li>有些失败不是知识不会，而是没有验证输出。</li>
+</ul>
+<p>每一次任务之后，如果有老师、测试用例或数据库执行结果给出反馈，那么这个人就会获得一条 evidence：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>e_i = (x_i, y_i)
+</code></pre></div>
+<p>其中：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>x_i = {
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>  task_type,
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>  schema_complexity,
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  required_operator,
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>  failure_mode,
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>  verification_signal
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>}
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>y_i in {success, failure}
+</code></pre></div>
+<p>如果我们把“先读 schema、再写 SQL、最后执行验证”看成一条 Skill hypothesis <code>h_sql_verify</code>，为了避免记号太长，可以把“在这条 Skill 作用域下的概率”写成 <code>P_h(...)</code>，其中：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>h = h_sql_verify
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>P_h(y | x) 等价于 P(y | x, h_sql_verify)
+</code></pre></div>
+<p>这和前面垃圾邮件例子里的 <code>P(spam | x)</code> 是同一种结构。垃圾邮件例子里，分类器或历史邮件统计这个“模型作用域”是隐含的；到了 Skill 学习里，我们把它显式写出来，因为不同 Skill 会有不同的历史证据和成功率。</p>
+<p>于是后天学习可以写成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>P_h(success | x)
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>∝ P_h(success) Π_j P_h(x_j | success)
+</code></pre></div>
+<p>更完整地写，就是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>P_h(y | x)
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>= P_h(y) Π_j P_h(x_j | y)
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>  / sum_{y&#39;} P_h(y&#39;) Π_j P_h(x_j | y&#39;)
+</code></pre></div>
+<p>这里的 prior、likelihood、posterior 可以一一对应：</p>
+<table>
+<thead>
+<tr>
+<th>贝叶斯概念</th>
+<th>后天学习里的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prior <code>P_h(y)</code></td>
+<td>在这条 Skill 作用域下，看到当前任务特征前的历史成功/失败倾向</td>
+</tr>
+<tr>
+<td>Likelihood <code>Π_j P_h(x_j &#124; y)</code></td>
+<td>如果这次会成功或失败，那么当前这些任务特征出现的概率</td>
+</tr>
+<tr>
+<td>Posterior <code>P_h(y &#124; x)</code></td>
+<td>看到当前任务特征后，这条 Skill 成功或失败的更新概率</td>
+</tr>
+<tr>
+<td>Evidence <code>P_h(x)</code></td>
+<td>在这条 Skill 作用域下，当前任务特征整体出现的概率，用分母归一化</td>
+</tr>
+</tbody>
+</table>
+<p>举一个很小的数值例子。学习者过去用 <code>h_sql_verify</code> 做过 10 个 SQL 任务，其中 6 次成功、4 次失败。用 <code>alpha = 1</code> 做平滑：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>P_h(success) = (6 + 1) / (10 + 2) = 7/12
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>P_h(failure) = (4 + 1) / (10 + 2) = 5/12
+</code></pre></div>
+<p>这就是 prior。现在来了一个新任务，它的特征是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>x_1 = task_type=aggregation
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>x_2 = required_operator=GROUP_BY
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>x_3 = verification_signal=executed_ok
+</code></pre></div>
+<p>从过去经验里统计到：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>P_h(task_type=aggregation | success) = 4/6
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>P_h(required_operator=GROUP_BY | success) = 4/6
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>P_h(verification_signal=executed_ok | success) = 5/6
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>P_h(task_type=aggregation | failure) = 3/4
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>P_h(required_operator=GROUP_BY | failure) = 1/4
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>P_h(verification_signal=executed_ok | failure) = 1/4
+</code></pre></div>
+<p>这些就是 likelihood。于是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>score(success)
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>= 7/12 * 4/6 * 4/6 * 5/6
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>≈ 0.216
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>score(failure)
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>= 5/12 * 3/4 * 1/4 * 1/4
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>≈ 0.0195
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>P_h(success | x)
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>= 0.216 / (0.216 + 0.0195)
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a>≈ 0.917
+</code></pre></div>
+<p>这就是 posterior。人的直觉说法是：“这类任务我已经掌握了，只要按 checklist 执行验证，成功率很高。”贝叶斯说法是：“在这条 Skill 和这些 evidence features 下，posterior success probability 升高了。”</p>
+<p>如果一个学习者反复观察到：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>task_type = aggregation
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>required_operator = GROUP BY
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>verification_signal = executed_ok
+</code></pre></div>
+<p>这些特征经常和成功一起出现，那么这条 Skill 的 posterior success 就会上升。相反，如果：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>failure_mode = missing_group_by
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>verification_signal = not_executed
+</code></pre></div>
+<p>经常和失败一起出现，那么学习者会形成一个新的经验：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>遇到聚合任务时，不要只写 SELECT；必须检查 GROUP BY/HAVING，并执行验证。
+</code></pre></div>
+<p>这就是后天学习。人的大脑参数当然也会变化，但从工程视角看，很多可复用的能力沉淀在外部结构里：</p>
+<ul>
+<li>笔记</li>
+<li>checklist</li>
+<li>SOP</li>
+<li>失败案例本</li>
+<li>测试习惯</li>
+<li>反思模板</li>
+<li>面向场景的操作策略</li>
+</ul>
+<p>在 LLM Agent 里，这些外部结构就是 Skills、SOPs、memory、tool traces 和 verifier feedback。它们不改变 <code>theta</code>，但改变下一次推理的条件：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>P(X | theta) -&gt; P(X | theta, C)
+</code></pre></div>
+<p>更进一步，后天学习就是让 <code>C</code> 随经验更新：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>C_{t+1} = Update(C_t, evidence_t)
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>flowchart TD
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>    A[&quot;Task&quot;] --&gt; B[&quot;Attempt with current Skill&quot;]
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>    B --&gt; C[&quot;Verifier / Teacher Feedback&quot;]
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>    C --&gt; D[&quot;Evidence: context, outcome, failure mode&quot;]
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a>    D --&gt; E[&quot;Belief update&quot;]
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a>    E --&gt; F[&quot;Skill patch / split / compress / retire&quot;]
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a>    F --&gt; G[&quot;Better Skill context for next task&quot;]
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a>    G --&gt; A
+</code></pre></div>
+<p>这和参数训练不同。参数训练是在改变模型内部的 <code>theta</code>。后天学习是在改变模型外部的 <code>C</code>，让同一个模型在下一次推理时拥有更好的证据、更好的步骤、更好的失败规避策略。</p>
+<h2 id="bayesian-agent-skill">四、Bayesian-Agent：把 Skill 当成可验证的假设<a class="headerlink" href="#bayesian-agent-skill" title="Permanent link">&para;</a></h2>
+<p>Bayesian-Agent 的核心观点是：</p>
+<blockquote>
+<p>Skill/SOP 不是一段神圣的提示词，而是一个关于“如何让 Agent 成功”的 hypothesis。</p>
+</blockquote>
+<p>记：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>h_k = 第 k 条 Skill/SOP hypothesis
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>x = 当前任务和运行证据特征
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>y in {success, failure}
+</code></pre></div>
+<p>大语言模型本身拥有丰富知识：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>P(X | theta)
+</code></pre></div>
+<p>Agent 系统则会把模型放进某个推理环境里：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>P(X | theta, C)
+</code></pre></div>
+<p>这里的 <code>C</code> 包括 prompt、tools、memory、RAG、Skill、SOP、历史轨迹和 verifier feedback。Bayesian-Agent 不直接更新 <code>theta</code>，而是更新 <code>C</code> 中的 Skill belief：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>P_{h_k}(success | x)
+</code></pre></div>
+<p>这里的 <code>P_{h_k}(...)</code> 表示“在第 <code>k</code> 条 Skill/SOP 的证据作用域下计算概率”。它等价于 <code>P(success | x, h_k)</code>，只是把 <code>h_k</code> 放到下标里，避免读者把 <code>h_k</code> 误解成和 <code>x</code> 同级的普通特征。</p>
+<p>每次 Agent 跑完一个任务，Bayesian-Agent 会收集一条 verified trajectory：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>e_i = {
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>  task_id,
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>  skill_id,
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a>  context,
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>  outcome,
+<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a>  failure_mode,
+<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a>  input_tokens,
+<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a>  output_tokens,
+<a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a>  total_tokens,
+<a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a>  turns,
+<a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a>  elapsed_seconds,
+<a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a>  metadata
+<a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a>}
+</code></pre></div>
+<p>这些 evidence 进入 Skill registry，形成每条 Skill 的 posterior belief。</p>
+<p>在 Bayesian-Agent 里，对应关系是：</p>
+<table>
+<thead>
+<tr>
+<th>贝叶斯概念</th>
+<th>Bayesian-Agent 里的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hypothesis <code>h_k</code></td>
+<td>第 <code>k</code> 条 Skill/SOP</td>
+</tr>
+<tr>
+<td>Evidence <code>e_i</code></td>
+<td>一次经过验证的 agent trajectory</td>
+</tr>
+<tr>
+<td>Feature <code>x_i</code></td>
+<td>context、failure_mode、token_bucket、turn_bucket、latency_bucket、metadata</td>
+</tr>
+<tr>
+<td>Label <code>y_i</code></td>
+<td>verified outcome: <code>success</code> 或 <code>failure</code></td>
+</tr>
+<tr>
+<td>Prior <code>P_{h_k}(y)</code></td>
+<td>这条 Skill 在已有轨迹里的平滑成功/失败基率</td>
+</tr>
+<tr>
+<td>Likelihood <code>P_{h_k}(x_j &#124; y)</code></td>
+<td>某个 evidence feature 在成功/失败轨迹中出现的概率</td>
+</tr>
+<tr>
+<td>Posterior <code>P_{h_k}(y &#124; x)</code></td>
+<td>给定当前任务特征后，这条 Skill 成功/失败的更新概率</td>
+</tr>
+</tbody>
+</table>
+<h2 id="benchmark">五、Benchmark 例子：从零进化、失败改写与增量修复<a class="headerlink" href="#benchmark" title="Permanent link">&para;</a></h2>
+<p>上面的公式还是抽象。下面看几组 benchmark 轨迹，分别展示三种情况：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>clean full mode:  从零开始跑，但一路成功，只展示 reliability posterior 上升
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>failure-in-loop:  从零开始跑，中途失败，posterior failure 上升并触发 Skill rewrite
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>incremental mode: 读取 baseline 失败，posterior 记录 failure mode，再只重跑失败任务
+</code></pre></div>
+<h3 id="a-clean-run-posterior">例子 A：从零 clean run 时，posterior 如何持续升高<a class="headerlink" href="#a-clean-run-posterior" title="Permanent link">&para;</a></h3>
+<p>在 full mode 里，Bayesian-Agent 不读取 GA baseline 失败轨迹，而是从空 registry 开始：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>success = 0
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>failure = 0
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>P_h(success) = 1 / 2 = 0.500
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>rewrite = explore
+</code></pre></div>
+<p>每完成一个任务，benchmark verifier 会给出 <code>success</code> 或 <code>failure</code>。Bayesian-Agent 立刻把这条 trajectory 写入 Skill registry。下一道题使用的是由 posterior 驱动选择/改写后的模型可执行 Skill/SOP 文本；原始 posterior 数字保存在审计 artifact 中。</p>
+<p>这和“最后统一总结一次经验”不同。它是在线更新：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>task_i -&gt; verifier -&gt; evidence_i -&gt; registry_i+1 -&gt; model_facing_skill_text_i+1 -&gt; task_i+1
+</code></pre></div>
+<h4 id="sop-bench-full-mode">SOP-Bench full mode<a class="headerlink" href="#sop-bench-full-mode" title="Permanent link">&para;</a></h4>
+<p>SOP-Bench 从零跑时，前几个任务逐步覆盖了不同决策类型：</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Expected/Got</th>
+<th style="text-align: right;">Verified outcome</th>
+<th style="text-align: right;">更新后的 <code>P_h(success)</code></th>
+<th>Rewrite action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>before <code>sop_01</code></td>
+<td>no evidence</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0.500</td>
+<td><code>explore</code></td>
+</tr>
+<tr>
+<td><code>sop_01</code></td>
+<td><code>fulfill_immediately</code></td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.667</td>
+<td><code>explore</code></td>
+</tr>
+<tr>
+<td><code>sop_02</code></td>
+<td><code>fulfill_immediately</code></td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.750</td>
+<td><code>explore</code></td>
+</tr>
+<tr>
+<td><code>sop_03</code></td>
+<td><code>fulfill_delayed</code></td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.800</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td><code>sop_04</code></td>
+<td><code>backorder</code></td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.833</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td><code>sop_05</code></td>
+<td><code>reject</code></td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.857</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td>after 10 tasks</td>
+<td>mixed SOP decisions</td>
+<td style="text-align: right;">10/10 success</td>
+<td style="text-align: right;">0.917</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td>after 20 tasks</td>
+<td>all SOP tasks</td>
+<td style="text-align: right;">20/20 success</td>
+<td style="text-align: right;">0.955</td>
+<td><code>compress</code></td>
+</tr>
+</tbody>
+</table>
+<p>这些数值来自 Laplace smoothing：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>P_h(success) = (success + 1) / (success + failure + 2)
+</code></pre></div>
+<p>例如，完成 5 个 SOP 任务且全部成功后：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>P_h(success) = (5 + 1) / (5 + 0 + 2) = 6/7 ≈ 0.857
+</code></pre></div>
+<p>这里 Skill 的“持续改写”不是每一步都让 LLM 重新写一份长 SOP，而是让 Skill context 持续被 posterior 校准：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>0 条证据: 先探索，遵循基础 guardrails
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>1-2 条成功证据: posterior 上升，但仍保持 explore
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>3 条以上稳定成功: rewrite action 变成 compress，说明这条 Skill 已经稳定
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>持续成功: context 继续保留更高 posterior 和更低不确定性
+</code></pre></div>
+<p>也就是说，从零跑时，Bayesian-Agent 学到的是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>这条 SOP-Bench Skill 在当前 harness/model/context 下越来越可靠。
+</code></pre></div>
+<p>最终 full mode 结果：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>SOP-Bench full mode: 20/20 = 100%
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>posterior_success: 0.955
+</code></pre></div>
+<h4 id="lifelong-agentbench-full-mode">Lifelong AgentBench full mode<a class="headerlink" href="#lifelong-agentbench-full-mode" title="Permanent link">&para;</a></h4>
+<p>Lifelong AgentBench 从零跑时，也同样在线更新。前几个任务覆盖了 INSERT、SELECT、UPDATE、GROUP BY/HAVING 等 SQL 技能：</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>SQL pattern</th>
+<th style="text-align: right;">Verified outcome</th>
+<th style="text-align: right;">更新后的 <code>P_h(success)</code></th>
+<th>Rewrite action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>before <code>lifelong_0</code></td>
+<td>no evidence</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0.500</td>
+<td><code>explore</code></td>
+</tr>
+<tr>
+<td><code>lifelong_0</code></td>
+<td>INSERT without extra id column</td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.667</td>
+<td><code>explore</code></td>
+</tr>
+<tr>
+<td><code>lifelong_1</code></td>
+<td>SELECT with filter/limit</td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.750</td>
+<td><code>explore</code></td>
+</tr>
+<tr>
+<td><code>lifelong_2</code></td>
+<td>GROUP BY + ORDER BY</td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.800</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td><code>lifelong_3</code></td>
+<td>UPDATE mutation</td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.833</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td><code>lifelong_4</code></td>
+<td>GROUP BY + HAVING</td>
+<td style="text-align: right;">success</td>
+<td style="text-align: right;">0.857</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td>after 10 tasks</td>
+<td>mixed SQL tasks</td>
+<td style="text-align: right;">10/10 success</td>
+<td style="text-align: right;">0.917</td>
+<td><code>compress</code></td>
+</tr>
+<tr>
+<td>after 20 tasks</td>
+<td>all Lifelong tasks</td>
+<td style="text-align: right;">20/20 success</td>
+<td style="text-align: right;">0.955</td>
+<td><code>compress</code></td>
+</tr>
+</tbody>
+</table>
+<p>最终 full mode 结果：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>Lifelong AgentBench full mode: 20/20 = 100%
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>posterior_success: 0.955
+</code></pre></div>
+<p>这个 clean run 展示的是“正向经验”的后天学习：每个 verified success 都会提高这条 Skill 在当前 context 下的 posterior reliability。</p>
+<p>要说明“失败 -&gt; 改写 Skill -&gt; 后面类似 case 做对”这条链路，还需要一条带失败的在线轨迹。</p>
+<h3 id="b-skill-rewrite">例子 B：从零跑，中途失败如何触发 Skill rewrite<a class="headerlink" href="#b-skill-rewrite" title="Permanent link">&para;</a></h3>
+<p>以 SOP-Bench 的 CSV 写回错误为例。它不改变前面的真实 full-mode 结果；真实 full mode 仍然是 <code>20/20</code>。这条轨迹展示同一套 Bayesian update 在“从空 registry 开始，但中途遇到失败”时的行为。</p>
+<p>初始时只有一条基础 Skill：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>h_base = benchmark/sop_bench
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>success = 0
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>failure = 0
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a>P_h_base(success) = 0.500
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a>rewrite = explore
+</code></pre></div>
+<p>前两题成功：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>sop_01: success
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a>sop_02: success
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a>
+<a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a>P_h_base(success)
+<a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a>= (2 + 1) / (2 + 0 + 2)
+<a id="__codelineno-54-6" name="__codelineno-54-6" href="#__codelineno-54-6"></a>= 0.750
+</code></pre></div>
+<p>这时系统还不会改写 Skill，只会认为基础 SOP skill 在当前 harness 下初步可靠。</p>
+<p>接下来出现两个相似失败：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>sop_13: failure, failure_mode = left_expected_output_blank
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>sop_14: failure, failure_mode = left_expected_output_blank
+</code></pre></div>
+<p>也就是 Agent 算出了流程，却没有把目标 CSV 行的 <code>expected_output</code> 写成非空值。当前观测到的任务特征是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>context = sop_bench
+<a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a>metadata.output_contract = csv_expected_output
+<a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a>failure_mode = left_expected_output_blank
+</code></pre></div>
+<p>这里的 <code>failure_mode = left_expected_output_blank</code> 表示“expected_output 留空”这个具体错误类型；它不是 <code>failure</code> 标签本身。</p>
+<p>此时基础 Skill 的证据是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>success = 2
+<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>failure = 2
+</code></pre></div>
+<p>所以 class prior 是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>P_h_base(success) = (2 + 1) / (4 + 2) = 0.500
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a>P_h_base(failure) = (2 + 1) / (4 + 2) = 0.500
+</code></pre></div>
+<p>再看关键 feature 的 likelihood。<code>failure_mode</code> 是这次失败中最关键的特征；真实实现还会把 <code>context</code>、token bucket、turn bucket、latency bucket 和 metadata 一起连乘进去。</p>
+<p>在两条成功轨迹里，<code>failure_mode = left_expected_output_blank</code> 出现了 0 次；在两条失败轨迹里，它出现了 2 次。用 Laplace smoothing：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>P_h_base(failure_mode = left_expected_output_blank | success)
+<a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a>= (0 + 1) / (2 + 2)
+<a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a>= 0.250
+<a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a>
+<a id="__codelineno-59-5" name="__codelineno-59-5" href="#__codelineno-59-5"></a>P_h_base(failure_mode = left_expected_output_blank | failure)
+<a id="__codelineno-59-6" name="__codelineno-59-6" href="#__codelineno-59-6"></a>= (2 + 1) / (2 + 2)
+<a id="__codelineno-59-7" name="__codelineno-59-7" href="#__codelineno-59-7"></a>= 0.750
+</code></pre></div>
+<p>于是 Bayesian Evidence Model 的 posterior 如下：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>score_success
+<a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a>= P(success) * P(failure_mode = left_expected_output_blank | success)
+<a id="__codelineno-60-3" name="__codelineno-60-3" href="#__codelineno-60-3"></a>= 0.500 * 0.250
+<a id="__codelineno-60-4" name="__codelineno-60-4" href="#__codelineno-60-4"></a>= 0.125
+<a id="__codelineno-60-5" name="__codelineno-60-5" href="#__codelineno-60-5"></a>
+<a id="__codelineno-60-6" name="__codelineno-60-6" href="#__codelineno-60-6"></a>score_failure
+<a id="__codelineno-60-7" name="__codelineno-60-7" href="#__codelineno-60-7"></a>= P(failure) * P(failure_mode = left_expected_output_blank | failure)
+<a id="__codelineno-60-8" name="__codelineno-60-8" href="#__codelineno-60-8"></a>= 0.500 * 0.750
+<a id="__codelineno-60-9" name="__codelineno-60-9" href="#__codelineno-60-9"></a>= 0.375
+<a id="__codelineno-60-10" name="__codelineno-60-10" href="#__codelineno-60-10"></a>
+<a id="__codelineno-60-11" name="__codelineno-60-11" href="#__codelineno-60-11"></a>P_h_base(
+<a id="__codelineno-60-12" name="__codelineno-60-12" href="#__codelineno-60-12"></a>    failure
+<a id="__codelineno-60-13" name="__codelineno-60-13" href="#__codelineno-60-13"></a>  | context = sop_bench,
+<a id="__codelineno-60-14" name="__codelineno-60-14" href="#__codelineno-60-14"></a>    metadata.output_contract = csv_expected_output,
+<a id="__codelineno-60-15" name="__codelineno-60-15" href="#__codelineno-60-15"></a>    failure_mode = left_expected_output_blank
+<a id="__codelineno-60-16" name="__codelineno-60-16" href="#__codelineno-60-16"></a>)
+<a id="__codelineno-60-17" name="__codelineno-60-17" href="#__codelineno-60-17"></a>= 0.375 / (0.125 + 0.375)
+<a id="__codelineno-60-18" name="__codelineno-60-18" href="#__codelineno-60-18"></a>= 0.750
+<a id="__codelineno-60-19" name="__codelineno-60-19" href="#__codelineno-60-19"></a>
+<a id="__codelineno-60-20" name="__codelineno-60-20" href="#__codelineno-60-20"></a>P_h_base(
+<a id="__codelineno-60-21" name="__codelineno-60-21" href="#__codelineno-60-21"></a>    success
+<a id="__codelineno-60-22" name="__codelineno-60-22" href="#__codelineno-60-22"></a>  | context = sop_bench,
+<a id="__codelineno-60-23" name="__codelineno-60-23" href="#__codelineno-60-23"></a>    metadata.output_contract = csv_expected_output,
+<a id="__codelineno-60-24" name="__codelineno-60-24" href="#__codelineno-60-24"></a>    failure_mode = left_expected_output_blank
+<a id="__codelineno-60-25" name="__codelineno-60-25" href="#__codelineno-60-25"></a>)
+<a id="__codelineno-60-26" name="__codelineno-60-26" href="#__codelineno-60-26"></a>= 0.250
+</code></pre></div>
+<p>这一步很重要：失败不是让系统“更相信原来的 Skill”，而是让系统更相信：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>在 context = sop_bench, metadata.output_contract = csv_expected_output,
+<a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>failure_mode = left_expected_output_blank 这个条件下，
+<a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>h_base 很可能继续失败。
+</code></pre></div>
+<p>因此 rewrite policy 不应该 <code>compress</code>，而应该 <code>patch</code> 或 <code>split</code>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>rewrite = patch
+<a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a>reason = failures cluster around left_expected_output_blank
+</code></pre></div>
+<p>改写后的 Skill context 不是泛泛地说“仔细一点”，而是把反复出现的失败模式变成可执行约束。当前 v0.5 实现会先把单次失败作为 candidate evidence 保存在 audit artifact 中；同一 failure mode 至少出现两次后，才会在下一轮 prompt 里注入类似这样的 active patch section：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>### Bayesian Failure-Mode Patches: sop_bench
+<a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a>- failure_mode=left_expected_output_blank observed=2
+<a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a>  - After writing, re-read test_set_with_outputs.csv and confirm the target row&#39;s expected_output is non-empty.
+<a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a>  - If the target cell is empty, write the computed raw category string before finishing.
+</code></pre></div>
+<p>然后用改写后的 Skill context 继续处理相似任务。后续成功会回写到同一条 benchmark Skill；失败历史不会被洗掉，posterior 会在保留 failure-mode 记忆的同时重新上升：</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Evidence</th>
+<th style="text-align: right;">Prior</th>
+<th>Likelihood signal</th>
+<th style="text-align: right;">Posterior</th>
+<th>Skill action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>before rewrite</td>
+<td>2 success + 2 failure</td>
+<td style="text-align: right;"><code>P_h_base(success)=0.500</code></td>
+<td>recurring empty output failure</td>
+<td style="text-align: right;">0.500</td>
+<td>patch</td>
+</tr>
+<tr>
+<td>retry <code>sop_13</code></td>
+<td>repaired success</td>
+<td style="text-align: right;">0.500</td>
+<td>patch applied and verified</td>
+<td style="text-align: right;"><code>(3+1)/(5+2)=0.571</code></td>
+<td>keep patch</td>
+</tr>
+<tr>
+<td>retry <code>sop_14</code></td>
+<td>similar repaired success</td>
+<td style="text-align: right;">0.571</td>
+<td>same CSV writeback contract</td>
+<td style="text-align: right;"><code>(4+1)/(6+2)=0.625</code></td>
+<td>keep patch</td>
+</tr>
+<tr>
+<td>later <code>sop_20</code></td>
+<td>similar output-contract case succeeds</td>
+<td style="text-align: right;">0.625</td>
+<td><code>left_expected_output_blank</code> no longer appears</td>
+<td style="text-align: right;"><code>(5+1)/(7+2)=0.667</code></td>
+<td>less uncertain</td>
+</tr>
+</tbody>
+</table>
+<p>这才是“持续改写 Skill -&gt; 后验持续升高”的完整链条：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>先验:
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>  h_base 对 SOP-Bench 只有不确定的成功率
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>
+<a id="__codelineno-64-4" name="__codelineno-64-4" href="#__codelineno-64-4"></a>失败证据:
+<a id="__codelineno-64-5" name="__codelineno-64-5" href="#__codelineno-64-5"></a>  expected_output 留空这个失败模式连续出现
+<a id="__codelineno-64-6" name="__codelineno-64-6" href="#__codelineno-64-6"></a>
+<a id="__codelineno-64-7" name="__codelineno-64-7" href="#__codelineno-64-7"></a>似然:
+<a id="__codelineno-64-8" name="__codelineno-64-8" href="#__codelineno-64-8"></a>  P(failure_mode = left_expected_output_blank | failure)
+<a id="__codelineno-64-9" name="__codelineno-64-9" href="#__codelineno-64-9"></a>  远高于
+<a id="__codelineno-64-10" name="__codelineno-64-10" href="#__codelineno-64-10"></a>  P(failure_mode = left_expected_output_blank | success)
+<a id="__codelineno-64-11" name="__codelineno-64-11" href="#__codelineno-64-11"></a>
+<a id="__codelineno-64-12" name="__codelineno-64-12" href="#__codelineno-64-12"></a>后验:
+<a id="__codelineno-64-13" name="__codelineno-64-13" href="#__codelineno-64-13"></a>  P_h_base(failure | context=sop_bench, metadata.output_contract=csv_expected_output,
+<a id="__codelineno-64-14" name="__codelineno-64-14" href="#__codelineno-64-14"></a>  failure_mode=left_expected_output_blank) 上升到 0.750
+<a id="__codelineno-64-15" name="__codelineno-64-15" href="#__codelineno-64-15"></a>
+<a id="__codelineno-64-16" name="__codelineno-64-16" href="#__codelineno-64-16"></a>rewrite:
+<a id="__codelineno-64-17" name="__codelineno-64-17" href="#__codelineno-64-17"></a>  生成 failure-mode-specific patch context，显式约束 raw category + non-empty verification
+<a id="__codelineno-64-18" name="__codelineno-64-18" href="#__codelineno-64-18"></a>
+<a id="__codelineno-64-19" name="__codelineno-64-19" href="#__codelineno-64-19"></a>后续相似 case:
+<a id="__codelineno-64-20" name="__codelineno-64-20" href="#__codelineno-64-20"></a>  带 patch/guardrail 的模型可执行 Skill 文本连续成功
+<a id="__codelineno-64-21" name="__codelineno-64-21" href="#__codelineno-64-21"></a>
+<a id="__codelineno-64-22" name="__codelineno-64-22" href="#__codelineno-64-22"></a>新的后验:
+<a id="__codelineno-64-23" name="__codelineno-64-23" href="#__codelineno-64-23"></a>  P_h_base(success) 从 0.500 -&gt; 0.571 -&gt; 0.625 -&gt; 0.667
+</code></pre></div>
+<p>换句话说，Bayesian-Agent 里的“后验升高”有两种不同含义：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>正向经验:
+<a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a>  success evidence 让同一条 Skill 的 posterior_success 升高
+<a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>
+<a id="__codelineno-65-4" name="__codelineno-65-4" href="#__codelineno-65-4"></a>失败改写:
+<a id="__codelineno-65-5" name="__codelineno-65-5" href="#__codelineno-65-5"></a>  failure evidence 先让原 Skill 在某个条件下的 posterior_failure 升高，
+<a id="__codelineno-65-6" name="__codelineno-65-6" href="#__codelineno-65-6"></a>  触发 patch/split，
+<a id="__codelineno-65-7" name="__codelineno-65-7" href="#__codelineno-65-7"></a>  然后带 patch context 的后续成功轨迹把 posterior_success 拉高
+</code></pre></div>
+<h3 id="csop-bench-csv">例子 C：SOP-Bench 写错 CSV 输出格式<a class="headerlink" href="#csop-bench-csv" title="Permanent link">&para;</a></h3>
+<p>SOP-Bench 的任务要求 Agent 阅读 <code>sop.txt</code>、<code>tools.py</code> 和目标 CSV 行，然后把原始决策字符串写回 <code>expected_output</code> 单元格。例如：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>manual_review
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a>backorder
+<a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a>fulfill_immediately
+</code></pre></div>
+<p>GA baseline 在 <code>deepseek-v4-flash</code> 上的 SOP-Bench 结果是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>16 / 20 = 80%
+</code></pre></div>
+<p>其中一个失败任务是 <code>sop_12</code>：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Expected</td>
+<td><code>manual_review</code></td>
+</tr>
+<tr>
+<td>Baseline got</td>
+<td><code>&lt;final_decision&gt;manual_review&lt;/final_decision&gt;</code></td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td><code>wrote_xml_tags_in_csv_expected_output</code></td>
+</tr>
+<tr>
+<td>失败原因</td>
+<td>语义对了，但写入 CSV 的格式错了；benchmark 只接受 raw category string</td>
+</tr>
+</tbody>
+</table>
+<p>还有三个失败任务 <code>sop_13</code>、<code>sop_14</code>、<code>sop_20</code> 的共同问题是：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Expected</td>
+<td><code>backorder</code> 或 <code>fulfill_immediately</code></td>
+</tr>
+<tr>
+<td>Baseline got</td>
+<td>空字符串</td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td><code>left_expected_output_blank</code></td>
+</tr>
+<tr>
+<td>失败原因</td>
+<td>没有把目标行的 <code>expected_output</code> 写成非空值，或者没有验证写回结果</td>
+</tr>
+</tbody>
+</table>
+<p>这些失败会进入 Bayesian-Agent 的 evidence：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>e_i = {
+<a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a>  skill_id: benchmark/sop_bench,
+<a id="__codelineno-68-3" name="__codelineno-68-3" href="#__codelineno-68-3"></a>  context: sop_bench,
+<a id="__codelineno-68-4" name="__codelineno-68-4" href="#__codelineno-68-4"></a>  outcome: failure,
+<a id="__codelineno-68-5" name="__codelineno-68-5" href="#__codelineno-68-5"></a>  failure_mode: wrote_xml_tags_in_csv_expected_output 或 left_expected_output_blank,
+<a id="__codelineno-68-6" name="__codelineno-68-6" href="#__codelineno-68-6"></a>  token_bucket: 10k_100k,
+<a id="__codelineno-68-7" name="__codelineno-68-7" href="#__codelineno-68-7"></a>  ...
+<a id="__codelineno-68-8" name="__codelineno-68-8" href="#__codelineno-68-8"></a>}
+</code></pre></div>
+<p>在 baseline 之后，<code>benchmark/sop_bench</code> 这条 Skill 的标签统计是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>success = 16
+<a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>failure = 4
+</code></pre></div>
+<p>用 <code>alpha = 1</code> 平滑：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>P_h(success) = (16 + 1) / (20 + 2) ≈ 0.773
+<a id="__codelineno-70-2" name="__codelineno-70-2" href="#__codelineno-70-2"></a>P_h(failure) = (4 + 1) / (20 + 2) ≈ 0.227
+</code></pre></div>
+<p>更重要的是，failure mode 的似然被记录下来：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>P_h(failure_mode=left_expected_output_blank | failure) 较高
+<a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a>P_h(failure_mode=wrote_xml_tags_in_csv_expected_output | failure) 被显式记录
+</code></pre></div>
+<p>于是下一次 Bayesian context 不是泛泛地说“做得更好”，而是把失败转成更具体的 SOP guardrails：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>- Read sop.txt, tools.py, and the target CSV row before acting.
+<a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a>- The requested row is one-indexed after the header; update rows[row_index - 1].
+<a id="__codelineno-72-3" name="__codelineno-72-3" href="#__codelineno-72-3"></a>- Compute only the target row and write only its expected_output cell.
+<a id="__codelineno-72-4" name="__codelineno-72-4" href="#__codelineno-72-4"></a>- Write the raw category string only; never write XML tags, Markdown, quotes, or explanations.
+<a id="__codelineno-72-5" name="__codelineno-72-5" href="#__codelineno-72-5"></a>- Verify the target row&#39;s expected_output is non-empty before finishing.
+</code></pre></div>
+<p>这就是 Skill 的后天学习：失败不是被丢掉，而是变成下一次推理环境里的条件。</p>
+<p>incremental repair 只重跑 4 个失败任务，结果是：</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Baseline</th>
+<th>Bayesian repair</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sop_12</code></td>
+<td><code>&lt;final_decision&gt;manual_review&lt;/final_decision&gt;</code></td>
+<td><code>manual_review</code></td>
+</tr>
+<tr>
+<td><code>sop_13</code></td>
+<td>空字符串</td>
+<td><code>backorder</code></td>
+</tr>
+<tr>
+<td><code>sop_14</code></td>
+<td>空字符串</td>
+<td><code>fulfill_immediately</code></td>
+</tr>
+<tr>
+<td><code>sop_20</code></td>
+<td>空字符串</td>
+<td><code>fulfill_immediately</code></td>
+</tr>
+</tbody>
+</table>
+<p>最终：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>SOP-Bench: 16/20 -&gt; 20/20
+<a id="__codelineno-73-2" name="__codelineno-73-2" href="#__codelineno-73-2"></a>Accuracy: 80% -&gt; 100%
+<a id="__codelineno-73-3" name="__codelineno-73-3" href="#__codelineno-73-3"></a>Repair cost: 256k extra tokens
+</code></pre></div>
+<p>注意，这里 Bayesian-Agent 没有把失败样本从记忆中删除。修复成功后，registry 里仍然保留 4 条失败 evidence 和 4 条 repair success evidence：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>success = 20
+<a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a>failure = 4
+<a id="__codelineno-74-3" name="__codelineno-74-3" href="#__codelineno-74-3"></a>P_h(success) = (20 + 1) / (24 + 2) ≈ 0.808
+</code></pre></div>
+<p>这很重要：posterior belief 不是盲目乐观地变成 100%，而是保留“这条 Skill 曾经在这些 failure modes 上出错”的校准信息。最终任务成功率变成 100%，是因为失败任务被带着更好的 Skill context 重跑并修好了。</p>
+<h3 id="dlifelong-bench-sql">例子 D：Lifelong-Bench SQL 任务写入了不该写的列<a class="headerlink" href="#dlifelong-bench-sql" title="Permanent link">&para;</a></h3>
+<p>Lifelong AgentBench 的任务要求 Agent 根据 <code>task.json</code> 生成 SQL，并用数据库执行结果验证。</p>
+<p>GA baseline 在 <code>deepseek-v4-flash</code> 上的 Lifelong 结果是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>18 / 20 = 90%
+</code></pre></div>
+<p>其中一个失败任务是 <code>lifelong_0</code>。任务要求插入会员支付记录，正确 SQL 是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">membership_payments</span>
+<a id="__codelineno-76-2" name="__codelineno-76-2" href="#__codelineno-76-2"></a><span class="w">  </span><span class="p">(</span><span class="n">member_id</span><span class="p">,</span><span class="w"> </span><span class="n">payment_date</span><span class="p">,</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="n">payment_method</span><span class="p">)</span>
+<a id="__codelineno-76-3" name="__codelineno-76-3" href="#__codelineno-76-3"></a><span class="k">VALUES</span>
+<a id="__codelineno-76-4" name="__codelineno-76-4" href="#__codelineno-76-4"></a><span class="w">  </span><span class="p">(</span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2023-10-15&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">75</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Credit Card&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>baseline 写成了：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">membership_payments</span>
+<a id="__codelineno-77-2" name="__codelineno-77-2" href="#__codelineno-77-2"></a><span class="w">  </span><span class="p">(</span><span class="n">payment_id</span><span class="p">,</span><span class="w"> </span><span class="n">member_id</span><span class="p">,</span><span class="w"> </span><span class="n">payment_date</span><span class="p">,</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="n">payment_method</span><span class="p">)</span>
+<a id="__codelineno-77-3" name="__codelineno-77-3" href="#__codelineno-77-3"></a><span class="k">VALUES</span>
+<a id="__codelineno-77-4" name="__codelineno-77-4" href="#__codelineno-77-4"></a><span class="w">  </span><span class="p">(</span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2023-10-15&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">75</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Credit Card&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>它多写了 <code>payment_id</code>，也就是自增主键/未请求列。Bayesian-Agent 将其归入：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>failure_mode = invented_unrequested_column
+</code></pre></div>
+<p>另一个失败任务是 <code>lifelong_19</code>。baseline 没有只写 SQL，而是把 agent transcript 也写进了答案，导致执行时报错：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>near &quot;Turn&quot;: syntax error
+</code></pre></div>
+<p>Bayesian-Agent 将其归入：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a>failure_mode = wrote_transcript_instead_of_sql_after_workspace_confusion
+</code></pre></div>
+<p>这两类失败进入 registry：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>success = 18
+<a id="__codelineno-81-2" name="__codelineno-81-2" href="#__codelineno-81-2"></a>failure = 2
+<a id="__codelineno-81-3" name="__codelineno-81-3" href="#__codelineno-81-3"></a>
+<a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a>P_h(success) = (18 + 1) / (20 + 2) ≈ 0.864
+<a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a>P_h(failure) = (2 + 1) / (20 + 2) ≈ 0.136
+</code></pre></div>
+<p>下一次 Lifelong context 会突出这些教训：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a>- Read task.json in the current workspace; do not inspect sibling benchmark runs.
+<a id="__codelineno-82-2" name="__codelineno-82-2" href="#__codelineno-82-2"></a>- Write exactly one SQL statement to answer.sql; no Markdown and no explanation.
+<a id="__codelineno-82-3" name="__codelineno-82-3" href="#__codelineno-82-3"></a>- Use only columns present in task.json unless the instruction explicitly asks for a new value.
+<a id="__codelineno-82-4" name="__codelineno-82-4" href="#__codelineno-82-4"></a>- For INSERT statements, do not include id or primary-key columns unless the instruction explicitly provides their values.
+<a id="__codelineno-82-5" name="__codelineno-82-5" href="#__codelineno-82-5"></a>- For mutation tasks, write executable SQL that reproduces the expected table state.
+</code></pre></div>
+<p>repair 只重跑两个失败任务：</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Baseline failure</th>
+<th>Bayesian repair</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lifelong_0</code></td>
+<td>多写 <code>payment_id</code></td>
+<td>去掉 <code>payment_id</code>，只插入指定字段</td>
+</tr>
+<tr>
+<td><code>lifelong_19</code></td>
+<td>把 transcript 写进 SQL</td>
+<td>只输出一个可执行 <code>DELETE</code> SQL</td>
+</tr>
+</tbody>
+</table>
+<p>最终：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a>Lifelong AgentBench: 18/20 -&gt; 20/20
+<a id="__codelineno-83-2" name="__codelineno-83-2" href="#__codelineno-83-2"></a>Accuracy: 90% -&gt; 100%
+<a id="__codelineno-83-3" name="__codelineno-83-3" href="#__codelineno-83-3"></a>Repair cost: 122k extra tokens
+</code></pre></div>
+<p>这几组例子说明：Bayesian-Agent 的“持续改进 Skill”不是一句口号，而是三条可检查的链条。</p>
+<p>从零 clean run 时：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>成功轨迹
+<a id="__codelineno-84-2" name="__codelineno-84-2" href="#__codelineno-84-2"></a>-&gt; Bayesian Evidence Model posterior 上升
+<a id="__codelineno-84-3" name="__codelineno-84-3" href="#__codelineno-84-3"></a>-&gt; rewrite action 从 explore 变成 compress
+<a id="__codelineno-84-4" name="__codelineno-84-4" href="#__codelineno-84-4"></a>-&gt; 模型可执行 Skill/SOP 文本更稳定
+<a id="__codelineno-84-5" name="__codelineno-84-5" href="#__codelineno-84-5"></a>-&gt; 下一轮任务继续验证
+</code></pre></div>
+<p>从零 failure-in-loop 时：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-85-1" name="__codelineno-85-1" href="#__codelineno-85-1"></a>失败轨迹
+<a id="__codelineno-85-2" name="__codelineno-85-2" href="#__codelineno-85-2"></a>-&gt; failure feature 的 likelihood 被记录
+<a id="__codelineno-85-3" name="__codelineno-85-3" href="#__codelineno-85-3"></a>-&gt; 原 Skill 在相似条件下的 posterior_failure 上升
+<a id="__codelineno-85-4" name="__codelineno-85-4" href="#__codelineno-85-4"></a>-&gt; rewrite action 变成 patch 或 split
+<a id="__codelineno-85-5" name="__codelineno-85-5" href="#__codelineno-85-5"></a>-&gt; rewritten Skill 处理相似 case
+<a id="__codelineno-85-6" name="__codelineno-85-6" href="#__codelineno-85-6"></a>-&gt; 成功轨迹回写 registry
+<a id="__codelineno-85-7" name="__codelineno-85-7" href="#__codelineno-85-7"></a>-&gt; rewritten Skill 的 posterior_success 上升
+</code></pre></div>
+<p>增量修复时：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-86-1" name="__codelineno-86-1" href="#__codelineno-86-1"></a>失败轨迹
+<a id="__codelineno-86-2" name="__codelineno-86-2" href="#__codelineno-86-2"></a>-&gt; failure_mode
+<a id="__codelineno-86-3" name="__codelineno-86-3" href="#__codelineno-86-3"></a>-&gt; Bayesian Evidence Model belief update
+<a id="__codelineno-86-4" name="__codelineno-86-4" href="#__codelineno-86-4"></a>-&gt; failure-mode-specific patch/guardrail
+<a id="__codelineno-86-5" name="__codelineno-86-5" href="#__codelineno-86-5"></a>-&gt; 只重跑失败任务
+<a id="__codelineno-86-6" name="__codelineno-86-6" href="#__codelineno-86-6"></a>-&gt; 成功轨迹回写 registry
+<a id="__codelineno-86-7" name="__codelineno-86-7" href="#__codelineno-86-7"></a>-&gt; 下一轮 Skill 更可靠
+</code></pre></div>
+<h2 id="beta-bernoulli-bayesian-evidence-model">六、从 Beta-Bernoulli 到 Bayesian Evidence Model<a class="headerlink" href="#beta-bernoulli-bayesian-evidence-model" title="Permanent link">&para;</a></h2>
+<p>最简单的贝叶斯 Skill update 是 Beta-Bernoulli。对一条 Skill <code>h_k</code>，只看成功和失败次数：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-87-1" name="__codelineno-87-1" href="#__codelineno-87-1"></a>p_k ~ Beta(alpha_0, beta_0)
+<a id="__codelineno-87-2" name="__codelineno-87-2" href="#__codelineno-87-2"></a>y_i ~ Bernoulli(p_k)
+</code></pre></div>
+<p>观察到 <code>s_k</code> 次成功、<code>f_k</code> 次失败后：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>p_k | D_k ~ Beta(alpha_0 + s_k, beta_0 + f_k)
+<a id="__codelineno-88-2" name="__codelineno-88-2" href="#__codelineno-88-2"></a>E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
+</code></pre></div>
+<p>这个模型很清晰，但它有一个问题：它只知道“这条 Skill 总体成功率是多少”，不知道“它在哪类 context 下成功，在哪类 failure mode 下失败”。</p>
+<p>于是我们升级到 feature-conditioned Bayesian Evidence Model。</p>
+<p>Bayesian-Agent 当前默认把每条 Skill 的 evidence 特征离散化：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-89-1" name="__codelineno-89-1" href="#__codelineno-89-1"></a>x = {
+<a id="__codelineno-89-2" name="__codelineno-89-2" href="#__codelineno-89-2"></a>  context,
+<a id="__codelineno-89-3" name="__codelineno-89-3" href="#__codelineno-89-3"></a>  failure_mode,
+<a id="__codelineno-89-4" name="__codelineno-89-4" href="#__codelineno-89-4"></a>  token_bucket,
+<a id="__codelineno-89-5" name="__codelineno-89-5" href="#__codelineno-89-5"></a>  turn_bucket,
+<a id="__codelineno-89-6" name="__codelineno-89-6" href="#__codelineno-89-6"></a>  latency_bucket,
+<a id="__codelineno-89-7" name="__codelineno-89-7" href="#__codelineno-89-7"></a>  metadata.*
+<a id="__codelineno-89-8" name="__codelineno-89-8" href="#__codelineno-89-8"></a>}
+</code></pre></div>
+<p>对每条 Skill <code>h_k</code>，维护：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>P_{h_k}(y) = (N_y + alpha) / (N + alpha * |Y|)
+<a id="__codelineno-90-2" name="__codelineno-90-2" href="#__codelineno-90-2"></a>
+<a id="__codelineno-90-3" name="__codelineno-90-3" href="#__codelineno-90-3"></a>P_{h_k}(x_j = v | y)
+<a id="__codelineno-90-4" name="__codelineno-90-4" href="#__codelineno-90-4"></a>= (N_{j,v,y} + alpha) / (N_{j,y} + alpha * |V_j|)
+</code></pre></div>
+<p>预测当前 context 下这条 Skill 的成功率：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>P_{h_k}(y = success | x)
+<a id="__codelineno-91-2" name="__codelineno-91-2" href="#__codelineno-91-2"></a>∝ P_{h_k}(y = success) Π_j P_{h_k}(x_j | y = success)
+</code></pre></div>
+<p>完整归一化形式是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>P_{h_k}(y = success | x)
+<a id="__codelineno-92-2" name="__codelineno-92-2" href="#__codelineno-92-2"></a>= score(success) / (score(success) + score(failure))
+<a id="__codelineno-92-3" name="__codelineno-92-3" href="#__codelineno-92-3"></a>
+<a id="__codelineno-92-4" name="__codelineno-92-4" href="#__codelineno-92-4"></a>score(y)
+<a id="__codelineno-92-5" name="__codelineno-92-5" href="#__codelineno-92-5"></a>= P_{h_k}(y) Π_j P_{h_k}(x_j | y)
+</code></pre></div>
+<p>其中：</p>
+<ul>
+<li><code>N_y</code> 是这条 Skill 下某个标签的次数。</li>
+<li><code>N_{j,v,y}</code> 是在标签 <code>y</code> 下，第 <code>j</code> 个特征取值为 <code>v</code> 的次数。</li>
+<li><code>|V_j|</code> 是第 <code>j</code> 个特征的取值空间大小。</li>
+<li><code>alpha = 1</code> 是 Laplace smoothing，用来避免未见过的特征导致概率为 0。</li>
+</ul>
+<p>直觉上，这相当于让 Agent 形成这样的经验：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-93-1" name="__codelineno-93-1" href="#__codelineno-93-1"></a>这条 Skill 在 SOP-Bench 上通常成功。
+<a id="__codelineno-93-2" name="__codelineno-93-2" href="#__codelineno-93-2"></a>这条 Skill 遇到 missing_group_by 这类 failure mode 时要 patch。
+<a id="__codelineno-93-3" name="__codelineno-93-3" href="#__codelineno-93-3"></a>这条 Skill 在高 token bucket 下可能变慢。
+<a id="__codelineno-93-4" name="__codelineno-93-4" href="#__codelineno-93-4"></a>这条 Skill 在 SQL mutation tasks 里必须先检查主键列。
+</code></pre></div>
+<p>它不是凭感觉记忆，而是把每次 verified outcome 变成条件概率。</p>
+<h2 id="bayesian-agent">七、Bayesian-Agent 的后天学习闭环<a class="headerlink" href="#bayesian-agent" title="Permanent link">&para;</a></h2>
+<p>Bayesian-Agent 的 acquired learning loop 可以写成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>S_t = Skill registry at time t
+<a id="__codelineno-94-2" name="__codelineno-94-2" href="#__codelineno-94-2"></a>e_t = verified trajectory evidence
+<a id="__codelineno-94-3" name="__codelineno-94-3" href="#__codelineno-94-3"></a>S_{t+1} = BayesianUpdate(S_t, e_t)
+<a id="__codelineno-94-4" name="__codelineno-94-4" href="#__codelineno-94-4"></a>C_{t+1} = RenderContext(S_{t+1}, task_context)
+</code></pre></div>
+<p>下一次推理变成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-95-1" name="__codelineno-95-1" href="#__codelineno-95-1"></a>P(X | theta, C_{t+1})
+</code></pre></div>
+<p>也就是说，模型参数没变，但推理条件变了。Agent 不再只是“带着一长串记忆继续猜”，而是拿到由 posterior 驱动生成的模型可执行 Skill/SOP 文本：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>### Bayesian Failure-Mode Patches: sop_bench
+<a id="__codelineno-96-2" name="__codelineno-96-2" href="#__codelineno-96-2"></a>- failure_mode=left_expected_output_blank observed=2
+<a id="__codelineno-96-3" name="__codelineno-96-3" href="#__codelineno-96-3"></a>  - After writing, re-read test_set_with_outputs.csv and confirm the target row&#39;s expected_output is non-empty.
+<a id="__codelineno-96-4" name="__codelineno-96-4" href="#__codelineno-96-4"></a>  - If the target cell is empty, write the computed raw category string before finishing.
+<a id="__codelineno-96-5" name="__codelineno-96-5" href="#__codelineno-96-5"></a>
+<a id="__codelineno-96-6" name="__codelineno-96-6" href="#__codelineno-96-6"></a>### Benchmark SOP Guardrails: sop_bench
+<a id="__codelineno-96-7" name="__codelineno-96-7" href="#__codelineno-96-7"></a>- Compute only the target row and write only its expected_output cell.
+<a id="__codelineno-96-8" name="__codelineno-96-8" href="#__codelineno-96-8"></a>- Write the raw category string only; never write XML tags, Markdown, quotes, or explanations.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>flowchart LR
+<a id="__codelineno-97-2" name="__codelineno-97-2" href="#__codelineno-97-2"></a>    A[&quot;Base LLM: theta fixed&quot;] --&gt; B[&quot;Agent Harness&quot;]
+<a id="__codelineno-97-3" name="__codelineno-97-3" href="#__codelineno-97-3"></a>    B --&gt; C[&quot;Task Execution&quot;]
+<a id="__codelineno-97-4" name="__codelineno-97-4" href="#__codelineno-97-4"></a>    C --&gt; D[&quot;Verifier&quot;]
+<a id="__codelineno-97-5" name="__codelineno-97-5" href="#__codelineno-97-5"></a>    D --&gt; E[&quot;Trajectory Evidence&quot;]
+<a id="__codelineno-97-6" name="__codelineno-97-6" href="#__codelineno-97-6"></a>    E --&gt; F[&quot;Bayesian Evidence Registry&quot;]
+<a id="__codelineno-97-7" name="__codelineno-97-7" href="#__codelineno-97-7"></a>    F --&gt; G[&quot;Model-facing Skill Patches / Guardrails&quot;]
+<a id="__codelineno-97-8" name="__codelineno-97-8" href="#__codelineno-97-8"></a>    G --&gt; B
+</code></pre></div>
+<p>这个过程有三个重要特征：</p>
+<ol>
+<li><strong>从零学习</strong>：没有历史 traces 时，Agent 也可以边跑任务边积累 evidence。</li>
+<li><strong>增量修复</strong>：已有 Agent 跑失败的任务，可以只把失败轨迹交给 Bayesian-Agent，然后只重跑失败项。</li>
+<li><strong>跨 harness 适配</strong>：只要外部 Agent 能产出 trajectory evidence，并能接收 Skill context，就可以接入。</li>
+</ol>
+<h2 id="llm-agent">八、为什么这是 LLM Agent 的关键能力<a class="headerlink" href="#llm-agent" title="Permanent link">&para;</a></h2>
+<p>当前的大语言模型知识和技能已经非常丰富。很多时候，模型不是“不知道”，而是：</p>
+<ul>
+<li>没有检查当前文件。</li>
+<li>没有验证工具输出。</li>
+<li>没有识别失败模式。</li>
+<li>没有把上次失败转化成下一次的约束。</li>
+<li>没有区分这个 Skill 在哪个 context 下可靠。</li>
+</ul>
+<p>这就是为什么后天学习很重要。Agent 不应该只依赖参数里的通用能力，也应该有一套运行时的学习机制：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>experience -&gt; evidence -&gt; posterior belief -&gt; better Skill -&gt; better context -&gt; better run
+</code></pre></div>
+<p>在我们的 deepseek-v4-flash 实验里，新的 Bayesian Evidence Model backend 已经可以作为 acquired learning layer 工作：</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Agent</th>
+<th style="text-align: right;">Accuracy</th>
+<th style="text-align: right;">Input Tokens</th>
+<th style="text-align: right;">Output Tokens</th>
+<th style="text-align: right;">Total Tokens</th>
+<th style="text-align: right;">Efficiency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOP-Bench</td>
+<td>GA baseline</td>
+<td style="text-align: right;">80%</td>
+<td style="text-align: right;">1.34M</td>
+<td style="text-align: right;">57k</td>
+<td style="text-align: right;">1.39M</td>
+<td style="text-align: right;">11.47</td>
+</tr>
+<tr>
+<td>SOP-Bench</td>
+<td>Bayesian Evidence full</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">1.13M</td>
+<td style="text-align: right;">57k</td>
+<td style="text-align: right;">1.19M</td>
+<td style="text-align: right;">16.82</td>
+</tr>
+<tr>
+<td>SOP-Bench</td>
+<td>Bayesian Evidence incremental</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">245k extra</td>
+<td style="text-align: right;">12k extra</td>
+<td style="text-align: right;">256k extra</td>
+<td style="text-align: right;">15.60</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>GA baseline</td>
+<td style="text-align: right;">90%</td>
+<td style="text-align: right;">649k</td>
+<td style="text-align: right;">42k</td>
+<td style="text-align: right;">690k</td>
+<td style="text-align: right;">26.07</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>Bayesian Evidence full</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">660k</td>
+<td style="text-align: right;">48k</td>
+<td style="text-align: right;">708k</td>
+<td style="text-align: right;">28.26</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>Bayesian Evidence incremental</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">112k extra</td>
+<td style="text-align: right;">9k extra</td>
+<td style="text-align: right;">122k extra</td>
+<td style="text-align: right;">16.40</td>
+</tr>
+</tbody>
+</table>
+<p>这组结果说明两件事。</p>
+<p>第一，从零运行时，Bayesian-Agent 可以把 verified trajectories 变成 Skill evidence，并在后续任务中持续利用这些 evidence。</p>
+<p>第二，增量模式更接近生产环境：一个已有 Agent 先跑，Bayesian-Agent 读取失败轨迹，只对失败任务进行 posterior-guided repair。它不是替换原来的 Agent，而是成为一个即插即用的后天学习层。</p>
+<h2 id="_4">九、一个更准确的定义<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>我们可以把 Bayesian-Agent 的 acquired learning 定义为：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-99-1" name="__codelineno-99-1" href="#__codelineno-99-1"></a>Acquired learning for agents is the non-parametric improvement of task behavior
+<a id="__codelineno-99-2" name="__codelineno-99-2" href="#__codelineno-99-2"></a>by updating external Skill/SOP beliefs from verified experience,
+<a id="__codelineno-99-3" name="__codelineno-99-3" href="#__codelineno-99-3"></a>without changing the base model parameters.
+</code></pre></div>
+<p>中文可以说：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>Agent 的后天学习，是指在不更新 base model 参数的情况下，
+<a id="__codelineno-100-2" name="__codelineno-100-2" href="#__codelineno-100-2"></a>通过验证过的经验和教训，更新外部 Skill/SOP belief，
+<a id="__codelineno-100-3" name="__codelineno-100-3" href="#__codelineno-100-3"></a>从而改善后续任务行为的非参数学习过程。
+</code></pre></div>
+<p>这里的“非参数”不是说整个系统没有参数，而是说它不更新 LLM 的权重 <code>theta</code>。它更新的是外部推理环境：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>theta 固定
+<a id="__codelineno-101-2" name="__codelineno-101-2" href="#__codelineno-101-2"></a>C 持续进化
+<a id="__codelineno-101-3" name="__codelineno-101-3" href="#__codelineno-101-3"></a>Skill belief 持续被 evidence 校准
+</code></pre></div>
+<p>这也是 Bayesian-Agent 想表达的核心范式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>Pre-training gives the model knowledge.
+<a id="__codelineno-102-2" name="__codelineno-102-2" href="#__codelineno-102-2"></a>Post-training aligns the model behavior.
+<a id="__codelineno-102-3" name="__codelineno-102-3" href="#__codelineno-102-3"></a>Acquired learning lets the agent learn from its own verified experience.
+</code></pre></div>
+<p>预训练给模型知识，后训练塑造模型行为，后天学习让 Agent 从自己的经验和教训里持续进化。</p>
+<h2 id="_5">十、总结<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>三门问题告诉我们：信息不是“看起来还剩几个选项”，而是“这个证据在不同假设下出现的概率是多少”。</p>
+<p>Bayesian Evidence Model 告诉我们：当证据由多个特征组成时，可以用一个可解释的 likelihood model，把每个特征对成功或失败的贡献统计出来；v0.5 采用的是 factorized categorical likelihood，后续可以替换成更强的贝叶斯模型。</p>
+<p>人的后天学习告诉我们：技能不是一次性写死的规则，而是在经验、反馈和训练中不断校准的操作假设。</p>
+<p>Bayesian-Agent 把这些思想落到 LLM Agent 工程里：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>Skill = hypothesis
+<a id="__codelineno-103-2" name="__codelineno-103-2" href="#__codelineno-103-2"></a>Trajectory = evidence
+<a id="__codelineno-103-3" name="__codelineno-103-3" href="#__codelineno-103-3"></a>Verifier = supervision
+<a id="__codelineno-103-4" name="__codelineno-103-4" href="#__codelineno-103-4"></a>Evidence Model = posterior update
+<a id="__codelineno-103-5" name="__codelineno-103-5" href="#__codelineno-103-5"></a>Context = non-parametric learned state
+<a id="__codelineno-103-6" name="__codelineno-103-6" href="#__codelineno-103-6"></a>Next run = acquired learning in action
+</code></pre></div>
+<p>这就是为什么我们认为 Skill/SOP 的进化会成为 Agent 工程里的核心能力。大模型已经足够聪明，但真正可靠的 Agent 还需要学会一件更基础也更困难的事：从自己的经验和教训中，持续后天学习。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 DataArcTech
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/DataArcTech/Bayesian-Agent" target="_blank" rel="noopener" title="Bayesian-Agent on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
