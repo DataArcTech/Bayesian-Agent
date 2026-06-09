@@ -456,11 +456,14 @@ tests/                  # Standard-library unittest suite
 If you use Bayesian-Agent in your research or projects, please cite it as:
 
 ```bibtex
-@software{bayesian_agent_2026,
-  title = {Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation},
-  author = {{Xiaojun Wu}},
+@misc{wu2026bayesianagent,
+  title = {Bayesian-Agent: Posterior-Guided Skill Evolution for LLM Agent Harnesses},
+  author = {Xiaojun Wu and Cehao Yang and Honghao Liu and Xueyuan Lin and Wenjie Zhang and Zhichao Shi and Xuhui Jiang and Chengjin Xu and Jia Li and Jian Guo},
   year = {2026},
-  url = {https://github.com/DataArcTech/Bayesian-Agent}
+  eprint = {2606.08348},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CL},
+  url = {https://arxiv.org/abs/2606.08348}
 }
 ```
 
