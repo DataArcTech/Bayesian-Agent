@@ -8,7 +8,7 @@
   🌐 <a href="README.md">English</a> | 🇨🇳 <a href="README_ZH.md">中文</a> |
   📚 <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
   🐙 <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a> |
-  📄 arXiv Coming Soon
+  📄 <a href="http://arxiv.org/abs/2606.08348">arXiv:2606.08348</a>
 </p>
 
 Bayesian-Agent is a Bayesian self-evolving layer for turning verified agent trajectories into reusable, evidence-weighted Skills and SOPs across agent frameworks and execution harnesses.
@@ -23,6 +23,7 @@ It supports three usage patterns:
 
 ## 📅 News
 
+- **2026-06-09:** The Bayesian-Agent paper is now available on arXiv: [arXiv:2606.08348](http://arxiv.org/abs/2606.08348).
 - **2026-06-05:** Added full-sample native-harness results for SOP-Bench, Lifelong AgentBench, and RealFin-Bench with `deepseek-v4-flash` and `deepseek-v4-pro`; see [Experimental Results](#-experimental-results).
 - **2026-06-05:** Added the first-party Bayesian-Agent native harness. It runs its own LLM loop, workspace tools, three-layer memory, and trajectory capture; GenericAgent, mini-swe-agent, and Claude Code remain optional compatibility backends. See the [Native Harness design note](docs/native-harness.md).
 - **2026-05-31:** Added the Bayesian Evidence Model as the default Skill belief backend, with a categorical likelihood implementation and a legacy Beta-Bernoulli backend for ablations.

@@ -7,7 +7,7 @@
 <p align="center">
   📚 <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
   🐙 <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a> |
-  📄 arXiv Coming Soon
+  📄 <a href="http://arxiv.org/abs/2606.08348">arXiv:2606.08348</a>
 </p>
 
 Bayesian-Agent is a Bayesian self-evolving layer for turning verified agent trajectories into reusable, evidence-weighted Skills and SOPs across agent frameworks and execution harnesses.
@@ -23,6 +23,10 @@ Bayesian-Agent is designed to avoid being just another monolithic agent framewor
 - **Full-run evolution from scratch**: run tasks without prior traces and evolve Skills online.
 - **Incremental repair**: attach to an existing agent, learn from failed trajectories, and rerun only failed tasks.
 - **Native-first, cross-harness adaptation**: run with the lightweight BA native harness, or integrate with GenericAgent and other agent frameworks through adapters.
+
+## News
+
+- **2026-06-09:** The Bayesian-Agent paper is now available on arXiv: [arXiv:2606.08348](http://arxiv.org/abs/2606.08348).
 
 <div align="center">
   <img src="assets/bayesian_agent_overview.png" width="900" alt="Bayesian-Agent overview"/>

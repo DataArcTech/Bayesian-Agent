@@ -8,7 +8,7 @@
   🌐 <a href="README.md">English</a> | 🇨🇳 <a href="README_ZH.md">中文</a> |
   📚 <a href="https://dataarctech.github.io/Bayesian-Agent/">Docs</a> |
   🐙 <a href="https://github.com/DataArcTech/Bayesian-Agent">GitHub</a> |
-  📄 arXiv Coming Soon
+  📄 <a href="http://arxiv.org/abs/2606.08348">arXiv:2606.08348</a>
 </p>
 
 Bayesian-Agent 是一个面向跨 Agent framework / execution harness 的 Bayesian self-evolving layer，用于把 verified agent trajectories 转化为可复用、可验证、带 posterior 权重的 Skills 和 SOPs。
@@ -23,6 +23,7 @@ Bayesian-Agent 是一个面向跨 Agent framework / execution harness 的 Bayesi
 
 ## 📅 News
 
+- **2026-06-09:** Bayesian-Agent 论文已发布到 arXiv：[arXiv:2606.08348](http://arxiv.org/abs/2606.08348)。
 - **2026-06-05:** 新增 SOP-Bench、Lifelong AgentBench、RealFin-Bench 的 native-harness 全样本结果，覆盖 `deepseek-v4-flash` 和 `deepseek-v4-pro`；详见 [实验结果](#-实验结果)。
 - **2026-06-05:** 新增 Bayesian-Agent 自家 native harness：由 BA 自己运行 LLM loop、workspace tools、三层记忆和 trajectory capture；GenericAgent、mini-swe-agent、Claude Code 保留为可选兼容 backend。详见 [Native Harness 设计说明](docs/native-harness.md)。
 - **2026-05-31:** 将 Bayesian Evidence Model 作为默认 Skill belief backend：当前实现使用 categorical likelihood，同时保留 Beta-Bernoulli 作为消融和兼容 backend。

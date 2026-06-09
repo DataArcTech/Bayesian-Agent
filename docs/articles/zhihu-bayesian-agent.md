@@ -2,7 +2,7 @@
 
 > 仓库地址：[https://github.com/DataArcTech/Bayesian-Agent](https://github.com/DataArcTech/Bayesian-Agent)  
 > 文档地址：[https://dataarctech.github.io/Bayesian-Agent/](https://dataarctech.github.io/Bayesian-Agent/)  
-> 当前版本：v0.5，arXiv coming soon
+> 当前版本：v0.5，论文：[arXiv:2606.08348](http://arxiv.org/abs/2606.08348)
 
 过去一年，Agent 框架越来越多。每个框架都在讲工具调用、memory、planner、browser、workflow、multi-agent，但如果把这些概念拨开，本质问题其实很朴素：
 
@@ -259,7 +259,7 @@ Bayesian Skill Evolution above
 - 完善更多 agent frameworks 的 adapter examples
 - 增加更丰富的 rewrite policy，比如 context-specific split、cost-aware compression、failure taxonomy
 - 扩展可执行 benchmark runner，方便外部复现实验
-- 推进论文版本，arXiv coming soon
+- 持续更新论文版本：[arXiv:2606.08348](http://arxiv.org/abs/2606.08348)
 
 ## 结语
 
