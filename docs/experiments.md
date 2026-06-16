@@ -84,6 +84,10 @@ To repair an existing GA baseline instead of using a fresh baseline from the sam
 
 These are local full-sample checks with the first-party BA native harness. SOP-Bench and Lifelong AgentBench contain 20 tasks each; RealFin-Bench contains 40 tasks.
 
+For the focused RealFin comparison between Bayesian Skill evolution and the frequentist control, including task-level case analysis, see [Bayesian vs Frequentist on RealFin-Bench](experiments/bayesian-vs-frequentist-realfin.md).
+
+For the focused model-size ablation on RealFin-Bench with the mini-swe-agent backend, see [Model Scaling on RealFin-Bench](experiments/model-scaling-realfin.md).
+
 | Benchmark | Model | Mode | Score | Total Tokens | Evidence |
 |---|---|---|---:|---:|---|
 | SOP-Bench | deepseek-v4-flash | baseline | 19/20 (95.0%) | 1.05M | `results/native_harness_deepseek_v4_flash_full/sop` |

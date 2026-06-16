@@ -9,6 +9,10 @@ Evidence type: newly run and verified from local result artifacts. Metrics were
 read from `results/mini_swe_agent/*/*/*/results.json` after the runs completed.
 RealFin final runs used `--max-turns 16 --mini-swe-env-timeout 180`.
 
+For the RealFin model-size ablation with Qwen3.5 35B-A3B, Qwen3.5 122B-A10B,
+DeepSeek V4 Flash, and DeepSeek V4 Pro, see
+[Model Scaling on RealFin-Bench](model-scaling-realfin.md).
+
 ## Commands
 
 Baseline, Bayesian full, and Bayesian incremental runs used this harness shape:

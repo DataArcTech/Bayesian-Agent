@@ -57,6 +57,8 @@ nav:
   - Schemas: schemas.md
   - Experiments:
       - Overview: experiments/index.md
+      - Bayesian vs Frequentist RealFin: experiments/bayesian-vs-frequentist-realfin.md
+      - RealFin Model Scaling: experiments/model-scaling-realfin.md
       - Claude Code Backend: experiments/claude-code.md
       - mini-swe-agent Backend: experiments/mini-swe-agent.md
   - Articles:
