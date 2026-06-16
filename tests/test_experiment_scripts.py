@@ -87,6 +87,16 @@ class SopLifelongExperimentTests(unittest.TestCase):
         self.assertIsInstance(harness, AgentHarness)
         self.assertIsInstance(harness.adapter, Adapter)
 
+    def test_frequentist_agent_name_marks_control_evolution_backend(self):
+        self.assertEqual(
+            run_benchmarks.agent_name_for_harness("genericagent", "bayesian-full", "frequentist"),
+            "GA+Frequentist",
+        )
+        self.assertEqual(
+            run_benchmarks.agent_name_for_harness("genericagent", "bayesian-incremental", "frequentist"),
+            "GA+FrequentistIncremental",
+        )
+
     def test_incremental_filter_runs_zero_tasks_for_bench_without_failures(self):
         baseline_results = {"sop_bench": [{"task_id": "sop_01", "success": True}]}
         failed = {}

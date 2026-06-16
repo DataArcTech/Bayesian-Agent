@@ -17,9 +17,12 @@ class SkillContextBuilder:
         beliefs = self.registry.top(limit=limit, context=task_context, strict_context=strict_context)
         if not beliefs:
             return ""
+        frequentist = self.registry.algorithm == "frequentist"
         lines = [
-            "### Bayesian Posterior Audit",
-            "Posterior summaries are for ranking, rewrite decisions, and debugging; model-facing prompts should use executable Skill/SOP text.",
+            "### Frequentist Frequency Audit" if frequentist else "### Bayesian Posterior Audit",
+            "Frequency summaries are for ranking, rewrite decisions, and debugging; model-facing prompts should use executable Skill/SOP text."
+            if frequentist
+            else "Posterior summaries are for ranking, rewrite decisions, and debugging; model-facing prompts should use executable Skill/SOP text.",
         ]
         for belief in beliefs:
             decision = self.policy.decide(belief)
@@ -28,7 +31,7 @@ class SkillContextBuilder:
             lines.append(
                 "- "
                 f"{belief.skill_id}: algorithm={belief.algorithm}, "
-                f"posterior_success={belief.success_probability:.3f}, "
+                f"{'success_rate' if frequentist else 'posterior_success'}={belief.success_probability:.3f}, "
                 f"context_success={context_success:.3f}, "
                 f"alpha={belief.alpha:.1f}, beta={belief.beta:.1f}, "
                 f"observations={belief.observations}, mean_tokens={belief.mean_tokens:.1f}, "

@@ -91,9 +91,10 @@ def build_benchmark_skill_context(benchmark: str, registry: BayesianSkillRegistr
     patches = _failure_mode_patch_rules(benchmark, registry)
     if not rules and not patches:
         return ""
+    method = "Frequentist" if registry.algorithm == "frequentist" else "Bayesian"
     lines = []
     if patches:
-        lines.append(f"### Bayesian Failure-Mode Patches: {benchmark}")
+        lines.append(f"### {method} Failure-Mode Patches: {benchmark}")
         for failure_mode, count, patch_rules in patches:
             lines.append(f"- failure_mode={failure_mode} observed={count}")
             lines.extend(f"  - {rule}" for rule in patch_rules)

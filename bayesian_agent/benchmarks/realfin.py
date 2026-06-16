@@ -42,6 +42,7 @@ def run_realfin(
     max_turns: int = 8,
     baseline_paths: Optional[Sequence[str]] = None,
     agent_name: str = "",
+    evolution_algorithm: str = "categorical_bayes",
 ) -> Mapping[str, Any]:
     """Run RealFin-Bench with optional Bayesian Skill evolution."""
 
@@ -50,7 +51,7 @@ def run_realfin(
     mode = mode.replace("_", "-")
     bayesian_enabled = mode in {"bayesian-full", "bayesian-incremental"}
     out_root.mkdir(parents=True, exist_ok=True)
-    registry = prepare_belief_store(out_root, mode)
+    registry = prepare_belief_store(out_root, mode, algorithm=evolution_algorithm)
     harness = ensure_harness(adapter, cortex_path=out_root / "cortical_memory.json", registry=registry)
 
     baseline_results = (

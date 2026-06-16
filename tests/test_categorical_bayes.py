@@ -121,6 +121,22 @@ class CategoricalBayesAlgorithmTests(unittest.TestCase):
         self.assertEqual(belief.beta, 2.0)
         self.assertAlmostEqual(belief.predict_success_probability(context="ctx"), 0.5)
 
+    def test_frequentist_backend_uses_empirical_success_rate_without_prior(self):
+        registry = BayesianSkillRegistry.in_memory(algorithm="frequentist")
+        registry.record(TrajectoryEvidence(task_id="s", skill_id="skill/freq", context="ctx", outcome="success"))
+
+        belief = registry.get("skill/freq")
+        self.assertEqual(belief.algorithm, "frequentist")
+        self.assertEqual(belief.alpha, 1.0)
+        self.assertEqual(belief.beta, 0.0)
+        self.assertAlmostEqual(belief.success_probability, 1.0)
+
+        registry.record(TrajectoryEvidence(task_id="f", skill_id="skill/freq", context="ctx", outcome="failure"))
+        belief = registry.get("skill/freq")
+
+        self.assertAlmostEqual(belief.success_probability, 0.5)
+        self.assertEqual(belief.to_dict()["frequentist"]["successes"], 1.0)
+
     def test_legacy_registry_without_algorithm_loads_as_beta_bernoulli(self):
         raw = {
             "version": 1,
@@ -174,6 +190,22 @@ class CategoricalBayesAlgorithmTests(unittest.TestCase):
             data = json.loads(registry_path.read_text(encoding="utf-8"))
             self.assertEqual(data["algorithm"], "beta_bernoulli")
             self.assertEqual(data["skills"]["benchmark/bench"]["algorithm"], "beta_bernoulli")
+
+    def test_cli_evolve_accepts_frequentist_algorithm(self):
+        with tempfile.TemporaryDirectory() as td:
+            results = Path(td) / "results.json"
+            registry_path = Path(td) / "beliefs.json"
+            results.write_text(
+                json.dumps({"results": {"bench": [{"task_id": "a", "success": True, "total_tokens": 10}]}}),
+                encoding="utf-8",
+            )
+
+            code = main(["evolve", "--results", str(results), "--registry", str(registry_path), "--algorithm", "frequentist"])
+
+            self.assertEqual(code, 0)
+            data = json.loads(registry_path.read_text(encoding="utf-8"))
+            self.assertEqual(data["algorithm"], "frequentist")
+            self.assertEqual(data["skills"]["benchmark/bench"]["posterior_success"], 1.0)
 
 
 if __name__ == "__main__":

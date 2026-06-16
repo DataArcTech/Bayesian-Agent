@@ -22,6 +22,7 @@ from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
 from bayesian_agent.adapters.mini_swe_agent import MiniSWEAgentAdapter
 from bayesian_agent.benchmarks.realfin import run_realfin
 from bayesian_agent.benchmarks.sop_lifelong import DEFAULT_DATA_ROOT, run_sop_lifelong
+from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
 from bayesian_agent.harness import AgentHarness
 
 
@@ -124,6 +125,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--native-max-tokens", type=int, default=4096)
     parser.add_argument("--native-temperature", type=float, default=0.0)
     parser.add_argument("--baseline-results", action="append", default=[], help="Baseline results.json for incremental mode.")
+    parser.add_argument(
+        "--evolution-algorithm",
+        choices=SUPPORTED_ALGORITHMS,
+        default=DEFAULT_ALGORITHM,
+        help="Skill evolution belief backend for bayesian-full / bayesian-incremental runs.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print planned runs without calling the model.")
     return parser
 
@@ -236,7 +243,8 @@ def run_selected_benchmark(
         "limit": args.limit,
         "max_turns": args.max_turns,
         "baseline_paths": spec.baseline_paths,
-        "agent_name": agent_name_for_harness(args.harness, spec.mode),
+        "agent_name": agent_name_for_harness(args.harness, spec.mode, args.evolution_algorithm),
+        "evolution_algorithm": args.evolution_algorithm,
     }
     if bench == "realfin":
         return run_realfin(**common)
@@ -258,6 +266,7 @@ def print_dry_run(
         "mini_swe_config": backend.config if isinstance(backend, MiniSWEAgentAdapter) else "",
         "data_root": str(Path(args.data_root).resolve()),
         "model": args.model,
+        "evolution_algorithm": args.evolution_algorithm,
         "requested_bench": args.bench,
         "selected_benchmarks": [item.bench for item in benchmark_runs],
     }
@@ -272,7 +281,7 @@ def print_dry_run(
                 print("baseline_results=" + ",".join(spec.baseline_paths))
 
 
-def agent_name_for_harness(harness: str, mode: str) -> str:
+def agent_name_for_harness(harness: str, mode: str, evolution_algorithm: str = DEFAULT_ALGORITHM) -> str:
     base = {
         "bayesian-agent": "BA",
         "genericagent": "GA",
@@ -280,10 +289,11 @@ def agent_name_for_harness(harness: str, mode: str) -> str:
         "mini-swe-agent": "MiniSWEAgent",
     }.get(harness, harness)
     mode = mode.replace("_", "-")
+    suffix = "Frequentist" if evolution_algorithm == "frequentist" else "Bayesian"
     if mode == "bayesian-incremental":
-        return f"{base}+BayesianIncremental"
+        return f"{base}+{suffix}Incremental"
     if mode == "bayesian-full":
-        return f"{base}+Bayesian"
+        return f"{base}+{suffix}"
     return base
 
 
@@ -315,7 +325,7 @@ def write_experiment_summary(
     lines = [
         f"# {title}: {model}",
         "",
-        f"This experiment uses Bayesian-Agent harness core with {agent_name_for_harness(harness, 'baseline')} as the backend and Bayesian Skill evolution.",
+        f"This experiment uses Bayesian-Agent harness core with {agent_name_for_harness(harness, 'baseline')} as the backend and Skill evolution.",
         "",
     ]
     for item in completed:

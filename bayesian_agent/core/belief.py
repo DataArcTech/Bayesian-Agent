@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional
 
-from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS, is_categorical_bayes, normalize_algorithm
+from bayesian_agent.core.algorithms import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS, is_categorical_bayes, is_frequentist, normalize_algorithm
 from bayesian_agent.core.algorithms.beta_bernoulli import BetaBernoulliState
 from bayesian_agent.core.algorithms.categorical_bayes import CategoricalBayesState
 from bayesian_agent.core.evidence import TrajectoryEvidence, utc_now
@@ -45,11 +45,17 @@ class SkillBelief:
 
     def __post_init__(self) -> None:
         self.algorithm = normalize_algorithm(self.algorithm)
+        if is_frequentist(self.algorithm) and self.observations == 0 and self.alpha == 1.0 and self.beta == 1.0:
+            self.alpha = 0.0
+            self.beta = 0.0
 
     @property
     def success_probability(self) -> float:
         if is_categorical_bayes(self.algorithm):
             return self.categorical_bayes.predict_success()
+        if is_frequentist(self.algorithm):
+            total = self.alpha + self.beta
+            return self.alpha / total if total else 0.0
         return self.beta_state.success_probability
 
     @property
@@ -109,6 +115,11 @@ class SkillBelief:
             "beta": self.beta,
             "posterior_success": self.success_probability,
             "beta_bernoulli": self.beta_state.to_dict(),
+            "frequentist": {
+                "successes": float(self.alpha),
+                "failures": float(self.beta),
+                "success_rate": self.success_probability,
+            } if is_frequentist(self.algorithm) else {},
             "categorical_bayes": self.categorical_bayes.to_dict() if is_categorical_bayes(self.algorithm) else {},
             "contexts": self.contexts,
             "failure_modes": self.failure_modes,
@@ -127,12 +138,13 @@ class SkillBelief:
         resolved_algorithm = normalize_algorithm(str(raw.get("algorithm") or (algorithm if not raw else "beta_bernoulli") or DEFAULT_ALGORITHM))
         if resolved_algorithm not in SUPPORTED_ALGORITHMS:
             resolved_algorithm = DEFAULT_ALGORITHM
+        default_count = 0.0 if is_frequentist(resolved_algorithm) else 1.0
         categorical_raw = raw.get("categorical_bayes") or raw.get("naive_bayes") or {}
         return cls(
             skill_id=str(raw.get("skill_id") or skill_id),
             algorithm=resolved_algorithm,
-            alpha=float(raw.get("alpha", 1.0)),
-            beta=float(raw.get("beta", 1.0)),
+            alpha=float(raw.get("alpha", default_count)),
+            beta=float(raw.get("beta", default_count)),
             categorical_bayes=CategoricalBayesState.from_dict(categorical_raw),
             contexts=dict(raw.get("contexts") or {}),
             failure_modes=dict(raw.get("failure_modes") or {}),

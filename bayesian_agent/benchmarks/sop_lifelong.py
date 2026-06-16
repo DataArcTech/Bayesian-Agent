@@ -43,6 +43,7 @@ def run_sop_lifelong(
     max_turns: int = 8,
     baseline_paths: Optional[Sequence[str]] = None,
     agent_name: str = "",
+    evolution_algorithm: str = "categorical_bayes",
 ) -> Mapping[str, Any]:
     """Run SOP-Bench and/or Lifelong AgentBench."""
 
@@ -52,7 +53,7 @@ def run_sop_lifelong(
     mode = mode.replace("_", "-")
     bayesian_enabled = mode in {"bayesian-full", "bayesian-incremental"}
     out_root.mkdir(parents=True, exist_ok=True)
-    registry = prepare_belief_store(out_root, mode)
+    registry = prepare_belief_store(out_root, mode, algorithm=evolution_algorithm)
     harness = ensure_harness(adapter, cortex_path=out_root / "cortical_memory.json", registry=registry)
 
     baseline_results = load_results_from_paths(baseline_paths or [], selected) if mode == "bayesian-incremental" else {}
@@ -114,12 +115,12 @@ def run_sop_lifelong(
     return payload
 
 
-def prepare_belief_store(out_root: Path, mode: str) -> BayesianSkillRegistry:
+def prepare_belief_store(out_root: Path, mode: str, algorithm: str = "categorical_bayes") -> BayesianSkillRegistry:
     mode = mode.replace("_", "-")
     belief_path = Path(out_root) / "bayesian_skill_beliefs.json"
     if mode == "bayesian-full" and belief_path.exists():
         belief_path.unlink()
-    return BayesianSkillRegistry(belief_path)
+    return BayesianSkillRegistry(belief_path, algorithm=algorithm)
 
 
 def replay_skill_evolution_artifacts(out_root: Path, results_payload: Mapping[str, Any], *, clear: bool = True) -> Path:
