@@ -107,7 +107,7 @@ For the focused model-size ablation on RealFin-Bench with the mini-swe-agent bac
 | RealFin-Bench | deepseek-v4-pro | bayesian_full | 28/40 (70.0%) | 9.91M | `results/native_harness_deepseek_v4_pro_full/realfin_retry` |
 | RealFin-Bench | deepseek-v4-pro | bayesian_incremental | 31/40 final, 5/14 repaired | 4.59M incremental | `results/native_harness_deepseek_v4_pro_full/realfin_retry` |
 
-The native harness is intentionally simple: LLM, workspace tools, trajectory capture, and three-layer memory. Its job is to execute and observe. More capability improvement is pushed into Bayesian Skill/SOP evolution.
+The native harness is intentionally simple: LLM, workspace tools, trajectory capture, and optional three-layer memory. Native memory is disabled by default; Bayesian Skill registry updates still run in Bayesian modes. Its job is to execute and observe. More capability improvement is pushed into Bayesian Skill/SOP evolution.
 
 ## Published GA Validation
 

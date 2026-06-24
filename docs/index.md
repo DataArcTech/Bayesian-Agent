@@ -54,7 +54,7 @@ Trajectory -> Verifier -> Evidence -> Posterior Skill Belief -> Better Context -
 - Evidence schema for agent trajectories.
 - Posterior-weighted Skill context rendering.
 - Failure-mode-aware repair planning.
-- First-party native harness with a minimal LLM loop, workspace tools, three-layer memory, and trajectory capture.
+- First-party native harness with a minimal LLM loop, workspace tools, optional three-layer memory, and trajectory capture. Native memory is disabled by default; enable it with `--native-memory`.
 - CLI utilities for trace ingestion, summarization, and incremental repair.
 - GenericAgent, mini-swe-agent, and Claude Code integration boundaries without copying or vendoring those runtimes.
 - Three operating patterns: full self-evolution, incremental repair, and cross-harness adaptation.

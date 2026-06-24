@@ -24,8 +24,10 @@ class AgentHarness:
         cortex_path: Optional[Union[str, Path]] = None,
         registry: Optional[BayesianSkillRegistry] = None,
         registry_path: Optional[Union[str, Path]] = None,
+        memory_enabled: bool = False,
     ) -> None:
         self.adapter = adapter
+        self.memory_enabled = bool(memory_enabled)
         self.memory = memory or ThreeLayerMemory(
             cortex_path=cortex_path,
             registry=registry,
@@ -71,6 +73,7 @@ class AgentHarness:
         prompt, memory_context = self.prepare_prompt(task)
         task_payload = task.to_dict()
         task_payload["prepared_prompt"] = prompt
+        task_payload["memory_enabled"] = self.memory_enabled
         _write_json(workspace / "harness_task.json", task_payload)
 
         started = time.time()
@@ -82,18 +85,20 @@ class AgentHarness:
             workspace=workspace,
             elapsed_seconds=elapsed,
             memory_context=memory_context,
+            memory_enabled=self.memory_enabled,
         )
         _write_json(workspace / "harness_run.json", normalized)
-        self.memory.hippocampus.remember(
-            f"{task.task_id or workspace.name}: exit={normalized.get('exit_reason', '')} "
-            f"tokens={normalized.get('total_tokens', 0)}"
-        )
-        self.memory.state.set("last_task_id", task.task_id)
-        self.memory.state.set("last_workspace", str(workspace))
+        if self.memory_enabled:
+            self.memory.hippocampus.remember(
+                f"{task.task_id or workspace.name}: exit={normalized.get('exit_reason', '')} "
+                f"tokens={normalized.get('total_tokens', 0)}"
+            )
+            self.memory.state.set("last_task_id", task.task_id)
+            self.memory.state.set("last_workspace", str(workspace))
         return normalized
 
     def prepare_prompt(self, task: HarnessTask) -> tuple[str, str]:
-        memory_context = self.memory.render_context() if task.memory_context else ""
+        memory_context = self.memory.render_context() if self.memory_enabled and task.memory_context else ""
         parts = [task.skill_context, memory_context, task.prompt]
         return "\n\n".join(str(part).strip() for part in parts if str(part or "").strip()), memory_context
 
@@ -123,10 +128,13 @@ class AgentHarness:
             context=context,
             failure_mode=failure_mode or str(enriched.get("failure_mode") or ""),
         )
-        belief = self.memory.cortex.record_evidence(evidence)
-        self.memory.hippocampus.remember(f"{evidence.task_id}: {outcome} for {skill_id}")
-        self.memory.state.set("last_outcome", outcome)
-        self.memory.state.set("last_failure_mode", failure_mode)
+        if self.memory_enabled:
+            belief = self.memory.cortex.record_evidence(evidence)
+            self.memory.hippocampus.remember(f"{evidence.task_id}: {outcome} for {skill_id}")
+            self.memory.state.set("last_outcome", outcome)
+            self.memory.state.set("last_failure_mode", failure_mode)
+        else:
+            belief = self.memory.cortex.registry.record(evidence)
         return belief
 
     @staticmethod
@@ -137,6 +145,7 @@ class AgentHarness:
         workspace: Path,
         elapsed_seconds: float,
         memory_context: str,
+        memory_enabled: bool,
     ) -> Mapping[str, Any]:
         normalized = dict(run or {})
         input_tokens = int(normalized.get("input_tokens") or 0)
@@ -150,6 +159,7 @@ class AgentHarness:
         normalized["output_tokens"] = output_tokens
         normalized["total_tokens"] = total_tokens
         normalized.setdefault("elapsed_seconds", elapsed_seconds)
+        normalized["harness_memory_enabled"] = bool(memory_enabled)
         normalized["harness_memory_context"] = bool(memory_context)
         normalized["harness_artifacts"] = {
             "task": str(workspace / "harness_task.json"),
@@ -164,16 +174,25 @@ def ensure_harness(
     cortex_path: Optional[Union[str, Path]] = None,
     registry: Optional[BayesianSkillRegistry] = None,
     registry_path: Optional[Union[str, Path]] = None,
+    memory_enabled: Optional[bool] = None,
 ) -> AgentHarness:
     """Return a harness, preserving an existing wrapper when supplied."""
 
     if isinstance(runner, AgentHarness):
+        if memory_enabled is not None:
+            runner.memory_enabled = bool(memory_enabled)
         if registry is not None:
             runner.memory.cortex.registry = registry
         if cortex_path is not None and runner.memory.cortex.path is None:
             runner.memory.cortex.path = Path(cortex_path)
         return runner
-    return AgentHarness(runner, cortex_path=cortex_path, registry=registry, registry_path=registry_path)
+    return AgentHarness(
+        runner,
+        cortex_path=cortex_path,
+        registry=registry,
+        registry_path=registry_path,
+        memory_enabled=bool(memory_enabled) if memory_enabled is not None else False,
+    )
 
 
 def _write_json(path: Path, data: Mapping[str, Any]) -> None:

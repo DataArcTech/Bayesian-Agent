@@ -64,6 +64,7 @@ class SopLifelongExperimentTests(unittest.TestCase):
             "native_timeout": 180,
             "native_max_tokens": 4096,
             "native_temperature": 0.0,
+            "native_memory": False,
         }
 
         native = run_benchmarks.build_adapter(Namespace(**{**base, "harness": "bayesian-agent"}))
@@ -86,6 +87,31 @@ class SopLifelongExperimentTests(unittest.TestCase):
 
         self.assertIsInstance(harness, AgentHarness)
         self.assertIsInstance(harness.adapter, Adapter)
+        self.assertFalse(harness.memory_enabled)
+
+    def test_build_harness_can_enable_memory_explicitly(self):
+        class Adapter:
+            pass
+
+        harness = run_benchmarks.build_harness(Adapter(), memory_enabled=True)
+
+        self.assertTrue(harness.memory_enabled)
+
+    def test_build_harness_preserves_existing_memory_setting_by_default(self):
+        class Adapter:
+            pass
+
+        existing = AgentHarness(Adapter(), memory_enabled=True)
+        harness = run_benchmarks.build_harness(existing)
+
+        self.assertIs(harness, existing)
+        self.assertTrue(harness.memory_enabled)
+
+    def test_native_memory_cli_flag_defaults_off(self):
+        parser = run_benchmarks.build_parser()
+
+        self.assertFalse(parser.parse_args([]).native_memory)
+        self.assertTrue(parser.parse_args(["--native-memory"]).native_memory)
 
     def test_frequentist_agent_name_marks_control_evolution_backend(self):
         self.assertEqual(

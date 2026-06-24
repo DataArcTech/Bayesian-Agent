@@ -20,7 +20,7 @@ The core package has no runtime dependencies beyond the Python standard library.
 
 ## Run The Native Harness
 
-The benchmark runner defaults to the Bayesian-Agent harness. It owns the LLM loop, workspace tools, three-layer memory, and trajectory capture:
+The benchmark runner defaults to the Bayesian-Agent harness. It owns the LLM loop, workspace tools, optional three-layer memory, and trajectory capture:
 
 ```bash
 export DEEPSEEK_API_KEY="sk-..."
@@ -33,6 +33,8 @@ python experiments/run_benchmarks.py \
 ```
 
 Use `--bench realfin` for RealFin-Bench. External compatibility backends remain available with `--harness genericagent`, `--harness mini-swe-agent`, or `--harness claude-code`.
+
+Native memory prompt injection and hippocampus/state updates are off by default. Add `--native-memory` to enable them. Bayesian Skill registry updates remain enabled in Bayesian modes either way.
 
 ## Update a Skill Registry
 

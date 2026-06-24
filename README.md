@@ -25,7 +25,7 @@ It supports three usage patterns:
 
 - **2026-06-09:** The Bayesian-Agent paper is now available on arXiv: [arXiv:2606.08348](http://arxiv.org/abs/2606.08348).
 - **2026-06-05:** Added full-sample native-harness results for SOP-Bench, Lifelong AgentBench, and RealFin-Bench with `deepseek-v4-flash` and `deepseek-v4-pro`; see [Experimental Results](#-experimental-results).
-- **2026-06-05:** Added the first-party Bayesian-Agent native harness. It runs its own LLM loop, workspace tools, three-layer memory, and trajectory capture; GenericAgent, mini-swe-agent, and Claude Code remain optional compatibility backends. See the [Native Harness design note](docs/native-harness.md).
+- **2026-06-05:** Added the first-party Bayesian-Agent native harness. It runs its own LLM loop, workspace tools, optional three-layer memory, and trajectory capture; GenericAgent, mini-swe-agent, and Claude Code remain optional compatibility backends. See the [Native Harness design note](docs/native-harness.md).
 - **2026-05-31:** Added the Bayesian Evidence Model as the default Skill belief backend, with a categorical likelihood implementation and a legacy Beta-Bernoulli backend for ablations.
 - **2026-05-09:** Released Bayesian-Agent as a standalone cross-harness Bayesian Skill Evolution package with schemas, CLI utilities, and experiment artifacts.
 - **2026-05-09:** Added the optional GenericAgent adapter boundary without copying or vendoring GenericAgent.
@@ -133,7 +133,7 @@ Both backends feed the same Skill ranking, posterior audit rendering, and rewrit
 - **Failure-mode-aware repair**: identify recurring errors and generate focused repair plans.
 - **Overfitting-resistant patch activation**: keep single failures as audit evidence, and promote a failure-mode patch into the benchmark prompt only after at least two verified occurrences.
 - **Token-aware context building**: select concise, evidence-backed Skill/SOP text; benchmark prompts receive executable patches and guardrails, while posterior numbers stay in artifacts.
-- **First-party native harness**: run an OpenAI-compatible LLM loop, workspace tools, three-layer memory, and trajectory logging inside Bayesian-Agent itself.
+- **First-party native harness**: run an OpenAI-compatible LLM loop, workspace tools, optional three-layer memory, and trajectory logging inside Bayesian-Agent itself. Native memory prompt/state updates are disabled by default and can be enabled with `--native-memory`.
 - **Full self-evolution from scratch**: run all tasks, collect evidence online, and evolve Skills without prior traces.
 - **Incremental repair for existing agents**: consume failed trajectories from a baseline agent and rerun only the failed tasks.
 - **Cross-harness adaptation**: use BA native by default, or integrate with GenericAgent, mini-swe-agent, Claude Code, and other frameworks through adapters instead of vendoring their code.
@@ -393,7 +393,7 @@ The open-source structure is:
 
 - `bayesian_agent/core/`: framework-agnostic Bayesian Skill Evolution logic
 - `bayesian_agent/harness/`: first-party LLM loop, workspace tools, and trajectory capture
-- `bayesian_agent/memory/`: three-layer hippocampus / state / cortex memory
+- `bayesian_agent/memory/`: optional three-layer hippocampus / state / cortex memory
 - `bayesian_agent/adapters/base.py`: minimal adapter contract for external agents
 - `bayesian_agent/adapters/generic_agent.py`: optional GenericAgent boundary
 - `bayesian_agent/adapters/mini_swe_agent.py`: optional mini-swe-agent boundary
@@ -401,7 +401,7 @@ The open-source structure is:
 - `schemas/`: portable trajectory and Skill belief schemas
 - `artifacts/` and `results/`: reproducible benchmark result files
 
-The native harness is deliberately small: LLM, tools, memory, loop, and trajectory capture. More capability improvement is pushed into Bayesian Skill/SOP evolution, so the learning layer stays inspectable and portable.
+The native harness is deliberately small: LLM, tools, optional memory, loop, and trajectory capture. The native memory system is disabled by default; Bayesian Skill evolution and the persistent Skill registry still run without it. More capability improvement is pushed into Bayesian Skill/SOP evolution, so the learning layer stays inspectable and portable.
 
 GenericAgent, mini-swe-agent, and Claude Code remain optional compatibility backends. Users can integrate Bayesian-Agent with their own agent harness by emitting the common trajectory schema and implementing the adapter boundary.
 

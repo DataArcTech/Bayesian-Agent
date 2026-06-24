@@ -124,6 +124,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--native-timeout", type=int, default=180, help="Native BA harness request/tool timeout seconds.")
     parser.add_argument("--native-max-tokens", type=int, default=4096)
     parser.add_argument("--native-temperature", type=float, default=0.0)
+    parser.add_argument(
+        "--native-memory",
+        action="store_true",
+        help="Enable the BA native harness three-layer memory context. Disabled by default.",
+    )
     parser.add_argument("--baseline-results", action="append", default=[], help="Baseline results.json for incremental mode.")
     parser.add_argument(
         "--evolution-algorithm",
@@ -177,10 +182,12 @@ def build_adapter(args: argparse.Namespace):
     )
 
 
-def build_harness(adapter) -> AgentHarness:
+def build_harness(adapter, memory_enabled: Optional[bool] = None) -> AgentHarness:
     if isinstance(adapter, AgentHarness):
+        if memory_enabled is not None:
+            adapter.memory_enabled = bool(memory_enabled)
         return adapter
-    return AgentHarness(adapter)
+    return AgentHarness(adapter, memory_enabled=bool(memory_enabled) if memory_enabled is not None else False)
 
 
 def main(argv: Sequence[str] = None) -> int:
@@ -189,7 +196,8 @@ def main(argv: Sequence[str] = None) -> int:
     args.api_key_env = args.api_key_env or "DEEPSEEK_API_KEY"
     benchmark_runs = build_benchmark_runs(args.bench, args.model, args.out_root)
     adapter = build_adapter(args)
-    harness = build_harness(adapter)
+    native_memory_enabled = args.harness == "bayesian-agent" and bool(args.native_memory)
+    harness = build_harness(adapter, memory_enabled=native_memory_enabled)
 
     if args.dry_run:
         print_dry_run(harness, args, benchmark_runs)
@@ -262,6 +270,7 @@ def print_dry_run(
         "ba_harness_core": isinstance(adapter, AgentHarness),
         "harness_root": str(backend.resolve_root()) if hasattr(backend, "resolve_root") else "",
         "native_first_party": isinstance(backend, NativeBayesianAgentAdapter),
+        "native_memory": bool(getattr(adapter, "memory_enabled", False)),
         "claude_cli": backend.cli_path if isinstance(backend, ClaudeCodeAdapter) else "",
         "mini_swe_config": backend.config if isinstance(backend, MiniSWEAgentAdapter) else "",
         "data_root": str(Path(args.data_root).resolve()),

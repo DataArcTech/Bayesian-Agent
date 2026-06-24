@@ -38,7 +38,7 @@ class HarnessCoreTests(unittest.TestCase):
                 return {"transcript": prompt}
 
         with tempfile.TemporaryDirectory() as td:
-            harness = AgentHarness(Adapter())
+            harness = AgentHarness(Adapter(), memory_enabled=True)
             harness.memory.hippocampus.remember("recent clue")
             harness.memory.state.set("phase", "draft")
             harness.memory.cortex.remember("stable rule")
@@ -60,7 +60,54 @@ class HarnessCoreTests(unittest.TestCase):
             self.assertIn("stable rule", run["transcript"])
             self.assertTrue(run["harness_memory_context"])
 
+    def test_harness_memory_is_disabled_by_default_even_when_task_requests_context(self):
+        class Adapter:
+            def run_task(self, *, prompt, workspace, max_turns):
+                return {"transcript": prompt}
+
+        with tempfile.TemporaryDirectory() as td:
+            harness = AgentHarness(Adapter())
+            harness.memory.hippocampus.remember("recent clue")
+            harness.memory.state.set("phase", "draft")
+            harness.memory.cortex.remember("stable rule")
+
+            run = harness.run_task(
+                HarnessTask(
+                    task_id="t1",
+                    prompt="solve",
+                    workspace=Path(td),
+                    skill_context="skill patch",
+                    memory_context=True,
+                )
+            )
+
+            self.assertIn("skill patch", run["transcript"])
+            self.assertNotIn("### Hippocampus", run["transcript"])
+            self.assertNotIn("recent clue", run["transcript"])
+            self.assertFalse(run["harness_memory_context"])
+
     def test_harness_records_verified_outcome_to_cortex(self):
+        class Adapter:
+            def run_task(self, *, prompt, workspace, max_turns):
+                return {"transcript": "ok", "total_tokens": 11}
+
+        with tempfile.TemporaryDirectory() as td:
+            harness = AgentHarness(Adapter(), registry_path=Path(td) / "beliefs.json", memory_enabled=True)
+            run = harness.run_task(HarnessTask(task_id="sop_01", prompt="solve", workspace=Path(td) / "task"))
+
+            belief = harness.record_outcome(
+                run,
+                skill_id="benchmark/sop_bench",
+                context="sop_bench",
+                success=False,
+                failure_mode="left_expected_output_blank",
+            )
+
+            self.assertEqual(belief.observations, 1)
+            self.assertEqual(belief.failure_modes["left_expected_output_blank"], 1)
+            self.assertEqual(harness.memory.state.get("last_outcome"), "failure")
+
+    def test_disabled_memory_still_records_verified_outcome_to_registry(self):
         class Adapter:
             def run_task(self, *, prompt, workspace, max_turns):
                 return {"transcript": "ok", "total_tokens": 11}
@@ -79,7 +126,7 @@ class HarnessCoreTests(unittest.TestCase):
 
             self.assertEqual(belief.observations, 1)
             self.assertEqual(belief.failure_modes["left_expected_output_blank"], 1)
-            self.assertEqual(harness.memory.state.get("last_outcome"), "failure")
+            self.assertIsNone(harness.memory.state.get("last_outcome"))
 
 
 if __name__ == "__main__":

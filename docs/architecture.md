@@ -47,7 +47,7 @@ bayesian_agent/
     native.py      # first-party LLM/tool turn loop
     llm.py         # OpenAI-compatible chat client
     tools.py       # workspace-scoped tools
-    core.py        # task envelope, artifacts, three-layer memory bridge
+    core.py        # task envelope, artifacts, optional three-layer memory bridge
   memory/
     layers.py      # hippocampus, intermediate state, cortex
   adapters/
@@ -63,7 +63,7 @@ bayesian_agent/
 
 `bayesian_agent.core` is framework-agnostic. It knows nothing about GenericAgent, benchmark runners, browser tools, or model APIs.
 
-`bayesian_agent.harness` contains the first-party native harness. It runs the OpenAI-compatible LLM loop, dispatches workspace tools, captures trajectories, and bridges into the three-layer memory system.
+`bayesian_agent.harness` contains the first-party native harness. It runs the OpenAI-compatible LLM loop, dispatches workspace tools, captures trajectories, and can optionally bridge into the three-layer memory system. Native memory is disabled by default; verified outcomes still update the Bayesian Skill registry.
 
 `bayesian_agent.adapters` defines how external harnesses can connect. GenericAgent, mini-swe-agent, and Claude Code are optional compatibility backends, not vendored runtimes.
 

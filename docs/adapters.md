@@ -33,7 +33,7 @@ The native harness owns only the minimal execution substrate:
 
 - LLM: a small OpenAI-compatible chat client.
 - Tools: workspace-scoped `file_read`, `file_write`, `code_run`, and `finish`.
-- Memory: three layers, `hippocampus`, intermediate `state`, and persistent `cortex`.
+- Memory: optional three layers, `hippocampus`, intermediate `state`, and persistent `cortex`; disabled by default unless `--native-memory` is passed.
 - Loop: turn execution, tool dispatch, transcript capture, usage accounting, and trajectory persistence.
 
 The harness layer is intentionally simple and efficient. Most capability improvement is meant to come from Bayesian Skill/SOP evolution, where verified trajectories update reusable procedures instead of hiding behavior inside a large runtime.

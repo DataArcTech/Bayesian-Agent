@@ -14,7 +14,7 @@ The native harness has three core parts:
 | Tools | `bayesian_agent/harness/tools.py` | Workspace-scoped `file_read`, `file_write`, `code_run`, and `finish`. |
 | Loop | `bayesian_agent/harness/native.py` | Turn loop, tool dispatch, usage accounting, transcript capture, and trajectory persistence. |
 
-Memory is deliberately kept to three layers:
+When enabled, native harness memory is deliberately kept to three layers:
 
 | Memory | Role |
 |---|---|
@@ -31,6 +31,8 @@ The harness stays simple:
 - no large prompt-engineering surface inside the harness
 
 The harness is expected to execute, observe, and record. Bayesian Skill evolution is expected to learn reusable procedures from verified outcomes.
+
+Native memory prompt injection and hippocampus/state updates are disabled by default. This keeps baseline and Bayesian runs from silently carrying extra prompt context. Enable the three-layer memory context explicitly with `--native-memory`. The Bayesian Skill registry is not part of this switch: verified outcomes still update Skill beliefs when native memory is off.
 
 ## Why Keep The Harness Small?
 
@@ -74,6 +76,17 @@ python experiments/run_benchmarks.py \
   --limit 1
 ```
 
+Add `--native-memory` only when you want the native harness to inject three-layer memory context and maintain hippocampus/state during the run:
+
+```bash
+python experiments/run_benchmarks.py \
+  --harness bayesian-agent \
+  --native-memory \
+  --model deepseek-v4-flash \
+  --bench core \
+  --mode all
+```
+
 External harnesses remain available:
 
 ```bash
@@ -89,6 +102,7 @@ Use `--dry-run` to confirm the runner is first-party:
   "harness": "bayesian-agent",
   "ba_harness_core": true,
   "native_first_party": true,
+  "native_memory": false,
   "harness_root": ".../Bayesian-Agent"
 }
 ```
@@ -136,6 +150,7 @@ The table below uses full benchmark samples rather than one-task debug checks. S
 Interpretation:
 
 - The native harness can now run every benchmark itself and emit its own verified trajectories.
+- Native memory is optional and disabled by default; Bayesian-mode runs still use the Bayesian Skill registry for evidence updates.
 - On SOP/Lifelong, the minimal native harness reaches 95-100% full-sample accuracy and uses less token budget than the historical GA-backed full runs.
 - On RealFin, BA native improves `deepseek-v4-pro` final accuracy from the historical GA-backed 68% to 77.5%, but spends more tokens because the first-party harness keeps domain logic minimal and lets the model inspect cached market data directly.
 - The intended design tradeoff is deliberate: the harness remains simple and observable, while long-term capability improvement is pushed into Bayesian Skill/SOP evolution.
