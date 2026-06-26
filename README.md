@@ -131,6 +131,9 @@ Both backends feed the same Skill ranking, posterior audit rendering, and rewrit
 - **Evidence-weighted Skill evolution**: update Skill beliefs from verified success and failure trajectories.
 - **Bayesian Skill registry**: maintain Bayesian Evidence Model beliefs, optional Beta-Bernoulli posteriors, failure modes, token cost, latency, turns, and context distribution.
 - **Failure-mode-aware repair**: identify recurring errors and generate focused repair plans.
+- **Catalog-first Skill evolution by default**: use handwritten benchmark catalogs as high-precision failure taxonomies and patch rules when they are available.
+- **Zero-shot automatic failure discovery (opt-in)**: with `--no-use-skill-catalog`, infer generic failure modes from verifier errors, scores, requested artifacts, and trajectory metadata.
+- **Trajectory-to-Skill distillation**: in zero-shot mode, convert repeated discovered failure modes into executable patch rules without requiring a benchmark-specific catalog.
 - **Overfitting-resistant patch activation**: keep single failures as audit evidence, and promote a failure-mode patch into the benchmark prompt only after at least two verified occurrences.
 - **Token-aware context building**: select concise, evidence-backed Skill/SOP text; benchmark prompts receive executable patches and guardrails, while posterior numbers stay in artifacts.
 - **First-party native harness**: run an OpenAI-compatible LLM loop, workspace tools, optional three-layer memory, and trajectory logging inside Bayesian-Agent itself. Native memory prompt/state updates are disabled by default and can be enabled with `--native-memory`.
@@ -191,6 +194,43 @@ The default rewrite policy is intentionally small and matches the current implem
 | `compress` | at least 3 observations and `success_probability >= 0.72` | Distills stable Skills to reduce token cost after enough positive evidence. |
 
 These thresholds are conservative v0.5 heuristics, not claims of optimality. The design goal is an inspectable posterior-driven policy that can be swapped out by downstream harnesses.
+
+### Automatic Failure Discovery
+
+Bayesian-Agent is catalog-first by default. The built-in benchmark catalogs remain the high-precision path for SOP-Bench, Lifelong AgentBench, and RealFin-Bench. To test a new benchmark without handwritten failure taxonomy, run with `--no-use-skill-catalog`; this switches the runner into zero-shot automatic failure discovery:
+
+```text
+verified trajectory
+  -> verifier scores / errors / requested artifacts / output contract
+  -> auto failure mode
+  -> distilled repair rules
+  -> active patch after repeated evidence
+```
+
+Examples include `auto_missing_requested_artifact`, `auto_output_contract_violation`, `auto_numeric_parse_error`, `auto_sql_execution_error`, and `auto_expected_output_mismatch`. In the default catalog mode, unknown benchmarks do not silently invent automatic labels. In zero-shot mode, one failure is recorded as audit evidence, and model-facing patch text is activated only after the same discovered failure mode appears at least twice.
+
+### Catalog vs Zero-Shot Modes
+
+Bayesian-Agent supports both modes:
+
+| Mode | Flag | What it means | When to use |
+|---|---|---|---|
+| Catalog-first | `--use-skill-catalog` / `use_skill_catalog=True` | Use benchmark-specific failure taxonomy, guardrails, and patch catalogs as strong priors. | Best accuracy and efficiency when a catalog exists. |
+| Zero-shot discovery | `--no-use-skill-catalog` / `use_skill_catalog=False` | Start without handwritten catalog skills; discover failure modes and distill patches from trajectories. | New benchmarks, new products, or domains where no failure taxonomy exists yet. |
+
+In our `deepseek-v4-flash` native-harness experiments, BA is useful in both modes:
+
+- **Without catalog skills**, BA still improves:
+  - SOP-Bench incremental: 70% -> 100%
+  - RealFin-Bench full/incremental: 38% -> 45%
+- **With catalog skills**, BA performs better:
+  - SOP-Bench: up to 100%
+  - Lifelong AgentBench: up to 100%
+  - RealFin-Bench: up to 72%
+
+This gives a clean story: **Bayesian-Agent works even without a handcrafted Skill catalog, and catalog skills act as stronger priors that further improve reliability and efficiency.**
+
+See the detailed comparison: [Zero-Shot vs Catalog Skill Evolution](docs/experiments/zero-shot-vs-catalog-skill-evolution.md).
 
 ## 🚀 Install
 

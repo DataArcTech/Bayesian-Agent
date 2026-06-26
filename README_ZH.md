@@ -131,6 +131,9 @@ E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 - **证据加权的 Skill 进化**：从 verified success/failure trajectory 更新 Skill belief。
 - **Bayesian Skill Registry**：维护 Bayesian Evidence Model belief、可选 Beta-Bernoulli posterior、失败模式、token 成本、延迟、轮次和 context 分布。
 - **面向失败模式的修复**：识别反复出现的错误，生成聚焦的 repair plan。
+- **默认 catalog-first 的 Skill evolution**：当已有手写 benchmark catalog 时，优先使用高精度 failure taxonomy 和 patch rules。
+- **可选的零样本自动 failure discovery**：使用 `--no-use-skill-catalog` 时，从 verifier error、scores、requested artifacts 和 trajectory metadata 中自动归纳通用 failure mode。
+- **Trajectory-to-Skill distillation**：在 zero-shot 模式下，把重复出现的自动 failure mode 蒸馏成可执行 patch rules，不要求先为 benchmark 手写 catalog。
 - **抗过拟合的 patch 激活**：单次失败只作为审计证据保存；同一 failure mode 至少出现两次验证失败后，才把 patch 提升到 benchmark prompt。
 - **Token-aware context 构建**：选择简洁、有证据支持的 Skill/SOP 文本；benchmark prompt 接收可执行 patches 和 guardrails，posterior 数字保存在 artifacts 中。
 - **自家 native harness**：在 Bayesian-Agent 内部直接运行 OpenAI-compatible LLM loop、workspace tools、可选三层记忆和 trajectory logging。native memory prompt/state update 默认关闭，可用 `--native-memory` 显式开启。
@@ -191,6 +194,43 @@ E[p_k | D_k] = (alpha_0 + s_k) / (alpha_0 + beta_0 + s_k + f_k)
 | `compress` | 观测至少 3 次，且 `success_probability >= 0.72` | 在成功证据稳定后压缩 Skill，降低 token 成本。 |
 
 这些阈值是 v0.5 的保守启发式，不宣称最优。当前目标是提供一套可审计、可替换的 posterior-driven rewrite policy。
+
+### 自动 Failure Discovery
+
+Bayesian-Agent 默认是 catalog-first。SOP-Bench、Lifelong AgentBench 和 RealFin-Bench 的内置 catalog 仍然是高精度路径。要在没有手写 failure taxonomy 的新 benchmark 上测试扩展能力，可以使用 `--no-use-skill-catalog`，此时 runner 会进入 zero-shot automatic failure discovery：
+
+```text
+verified trajectory
+  -> verifier scores / errors / requested artifacts / output contract
+  -> auto failure mode
+  -> distilled repair rules
+  -> active patch after repeated evidence
+```
+
+典型自动 failure mode 包括 `auto_missing_requested_artifact`、`auto_output_contract_violation`、`auto_numeric_parse_error`、`auto_sql_execution_error` 和 `auto_expected_output_mismatch`。默认 catalog 模式不会给未知 benchmark 悄悄发明自动标签。zero-shot 模式仍然保持保守：单次失败只进入 audit evidence；同一自动 failure mode 至少出现两次后，才会激活 model-facing patch text。
+
+### Catalog 与 Zero-Shot 两种模式
+
+Bayesian-Agent 同时支持两种模式：
+
+| 模式 | 参数 | 含义 | 适用场景 |
+|---|---|---|---|
+| Catalog-first | `--use-skill-catalog` / `use_skill_catalog=True` | 使用 benchmark-specific failure taxonomy、guardrails 和 patch catalog 作为强先验。 | 已经有 catalog 时，追求更高准确率和效率。 |
+| Zero-shot discovery | `--no-use-skill-catalog` / `use_skill_catalog=False` | 不使用手写 catalog skills，从 trajectory 中自动发现 failure modes 并蒸馏 patches。 | 新 benchmark、新业务场景，暂时没有 failure taxonomy 时。 |
+
+在 `deepseek-v4-flash` native-harness 实验中，BA 在两种模式下都有效：
+
+- **没有 catalog skills 时**，BA 仍然能提升：
+  - SOP-Bench incremental：70% -> 100%
+  - RealFin-Bench full/incremental：38% -> 45%
+- **有 catalog skills 时**，BA 表现更强：
+  - SOP-Bench：最高 100%
+  - Lifelong AgentBench：最高 100%
+  - RealFin-Bench：最高 72%
+
+这说明：**Bayesian-Agent 即使没有手工 Skill catalog 也能工作；而 catalog skills 相当于更强的先验，可以进一步提升可靠性和效率。**
+
+详细对比见：[Zero-Shot vs Catalog Skill Evolution](docs/experiments/zero-shot-vs-catalog-skill-evolution.md)。
 
 ## 🚀 安装
 

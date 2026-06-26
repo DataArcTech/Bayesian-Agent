@@ -7,6 +7,7 @@ from bayesian_agent.benchmarks.evolution import (
     build_benchmark_posterior_context,
     build_benchmark_skill_context,
     classify_failure,
+    evidence_from_run,
     save_skill_evolution_snapshot,
 )
 from bayesian_agent.benchmarks.sop_lifelong import build_lifelong_prompt
@@ -102,6 +103,97 @@ class BenchmarkEvolutionTests(unittest.TestCase):
 
         self.assertEqual(failure, "computed_decision_for_wrong_or_unverified_target_row")
 
+    def test_catalog_mode_does_not_auto_discover_unknown_benchmark(self):
+        run = {
+            "task_id": "custom_01",
+            "success": False,
+            "scores": {"file_created": 0.0},
+            "requested_output_files": ["answer.txt"],
+            "error": "",
+        }
+
+        self.assertEqual(classify_failure("custom_bench", run), "")
+
+    def test_unknown_benchmark_discovers_missing_artifact_failure(self):
+        run = {
+            "task_id": "custom_01",
+            "success": False,
+            "scores": {"file_created": 0.0},
+            "requested_output_files": ["answer.txt"],
+            "error": "",
+        }
+
+        failure = classify_failure("custom_bench", run, use_skill_catalog=False)
+        evidence = evidence_from_run("custom_bench", {**run, "failure_mode": failure}, use_skill_catalog=False)
+
+        self.assertEqual(failure, "auto_missing_requested_artifact")
+        self.assertEqual(evidence.metadata["failure_discovery"]["source"], "automatic")
+        self.assertIn("answer.txt", evidence.metadata["failure_discovery"]["signals"]["requested_outputs"])
+
+    def test_auto_discovered_failure_rules_are_rendered_without_catalog(self):
+        registry = BayesianSkillRegistry.in_memory()
+        for idx in range(2):
+            run = {
+                "task_id": f"custom_{idx}",
+                "success": False,
+                "scores": {"file_created": 0.0},
+                "requested_output_files": ["answer.txt"],
+                "error": "",
+            }
+            evidence = evidence_from_run("custom_bench", run, use_skill_catalog=False)
+            registry.record(evidence)
+
+        context = build_benchmark_skill_context("custom_bench", registry, use_skill_catalog=False)
+
+        self.assertIn("Bayesian Failure-Mode Patches: custom_bench", context)
+        self.assertIn("failure_mode=auto_missing_requested_artifact observed=2", context)
+        self.assertIn("answer.txt", context)
+        self.assertIn("verify each requested output artifact exists", context)
+
+    def test_zero_shot_mode_uses_auto_discovery_for_known_benchmark(self):
+        registry = BayesianSkillRegistry.in_memory()
+        for idx in range(2):
+            evidence = evidence_from_run(
+                "sop_bench",
+                {
+                    "task_id": f"sop_{idx}",
+                    "success": False,
+                    "got": "",
+                    "expected": "manual_review",
+                    "total_tokens": 100,
+                },
+                use_skill_catalog=False,
+            )
+            registry.record(evidence)
+
+        context = build_benchmark_skill_context("sop_bench", registry, use_skill_catalog=False)
+
+        self.assertIn("Bayesian Failure-Mode Patches", context)
+        self.assertIn("auto_empty_output", context)
+        self.assertNotIn("Benchmark SOP Guardrails", context)
+
+    def test_catalog_failure_rules_still_override_auto_distillation(self):
+        registry = BayesianSkillRegistry.in_memory()
+        for idx in range(2):
+            registry.record(
+                evidence_from_run(
+                    "sop_bench",
+                    {
+                        "task_id": f"sop_{idx}",
+                        "success": False,
+                        "got": "",
+                        "expected": "manual_review",
+                        "total_tokens": 100,
+                    },
+                )
+            )
+
+        context = build_benchmark_skill_context("sop_bench", registry)
+
+        self.assertIn("failure_mode=left_expected_output_blank observed=2", context)
+        self.assertIn("confirm the target row's `expected_output` is non-empty", context)
+        self.assertNotIn("auto_empty_output", context)
+
     def test_lifelong_prompt_forbids_unrequested_id_columns_on_insert(self):
         entry = {"instruction": "Insert a new payment record.", "table_info": {"name": "payments"}}
 
@@ -169,6 +261,32 @@ class BenchmarkEvolutionTests(unittest.TestCase):
             index = json.loads((out_root / "skill_evolution" / "index.json").read_text())
             self.assertEqual([item["stage"] for item in index["snapshots"]], ["before", "after"])
             self.assertTrue(all("posterior_context_path" in item for item in index["snapshots"]))
+
+    def test_skill_evolution_snapshot_honors_zero_shot_failure_discovery(self):
+        with tempfile.TemporaryDirectory() as td:
+            out_root = Path(td)
+            registry = BayesianSkillRegistry(out_root / "beliefs.json")
+            result = {
+                "task_id": "custom_01",
+                "success": False,
+                "scores": {"file_created": 0.0},
+                "requested_output_files": ["answer.txt"],
+                "output_contract": "answer.txt",
+            }
+
+            snapshot = save_skill_evolution_snapshot(
+                out_root=out_root,
+                benchmark="custom_bench",
+                task_id="custom_01",
+                stage="after",
+                registry=registry,
+                context="",
+                result=result,
+                use_skill_catalog=False,
+            )
+
+            self.assertEqual(snapshot["evidence"]["failure_mode"], "auto_missing_requested_artifact")
+            self.assertEqual(snapshot["evidence"]["metadata"]["failure_discovery"]["source"], "automatic")
 
 
 if __name__ == "__main__":

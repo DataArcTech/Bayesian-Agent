@@ -14,6 +14,7 @@ The roadmap is organized around the project's main advantage: Bayesian-Agent sho
 - Added a GenericAgent optional adapter boundary without vendoring GenericAgent.
 - Added the first-party Bayesian-Agent native harness.
 - Added optional mini-swe-agent and Claude Code backend boundaries.
+- Added opt-in automatic failure discovery and trajectory-to-Skill distillation while retaining catalog-first behavior by default.
 - Released experiment result artifacts.
 - Added bilingual README files.
 - Added MkDocs documentation and GitHub Pages deployment.
@@ -23,7 +24,7 @@ The roadmap is organized around the project's main advantage: Bayesian-Agent sho
 - Harden executable benchmark runners for native and external backends.
 - Add richer rewrite policies and adapter examples.
 - Add adapters for more agent harnesses after the current compatibility boundaries stabilize.
-- Add more examples for project-specific failure-mode taxonomies.
+- Add more examples for project-specific failure-mode taxonomies and automatic discovery overrides.
 - Add documentation for operating Bayesian-Agent in a continuous evaluation pipeline.
 
 ## Bayesian Algorithm Direction

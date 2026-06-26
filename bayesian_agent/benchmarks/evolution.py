@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Mapping, Optional
 
 from bayesian_agent.core.context import SkillContextBuilder
+from bayesian_agent.core.discovery import discover_failure, distill_patch_rules
 from bayesian_agent.core.evidence import TrajectoryEvidence
 from bayesian_agent.core.policy import RewritePolicy
 from bayesian_agent.core.registry import BayesianSkillRegistry
@@ -15,11 +16,49 @@ from bayesian_agent.core.registry import BayesianSkillRegistry
 ACTIVE_PATCH_MIN_SUPPORT = 2
 
 
-def classify_failure(benchmark: str, run: Mapping[str, Any]) -> str:
+def classify_failure(benchmark: str, run: Mapping[str, Any], *, use_skill_catalog: bool = True) -> str:
     """Classify common benchmark failures into reusable evidence labels."""
 
     if run.get("success"):
         return ""
+    if use_skill_catalog:
+        return _classify_catalog_failure(benchmark, run)
+    return discover_failure(benchmark, run).failure_mode
+
+
+def annotate_failure(benchmark: str, run: Mapping[str, Any], *, use_skill_catalog: bool = True) -> Mapping[str, Any]:
+    """Attach normalized failure discovery metadata to a benchmark run."""
+
+    enriched = dict(run or {})
+    failure_mode = str(enriched.get("failure_mode") or classify_failure(benchmark, enriched, use_skill_catalog=use_skill_catalog))
+    enriched["failure_mode"] = failure_mode
+    if not failure_mode:
+        enriched.pop("failure_discovery", None)
+        return enriched
+    if use_skill_catalog:
+        catalog_failure = _classify_catalog_failure(benchmark, enriched)
+        if catalog_failure == failure_mode:
+            enriched["failure_discovery"] = discover_failure(
+                benchmark,
+                enriched,
+                known_failure=failure_mode,
+                source="catalog",
+            ).to_dict()
+        else:
+            enriched.pop("failure_discovery", None)
+    else:
+        enriched["failure_discovery"] = discover_failure(
+            benchmark,
+            enriched,
+            known_failure=failure_mode,
+            source="automatic",
+        ).to_dict()
+    return enriched
+
+
+def _classify_catalog_failure(benchmark: str, run: Mapping[str, Any]) -> str:
+    """Classify failures covered by benchmark-specific retained catalogs."""
+
     if benchmark == "sop_bench":
         got = str(run.get("got") or "")
         expected = str(run.get("expected") or "")
@@ -53,29 +92,51 @@ def classify_failure(benchmark: str, run: Mapping[str, Any]) -> str:
             return "missing_required_analysis_trace"
         if scores:
             return "realfin_automated_check_failed"
-    return str(run.get("error") or "benchmark_failure")[:160]
+    return ""
 
 
-def evidence_from_run(benchmark: str, run: Mapping[str, Any]) -> TrajectoryEvidence:
-    failure_mode = str(run.get("failure_mode") or classify_failure(benchmark, run))
+def evidence_from_run(benchmark: str, run: Mapping[str, Any], *, use_skill_catalog: bool = True) -> TrajectoryEvidence:
+    enriched = annotate_failure(benchmark, run, use_skill_catalog=use_skill_catalog)
+    failure_mode = str(enriched.get("failure_mode") or "")
     return TrajectoryEvidence.from_run(
-        run,
+        enriched,
         skill_id=f"benchmark/{benchmark}",
         context=benchmark,
         failure_mode=failure_mode,
     )
 
 
-def record_benchmark_run(registry: BayesianSkillRegistry, benchmark: str, run: Mapping[str, Any]) -> None:
-    enriched = dict(run)
-    enriched["failure_mode"] = str(run.get("failure_mode") or classify_failure(benchmark, run))
-    registry.record(evidence_from_run(benchmark, enriched))
+def record_benchmark_run(
+    registry: BayesianSkillRegistry,
+    benchmark: str,
+    run: Mapping[str, Any],
+    *,
+    use_skill_catalog: bool = True,
+) -> None:
+    registry.record(evidence_from_run(benchmark, run, use_skill_catalog=use_skill_catalog))
 
 
-def seed_registry_from_results(registry: BayesianSkillRegistry, benchmark_runs: Mapping[str, Iterable[Mapping[str, Any]]]) -> None:
+def seed_registry_from_results(
+    registry: BayesianSkillRegistry,
+    benchmark_runs: Mapping[str, Iterable[Mapping[str, Any]]],
+    *,
+    use_skill_catalog: Optional[bool] = None,
+) -> None:
+    if use_skill_catalog is None:
+        use_skill_catalog = infer_use_skill_catalog(benchmark_runs)
     for benchmark, runs in benchmark_runs.items():
         for run in runs:
-            record_benchmark_run(registry, benchmark, run)
+            record_benchmark_run(registry, benchmark, run, use_skill_catalog=use_skill_catalog)
+
+
+def infer_use_skill_catalog(benchmark_runs: Mapping[str, Iterable[Mapping[str, Any]]]) -> bool:
+    for runs in benchmark_runs.values():
+        for run in runs:
+            discovery = dict(run.get("failure_discovery") or {})
+            failure_mode = str(run.get("failure_mode") or "")
+            if discovery.get("source") == "automatic" or failure_mode.startswith("auto_"):
+                return False
+    return True
 
 
 def build_benchmark_posterior_context(benchmark: str, registry: BayesianSkillRegistry) -> str:
@@ -84,11 +145,16 @@ def build_benchmark_posterior_context(benchmark: str, registry: BayesianSkillReg
     return SkillContextBuilder(registry).render(task_context=benchmark, limit=5, strict_context=True)
 
 
-def build_benchmark_skill_context(benchmark: str, registry: BayesianSkillRegistry) -> str:
+def build_benchmark_skill_context(
+    benchmark: str,
+    registry: BayesianSkillRegistry,
+    *,
+    use_skill_catalog: bool = True,
+) -> str:
     """Render model-facing failure patches plus benchmark-specific guardrails."""
 
-    rules = _stable_rules(benchmark)
-    patches = _failure_mode_patch_rules(benchmark, registry)
+    rules = _stable_rules(benchmark) if use_skill_catalog else []
+    patches = _failure_mode_patch_rules(benchmark, registry, use_skill_catalog=use_skill_catalog)
     if not rules and not patches:
         return ""
     method = "Frequentist" if registry.algorithm == "frequentist" else "Bayesian"
@@ -113,6 +179,7 @@ def save_skill_evolution_snapshot(
     registry: BayesianSkillRegistry,
     context: str,
     result: Mapping[str, Any] = None,
+    use_skill_catalog: bool = True,
 ) -> Mapping[str, Any]:
     """Persist per-task Skill evolution context and belief snapshots."""
 
@@ -145,7 +212,7 @@ def save_skill_evolution_snapshot(
         "result": _compact_result(result or {}),
     }
     if result is not None:
-        payload["evidence"] = evidence_from_run(benchmark, result).to_dict()
+        payload["evidence"] = evidence_from_run(benchmark, result, use_skill_catalog=use_skill_catalog).to_dict()
     _write_json(snapshot_path, payload)
     _append_skill_evolution_index(Path(out_root), payload, snapshot_path)
     return payload
@@ -186,19 +253,32 @@ def _stable_rules(benchmark: str):
     return []
 
 
-def _failure_mode_patch_rules(benchmark: str, registry: BayesianSkillRegistry):
+def _failure_mode_patch_rules(
+    benchmark: str,
+    registry: BayesianSkillRegistry,
+    *,
+    use_skill_catalog: bool = True,
+):
     counts = {}
+    evidence_by_mode = {}
     for belief in registry.beliefs():
         if belief.skill_id != f"benchmark/{benchmark}" and benchmark not in belief.contexts:
             continue
         for failure_mode, count in belief.failure_modes.items():
             if count >= ACTIVE_PATCH_MIN_SUPPORT:
                 counts[failure_mode] = counts.get(failure_mode, 0) + int(count)
+        for event in belief.evidence:
+            failure_mode = str(event.get("failure_mode") or "")
+            if failure_mode:
+                evidence_by_mode.setdefault(failure_mode, []).append(event)
 
     patches = []
     mode_rules = _patch_rule_catalog(benchmark)
     for failure_mode, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
-        rules = mode_rules.get(failure_mode)
+        if use_skill_catalog:
+            rules = mode_rules.get(failure_mode)
+        else:
+            rules = distill_patch_rules(failure_mode, evidence_by_mode.get(failure_mode, []))
         if rules:
             patches.append((failure_mode, count, rules))
     return patches

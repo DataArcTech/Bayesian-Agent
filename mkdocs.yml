@@ -58,6 +58,7 @@ nav:
   - Experiments:
       - Overview: experiments/index.md
       - Bayesian vs Frequentist RealFin: experiments/bayesian-vs-frequentist-realfin.md
+      - Zero-Shot vs Catalog Skills: experiments/zero-shot-vs-catalog-skill-evolution.md
       - RealFin Model Scaling: experiments/model-scaling-realfin.md
       - Claude Code Backend: experiments/claude-code.md
       - mini-swe-agent Backend: experiments/mini-swe-agent.md

@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, MutableMapping, Optional, Sequence
 
 from bayesian_agent.benchmarks.evolution import (
+    annotate_failure,
     build_benchmark_skill_context,
-    classify_failure,
     record_benchmark_run,
     save_skill_evolution_snapshot,
     seed_registry_from_results,
@@ -44,6 +44,7 @@ def run_sop_lifelong(
     baseline_paths: Optional[Sequence[str]] = None,
     agent_name: str = "",
     evolution_algorithm: str = "categorical_bayes",
+    use_skill_catalog: bool = True,
 ) -> Mapping[str, Any]:
     """Run SOP-Bench and/or Lifelong AgentBench."""
 
@@ -59,7 +60,7 @@ def run_sop_lifelong(
     baseline_results = load_results_from_paths(baseline_paths or [], selected) if mode == "bayesian-incremental" else {}
     only_failed = failed_task_ids(baseline_results) if baseline_results else {}
     if baseline_results:
-        seed_registry_from_results(registry, baseline_results)
+        seed_registry_from_results(registry, baseline_results, use_skill_catalog=use_skill_catalog)
 
     results: MutableMapping[str, Any] = {}
     if "sop_bench" in selected:
@@ -69,6 +70,7 @@ def run_sop_lifelong(
             out_root=out_root,
             registry=registry,
             bayesian_enabled=bayesian_enabled,
+            use_skill_catalog=use_skill_catalog,
             limit=limit,
             max_turns=max_turns,
             only_task_ids=incremental_task_filter(baseline_results, only_failed, "sop_bench"),
@@ -80,6 +82,7 @@ def run_sop_lifelong(
             out_root=out_root,
             registry=registry,
             bayesian_enabled=bayesian_enabled,
+            use_skill_catalog=use_skill_catalog,
             limit=limit,
             max_turns=max_turns,
             only_task_ids=incremental_task_filter(baseline_results, only_failed, "lifelong_agentbench"),
@@ -107,6 +110,7 @@ def run_sop_lifelong(
         "summaries": summaries,
         "results": results,
         "combined_results": combined_results,
+        "use_skill_catalog": use_skill_catalog,
         "belief_store": str(registry.path),
         "skill_evolution_artifacts": str(out_root / "skill_evolution") if bayesian_enabled else "",
     }
@@ -132,17 +136,21 @@ def replay_skill_evolution_artifacts(out_root: Path, results_payload: Mapping[st
         shutil.rmtree(artifacts_root)
 
     registry = BayesianSkillRegistry.in_memory()
+    results = normalize_results(results_payload)
+    use_skill_catalog = _results_use_skill_catalog(results_payload, results)
     baseline_paths = list(results_payload.get("baseline_paths") or [])
     if baseline_paths:
-        seed_registry_from_results(registry, load_results_from_paths(baseline_paths, {"sop_bench", "lifelong_agentbench"}))
-
-    results = normalize_results(results_payload)
+        seed_registry_from_results(
+            registry,
+            load_results_from_paths(baseline_paths, {"sop_bench", "lifelong_agentbench"}),
+            use_skill_catalog=use_skill_catalog,
+        )
     for benchmark in ("sop_bench", "lifelong_agentbench"):
         for run in results.get(benchmark, []):
             task_id = str(run.get("task_id") or "")
             if not task_id:
                 continue
-            before_context = build_benchmark_skill_context(benchmark, registry)
+            before_context = build_benchmark_skill_context(benchmark, registry, use_skill_catalog=use_skill_catalog)
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark=benchmark,
@@ -150,16 +158,18 @@ def replay_skill_evolution_artifacts(out_root: Path, results_payload: Mapping[st
                 stage="before",
                 registry=registry,
                 context=before_context,
+                use_skill_catalog=use_skill_catalog,
             )
-            record_benchmark_run(registry, benchmark, run)
+            record_benchmark_run(registry, benchmark, run, use_skill_catalog=use_skill_catalog)
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark=benchmark,
                 task_id=task_id,
                 stage="after",
                 registry=registry,
-                context=build_benchmark_skill_context(benchmark, registry),
+                context=build_benchmark_skill_context(benchmark, registry, use_skill_catalog=use_skill_catalog),
                 result=run,
+                use_skill_catalog=use_skill_catalog,
             )
     return artifacts_root
 
@@ -171,6 +181,7 @@ def run_sop_bench(
     out_root: Path,
     registry: BayesianSkillRegistry,
     bayesian_enabled: bool,
+    use_skill_catalog: bool,
     limit: int,
     max_turns: int,
     only_task_ids: Optional[Iterable[str]] = None,
@@ -190,7 +201,7 @@ def run_sop_bench(
         prompt = build_sop_prompt(idx, workspace)
         skill_context = ""
         if bayesian_enabled:
-            skill_context = build_benchmark_skill_context("sop_bench", registry)
+            skill_context = build_benchmark_skill_context("sop_bench", registry, use_skill_catalog=use_skill_catalog)
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark="sop_bench",
@@ -198,6 +209,7 @@ def run_sop_bench(
                 stage="before",
                 registry=registry,
                 context=skill_context,
+                use_skill_catalog=use_skill_catalog,
             )
         run = harness.run_task(
             HarnessTask(
@@ -220,7 +232,7 @@ def run_sop_bench(
             "success": got == expected,
             "output_contract": "csv_expected_output",
         }
-        result["failure_mode"] = classify_failure("sop_bench", result)
+        result = dict(annotate_failure("sop_bench", result, use_skill_catalog=use_skill_catalog))
         results.append(result)
         if bayesian_enabled:
             harness.record_outcome(
@@ -238,8 +250,9 @@ def run_sop_bench(
                 task_id=task_id,
                 stage="after",
                 registry=registry,
-                context=build_benchmark_skill_context("sop_bench", registry),
+                context=build_benchmark_skill_context("sop_bench", registry, use_skill_catalog=use_skill_catalog),
                 result=result,
+                use_skill_catalog=use_skill_catalog,
             )
         print(f"[sop] {pos}/{len(indexed_rows)} task={idx} success={result['success']} got={got!r} expected={expected!r}", flush=True)
     return results
@@ -252,6 +265,7 @@ def run_lifelong_bench(
     out_root: Path,
     registry: BayesianSkillRegistry,
     bayesian_enabled: bool,
+    use_skill_catalog: bool,
     limit: int,
     max_turns: int,
     only_task_ids: Optional[Iterable[str]] = None,
@@ -273,7 +287,7 @@ def run_lifelong_bench(
         prompt = build_lifelong_prompt(entry, workspace)
         skill_context = ""
         if bayesian_enabled:
-            skill_context = build_benchmark_skill_context("lifelong_agentbench", registry)
+            skill_context = build_benchmark_skill_context("lifelong_agentbench", registry, use_skill_catalog=use_skill_catalog)
             save_skill_evolution_snapshot(
                 out_root=out_root,
                 benchmark="lifelong_agentbench",
@@ -281,6 +295,7 @@ def run_lifelong_bench(
                 stage="before",
                 registry=registry,
                 context=skill_context,
+                use_skill_catalog=use_skill_catalog,
             )
         run = harness.run_task(
             HarnessTask(
@@ -310,7 +325,7 @@ def run_lifelong_bench(
             "error": error,
             "output_contract": "single_sql_statement",
         }
-        result["failure_mode"] = classify_failure("lifelong_agentbench", result)
+        result = dict(annotate_failure("lifelong_agentbench", result, use_skill_catalog=use_skill_catalog))
         results.append(result)
         if bayesian_enabled:
             harness.record_outcome(
@@ -328,11 +343,24 @@ def run_lifelong_bench(
                 task_id=task_id,
                 stage="after",
                 registry=registry,
-                context=build_benchmark_skill_context("lifelong_agentbench", registry),
+                context=build_benchmark_skill_context("lifelong_agentbench", registry, use_skill_catalog=use_skill_catalog),
                 result=result,
+                use_skill_catalog=use_skill_catalog,
             )
         print(f"[lifelong] {pos}/{len(keys)} task={key} success={success} sql={got_sql!r} error={error[:120]!r}", flush=True)
     return results
+
+
+def _results_use_skill_catalog(results_payload: Mapping[str, Any], results: Mapping[str, Any]) -> bool:
+    if "use_skill_catalog" in results_payload:
+        return bool(results_payload.get("use_skill_catalog"))
+    for runs in results.values():
+        for run in runs:
+            discovery = dict(run.get("failure_discovery") or {})
+            failure_mode = str(run.get("failure_mode") or "")
+            if discovery.get("source") == "automatic" or failure_mode.startswith("auto_"):
+                return False
+    return True
 
 
 def selected_benchmarks(bench: str):

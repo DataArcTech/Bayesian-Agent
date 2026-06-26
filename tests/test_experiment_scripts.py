@@ -3,12 +3,14 @@ import os
 import tempfile
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
 from bayesian_agent.adapters.bayesian_agent import NativeBayesianAgentAdapter
 from bayesian_agent.adapters.claude_code import ClaudeCodeAdapter
 from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
 from bayesian_agent.adapters.mini_swe_agent import MiniSWEAgentAdapter
 from bayesian_agent.benchmarks.sop_lifelong import compact_baseline_run, incremental_task_filter, prepare_belief_store, replay_skill_evolution_artifacts
+from bayesian_agent.benchmarks.sop_lifelong import run_sop_lifelong
 from bayesian_agent.core.evidence import TrajectoryEvidence
 from bayesian_agent.harness import AgentHarness
 from experiments import run_benchmarks
@@ -112,6 +114,45 @@ class SopLifelongExperimentTests(unittest.TestCase):
 
         self.assertFalse(parser.parse_args([]).native_memory)
         self.assertTrue(parser.parse_args(["--native-memory"]).native_memory)
+
+    def test_skill_catalog_cli_flag_defaults_on_and_can_be_disabled(self):
+        parser = run_benchmarks.build_parser()
+
+        self.assertTrue(parser.parse_args([]).use_skill_catalog)
+        self.assertFalse(parser.parse_args(["--no-use-skill-catalog"]).use_skill_catalog)
+
+    def test_incremental_seed_uses_requested_skill_catalog_mode(self):
+        class Adapter:
+            pass
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            data_root = root / "data"
+            sop_root = data_root / "sop_bench"
+            sop_root.mkdir(parents=True)
+            (sop_root / "test_set_with_outputs.csv").write_text(
+                "order_id,product_id,quantity_requested,customer_id,order_total,expected_output\n",
+                encoding="utf-8",
+            )
+            baseline = root / "baseline.json"
+            baseline.write_text(
+                '{"results":{"sop_bench":[{"task_id":"sop_01","success":true}]}}',
+                encoding="utf-8",
+            )
+
+            with patch("bayesian_agent.benchmarks.sop_lifelong.seed_registry_from_results") as seed:
+                run_sop_lifelong(
+                    Adapter(),
+                    out_root=root / "out",
+                    model="deepseek-v4-flash",
+                    data_root=data_root,
+                    bench="sop",
+                    mode="bayesian-incremental",
+                    baseline_paths=[str(baseline)],
+                    use_skill_catalog=False,
+                )
+
+            self.assertEqual(seed.call_args.kwargs["use_skill_catalog"], False)
 
     def test_frequentist_agent_name_marks_control_evolution_backend(self):
         self.assertEqual(

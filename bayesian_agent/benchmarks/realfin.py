@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, MutableMapping, Optional, Sequence
 
 from bayesian_agent.benchmarks.evolution import (
+    annotate_failure,
     build_benchmark_skill_context,
-    classify_failure,
     save_skill_evolution_snapshot,
     seed_registry_from_results,
 )
@@ -43,6 +43,7 @@ def run_realfin(
     baseline_paths: Optional[Sequence[str]] = None,
     agent_name: str = "",
     evolution_algorithm: str = "categorical_bayes",
+    use_skill_catalog: bool = True,
 ) -> Mapping[str, Any]:
     """Run RealFin-Bench with optional Bayesian Skill evolution."""
 
@@ -61,7 +62,7 @@ def run_realfin(
     )
     only_failed = failed_task_ids(baseline_results) if baseline_results else {}
     if baseline_results:
-        seed_registry_from_results(registry, baseline_results)
+        seed_registry_from_results(registry, baseline_results, use_skill_catalog=use_skill_catalog)
 
     results: MutableMapping[str, Any] = {
         BENCHMARK: run_realfin_bench(
@@ -70,6 +71,7 @@ def run_realfin(
             out_root=out_root,
             registry=registry,
             bayesian_enabled=bayesian_enabled,
+            use_skill_catalog=use_skill_catalog,
             limit=limit,
             max_turns=max_turns,
             only_task_ids=incremental_task_filter(baseline_results, only_failed),
@@ -98,6 +100,7 @@ def run_realfin(
         "summaries": summaries,
         "results": results,
         "combined_results": combined_results,
+        "use_skill_catalog": use_skill_catalog,
         "belief_store": str(registry.path),
         "skill_evolution_artifacts": str(out_root / "skill_evolution") if bayesian_enabled else "",
         "cache_manifest": str(build_realfin_cache_manifest(data_root)["manifest_path"]),
@@ -114,6 +117,7 @@ def run_realfin_bench(
     out_root: Path,
     registry: BayesianSkillRegistry,
     bayesian_enabled: bool,
+    use_skill_catalog: bool,
     limit: int,
     max_turns: int,
     only_task_ids: Optional[Iterable[str]] = None,
@@ -135,7 +139,7 @@ def run_realfin_bench(
             prompt = build_realfin_prompt(task, workspace)
             skill_context = ""
             if bayesian_enabled:
-                skill_context = build_benchmark_skill_context(BENCHMARK, registry)
+                skill_context = build_benchmark_skill_context(BENCHMARK, registry, use_skill_catalog=use_skill_catalog)
                 save_skill_evolution_snapshot(
                     out_root=out_root,
                     benchmark=BENCHMARK,
@@ -143,6 +147,7 @@ def run_realfin_bench(
                     stage="before",
                     registry=registry,
                     context=skill_context,
+                    use_skill_catalog=use_skill_catalog,
                 )
 
             turns = max_turns or max(3, int(task.get("timeout_seconds", 300) or 300) // 60)
@@ -170,7 +175,7 @@ def run_realfin_bench(
             "requested_output_files": requested_output_files(task),
             "output_contract": ",".join(requested_output_files(task)),
         }
-        result["failure_mode"] = classify_failure(BENCHMARK, result)
+        result = dict(annotate_failure(BENCHMARK, result, use_skill_catalog=use_skill_catalog))
         results.append(result)
         if bayesian_enabled:
             harness.record_outcome(
@@ -188,8 +193,9 @@ def run_realfin_bench(
                 task_id=task_id,
                 stage="after",
                 registry=registry,
-                context=build_benchmark_skill_context(BENCHMARK, registry),
+                context=build_benchmark_skill_context(BENCHMARK, registry, use_skill_catalog=use_skill_catalog),
                 result=result,
+                use_skill_catalog=use_skill_catalog,
             )
         print(
             f"[realfin] {pos}/{len(tasks)} task={task_id} success={success} "

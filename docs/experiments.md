@@ -53,7 +53,7 @@ Bayesian modes now persist per-task Skill evolution artifacts under:
       snapshot_after.json
 ```
 
-`skill_context_before.md` is the exact model-facing Skill/SOP text injected into that task. For the built-in benchmarks, it contains stable benchmark guardrails and any active `Bayesian Failure-Mode Patches`. A patch becomes active only after the same failure mode has at least two verified occurrences, so single failures stay audit-only. `skill_context_after.md` is the next model-facing Skill/SOP text after verifier feedback is recorded.
+`skill_context_before.md` is the exact model-facing Skill/SOP text injected into that task. For the built-in benchmarks, it contains stable benchmark guardrails and any active `Bayesian Failure-Mode Patches`. Handwritten patch catalogs are used by default. When a run is started with `--no-use-skill-catalog`, automatic failure discovery can distill generic patches from repeated verifier errors, score failures, requested artifacts, and output contracts. A patch becomes active only after the same failure mode has at least two verified occurrences, so single failures stay audit-only. `skill_context_after.md` is the next model-facing Skill/SOP text after verifier feedback is recorded.
 
 `posterior_context_before.md` and `posterior_context_after.md` are audit artifacts for the Bayesian belief state. They may include posterior summaries such as `posterior_success`, `alpha`, `beta`, observations, and rewrite decisions, but those numeric summaries are not injected into the benchmark prompt.
 

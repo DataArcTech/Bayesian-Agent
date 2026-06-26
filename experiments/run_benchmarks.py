@@ -136,6 +136,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_ALGORITHM,
         help="Skill evolution belief backend for bayesian-full / bayesian-incremental runs.",
     )
+    parser.add_argument(
+        "--use-skill-catalog",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Use handwritten benchmark skill catalogs. Disable for zero-shot failure discovery and patch distillation.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print planned runs without calling the model.")
     return parser
 
@@ -253,6 +259,7 @@ def run_selected_benchmark(
         "baseline_paths": spec.baseline_paths,
         "agent_name": agent_name_for_harness(args.harness, spec.mode, args.evolution_algorithm),
         "evolution_algorithm": args.evolution_algorithm,
+        "use_skill_catalog": args.use_skill_catalog,
     }
     if bench == "realfin":
         return run_realfin(**common)
@@ -276,6 +283,7 @@ def print_dry_run(
         "data_root": str(Path(args.data_root).resolve()),
         "model": args.model,
         "evolution_algorithm": args.evolution_algorithm,
+        "use_skill_catalog": args.use_skill_catalog,
         "requested_bench": args.bench,
         "selected_benchmarks": [item.bench for item in benchmark_runs],
     }
