@@ -1,0 +1,1864 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Bayesian-Agent is a Bayesian self-evolving agent framework with full-run evolution, incremental repair, and cross-harness adaptation.">
+      
+      
+      
+        <link rel="canonical" href="https://dataarctech.github.io/Bayesian-Agent/experiments/claude-code/">
+      
+      
+        <link rel="prev" href="../model-scaling-realfin/">
+      
+      
+        <link rel="next" href="../mini-swe-agent/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Claude Code Backend - Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#claude-code-benchmark-results" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" class="md-header__button md-logo" aria-label="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Claude Code Backend
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/DataArcTech/Bayesian-Agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DataArcTech/Bayesian-Agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" class="md-nav__button md-logo" aria-label="Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Bayesian-Agent: A Bayesian Self-Evolving Agent Framework with Cross-Harness Adaptation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/DataArcTech/Bayesian-Agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    DataArcTech/Bayesian-Agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../native-harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Native Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Experiments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bayesian-vs-frequentist-realfin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian vs Frequentist RealFin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zero-shot-vs-catalog-skill-evolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zero-Shot vs Catalog Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model-scaling-realfin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RealFin Model Scaling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Backend
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-baseline-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Baseline Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-agent-modes-with-claude-code-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian-Agent Modes with Claude Code Backend
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian-Agent Modes with Claude Code Backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-flash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-pro1m" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-pro[1m]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#smoke-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoke Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#realfin-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RealFin Failures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RealFin Failures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-flash_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-flash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-pro1m_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-pro[1m]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Artifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mini-swe-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mini-swe-agent Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Articles
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Articles
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../articles/zhihu-bayesian-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zhihu Repo Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../articles/bayesian-evidence-acquired-learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian Evidence and Acquired Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../articles/complex-bayesian-rewrite-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complex Skill Rewrite Example
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../articles/why-bayesian-for-skill-evolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why Bayesian for Skill Evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Note
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment Note
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-baseline-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Baseline Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-agent-modes-with-claude-code-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian-Agent Modes with Claude Code Backend
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian-Agent Modes with Claude Code Backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-flash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-pro1m" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-pro[1m]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#smoke-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoke Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#realfin-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RealFin Failures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RealFin Failures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-flash_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-flash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek-v4-pro1m_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        deepseek-v4-pro[1m]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Artifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/DataArcTech/Bayesian-Agent/edit/main/docs/experiments/claude-code.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="claude-code-benchmark-results">Claude Code Benchmark Results<a class="headerlink" href="#claude-code-benchmark-results" title="Permanent link">&para;</a></h1>
+<p>This page records the Claude Code compatibility-backend runs available in the
+local experiment artifacts. Bayesian-Agent handled benchmark orchestration,
+grading, and result writing; Claude Code executed each task prompt through the
+adapter boundary.</p>
+<p>Evidence type: newly run / verified local artifact. Metrics were read from
+<code>results/claude_code/**/baseline/results.json</code> and
+<code>results/claude_code_smoke/**/baseline/results.json</code>.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<p>Full baseline runs used this harness shape:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>experiments/run_benchmarks.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--harness<span class="w"> </span>claude-code<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODEL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--bench<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BENCH</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--mode<span class="w"> </span>baseline<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--out-root<span class="w"> </span><span class="s2">&quot;results/claude_code/</span><span class="si">${</span><span class="nv">MODEL_SLUG</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">BENCH</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Smoke runs used the same backend with <code>--limit 1</code> and smoke-specific output
+roots under <code>results/claude_code_smoke/</code>.</p>
+<h2 id="full-baseline-results">Full Baseline Results<a class="headerlink" href="#full-baseline-results" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Benchmark</th>
+<th style="text-align: right;">Accuracy</th>
+<th style="text-align: right;">Total Tokens</th>
+<th style="text-align: right;">Efficiency</th>
+<th>Failed Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>deepseek-v4-flash</td>
+<td style="text-align: right;">SOP-Bench</td>
+<td style="text-align: right;">18/20 (90%)</td>
+<td style="text-align: right;">5,887,709</td>
+<td style="text-align: right;">3.06</td>
+<td><code>sop_15</code>, <code>sop_16</code></td>
+</tr>
+<tr>
+<td>deepseek-v4-flash</td>
+<td style="text-align: right;">Lifelong AgentBench</td>
+<td style="text-align: right;">20/20 (100%)</td>
+<td style="text-align: right;">1,552,970</td>
+<td style="text-align: right;">12.88</td>
+<td>none</td>
+</tr>
+<tr>
+<td>deepseek-v4-flash</td>
+<td style="text-align: right;">RealFin-Bench</td>
+<td style="text-align: right;">31/40 (77.5%)</td>
+<td style="text-align: right;">49,414,353</td>
+<td style="text-align: right;">0.63</td>
+<td>9 tasks</td>
+</tr>
+<tr>
+<td>deepseek-v4-pro[1m]</td>
+<td style="text-align: right;">SOP-Bench</td>
+<td style="text-align: right;">13/20 (65%)</td>
+<td style="text-align: right;">2,759,895</td>
+<td style="text-align: right;">4.71</td>
+<td>7 tasks</td>
+</tr>
+<tr>
+<td>deepseek-v4-pro[1m]</td>
+<td style="text-align: right;">Lifelong AgentBench</td>
+<td style="text-align: right;">20/20 (100%)</td>
+<td style="text-align: right;">1,552,632</td>
+<td style="text-align: right;">12.88</td>
+<td>none</td>
+</tr>
+<tr>
+<td>deepseek-v4-pro[1m]</td>
+<td style="text-align: right;">RealFin-Bench</td>
+<td style="text-align: right;">26/40 (65%)</td>
+<td style="text-align: right;">27,034,780</td>
+<td style="text-align: right;">0.96</td>
+<td>14 tasks</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bayesian-agent-modes-with-claude-code-backend">Bayesian-Agent Modes with Claude Code Backend<a class="headerlink" href="#bayesian-agent-modes-with-claude-code-backend" title="Permanent link">&para;</a></h2>
+<p>These runs use Claude Code as the task execution backend and Bayesian-Agent for
+benchmark orchestration, verifier grading, Skill evidence updates, and
+failure-mode patch injection.</p>
+<p>Evidence type: newly run / verified local artifact, 2026-06-06 to 2026-06-07.
+Metrics were read from:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>results/claude_code/{deepseek_v4_flash,deepseek_v4_pro_1m}/{sop,lifelong,realfin}/{baseline,bayesian_full,bayesian_incremental}/results.json
+</code></pre></div>
+<p>Commands used the same shape for all three benchmarks:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>experiments/run_benchmarks.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--harness<span class="w"> </span>claude-code<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODEL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--bench<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BENCH</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>--mode<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODE</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span>--out-root<span class="w"> </span><span class="s2">&quot;results/claude_code/</span><span class="si">${</span><span class="nv">MODEL_SLUG</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">BENCH</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>For <code>bayesian_incremental</code>, the runner received the matching Claude Code
+baseline <code>results.json</code> and reran only failed tasks.</p>
+<h3 id="deepseek-v4-flash">deepseek-v4-flash<a class="headerlink" href="#deepseek-v4-flash" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Mode</th>
+<th style="text-align: right;">Score</th>
+<th style="text-align: right;">Repaired</th>
+<th style="text-align: right;">Input Tokens</th>
+<th style="text-align: right;">Output Tokens</th>
+<th style="text-align: right;">Total Tokens</th>
+<th style="text-align: right;">Efficiency</th>
+<th style="text-align: right;">Cumulative Tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOP-Bench</td>
+<td>baseline</td>
+<td style="text-align: right;">18/20 (90.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">5.81M</td>
+<td style="text-align: right;">78k</td>
+<td style="text-align: right;">5.89M</td>
+<td style="text-align: right;">3.06</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>SOP-Bench</td>
+<td>bayesian_full</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3.39M</td>
+<td style="text-align: right;">55k</td>
+<td style="text-align: right;">3.44M</td>
+<td style="text-align: right;">5.81</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>SOP-Bench</td>
+<td>bayesian_incremental</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">360k</td>
+<td style="text-align: right;">6k</td>
+<td style="text-align: right;">366k</td>
+<td style="text-align: right;">5.46</td>
+<td style="text-align: right;">6.25M</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>baseline</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1.53M</td>
+<td style="text-align: right;">25k</td>
+<td style="text-align: right;">1.55M</td>
+<td style="text-align: right;">12.88</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>bayesian_full</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1.54M</td>
+<td style="text-align: right;">24k</td>
+<td style="text-align: right;">1.57M</td>
+<td style="text-align: right;">12.77</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>bayesian_incremental</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.55M</td>
+</tr>
+<tr>
+<td>RealFin-Bench</td>
+<td>baseline</td>
+<td style="text-align: right;">31/40 (77.5%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">48.57M</td>
+<td style="text-align: right;">841k</td>
+<td style="text-align: right;">49.41M</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>RealFin-Bench</td>
+<td>bayesian_full</td>
+<td style="text-align: right;">32/40 (80.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">47.18M</td>
+<td style="text-align: right;">774k</td>
+<td style="text-align: right;">47.95M</td>
+<td style="text-align: right;">0.67</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>RealFin-Bench</td>
+<td>bayesian_incremental</td>
+<td style="text-align: right;">35/40 (87.5%)</td>
+<td style="text-align: right;">4/9</td>
+<td style="text-align: right;">7.04M</td>
+<td style="text-align: right;">152k</td>
+<td style="text-align: right;">7.19M</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">56.61M</td>
+</tr>
+</tbody>
+</table>
+<h3 id="deepseek-v4-pro1m">deepseek-v4-pro[1m]<a class="headerlink" href="#deepseek-v4-pro1m" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Mode</th>
+<th style="text-align: right;">Score</th>
+<th style="text-align: right;">Repaired</th>
+<th style="text-align: right;">Input Tokens</th>
+<th style="text-align: right;">Output Tokens</th>
+<th style="text-align: right;">Total Tokens</th>
+<th style="text-align: right;">Efficiency</th>
+<th style="text-align: right;">Cumulative Tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOP-Bench</td>
+<td>baseline</td>
+<td style="text-align: right;">13/20 (65.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">2.71M</td>
+<td style="text-align: right;">50k</td>
+<td style="text-align: right;">2.76M</td>
+<td style="text-align: right;">4.71</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>SOP-Bench</td>
+<td>bayesian_full</td>
+<td style="text-align: right;">19/20 (95.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">2.78M</td>
+<td style="text-align: right;">45k</td>
+<td style="text-align: right;">2.82M</td>
+<td style="text-align: right;">6.74</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>SOP-Bench</td>
+<td>bayesian_incremental</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">7/7</td>
+<td style="text-align: right;">958k</td>
+<td style="text-align: right;">20k</td>
+<td style="text-align: right;">977k</td>
+<td style="text-align: right;">7.16</td>
+<td style="text-align: right;">3.74M</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>baseline</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1.53M</td>
+<td style="text-align: right;">24k</td>
+<td style="text-align: right;">1.55M</td>
+<td style="text-align: right;">12.88</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>bayesian_full</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1.55M</td>
+<td style="text-align: right;">24k</td>
+<td style="text-align: right;">1.57M</td>
+<td style="text-align: right;">12.74</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>Lifelong AgentBench</td>
+<td>bayesian_incremental</td>
+<td style="text-align: right;">20/20 (100.0%)</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.55M</td>
+</tr>
+<tr>
+<td>RealFin-Bench</td>
+<td>baseline</td>
+<td style="text-align: right;">26/40 (65.0%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">26.53M</td>
+<td style="text-align: right;">509k</td>
+<td style="text-align: right;">27.03M</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>RealFin-Bench</td>
+<td>bayesian_full</td>
+<td style="text-align: right;">27/40 (67.5%)</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">32.04M</td>
+<td style="text-align: right;">691k</td>
+<td style="text-align: right;">32.73M</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">-</td>
+</tr>
+<tr>
+<td>RealFin-Bench</td>
+<td>bayesian_incremental</td>
+<td style="text-align: right;">30/40 (75.0%)</td>
+<td style="text-align: right;">4/14</td>
+<td style="text-align: right;">14.15M</td>
+<td style="text-align: right;">296k</td>
+<td style="text-align: right;">14.45M</td>
+<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">41.48M</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<ul>
+<li>Incremental rows report repair-only token usage. <code>Cumulative Tokens</code> reports
+  baseline cost plus the incremental repair run cost.</li>
+<li>Lifelong AgentBench had no failed baseline tasks, so the incremental run
+  performed no model calls and records <code>0</code> repair tokens for both models.</li>
+<li>SOP-Bench shows the clearest benefit. With <code>deepseek-v4-flash</code>, Bayesian
+  full self-evolution reaches 100% while using fewer total tokens than the
+  Claude Code baseline. With <code>deepseek-v4-pro[1m]</code>, incremental repair fixes
+  all 7 baseline failures and raises final accuracy from 65.0% to 100.0%.</li>
+<li>RealFin-Bench benefits from incremental repair on both models: <code>deepseek-v4-flash</code>
+  rises from 77.5% to 87.5%, and <code>deepseek-v4-pro[1m]</code> rises from 65.0% to 75.0%.</li>
+</ul>
+<h2 id="smoke-results">Smoke Results<a class="headerlink" href="#smoke-results" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Benchmark</th>
+<th style="text-align: right;">Accuracy</th>
+<th style="text-align: right;">Total Tokens</th>
+<th style="text-align: right;">Efficiency</th>
+<th>Failed Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>deepseek-v4-flash</td>
+<td style="text-align: right;">SOP-Bench</td>
+<td style="text-align: right;">1/1 (100%)</td>
+<td style="text-align: right;">276,483</td>
+<td style="text-align: right;">3.62</td>
+<td>none</td>
+</tr>
+<tr>
+<td>deepseek-v4-flash</td>
+<td style="text-align: right;">Lifelong AgentBench</td>
+<td style="text-align: right;">1/1 (100%)</td>
+<td style="text-align: right;">75,551</td>
+<td style="text-align: right;">13.24</td>
+<td>none</td>
+</tr>
+<tr>
+<td>deepseek-v4-flash</td>
+<td style="text-align: right;">RealFin-Bench</td>
+<td style="text-align: right;">0/1 (0%)</td>
+<td style="text-align: right;">686,454</td>
+<td style="text-align: right;">0.00</td>
+<td><code>task_01_macd_rsi_filter</code></td>
+</tr>
+<tr>
+<td>deepseek-v4-pro[1m]</td>
+<td style="text-align: right;">SOP-Bench</td>
+<td style="text-align: right;">1/1 (100%)</td>
+<td style="text-align: right;">149,332</td>
+<td style="text-align: right;">6.70</td>
+<td>none</td>
+</tr>
+<tr>
+<td>deepseek-v4-pro[1m]</td>
+<td style="text-align: right;">Lifelong AgentBench</td>
+<td style="text-align: right;">1/1 (100%)</td>
+<td style="text-align: right;">75,565</td>
+<td style="text-align: right;">13.23</td>
+<td>none</td>
+</tr>
+<tr>
+<td>deepseek-v4-pro[1m]</td>
+<td style="text-align: right;">RealFin-Bench</td>
+<td style="text-align: right;">0/1 (0%)</td>
+<td style="text-align: right;">1,040,695</td>
+<td style="text-align: right;">0.00</td>
+<td><code>task_01_macd_rsi_filter</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="realfin-failures">RealFin Failures<a class="headerlink" href="#realfin-failures" title="Permanent link">&para;</a></h2>
+<h3 id="deepseek-v4-flash_1">deepseek-v4-flash<a class="headerlink" href="#deepseek-v4-flash_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>task_01_macd_rsi_filter</code></li>
+<li><code>task_11_semiconductor_macd</code></li>
+<li><code>task_15_volume_price_contraction_breakout</code></li>
+<li><code>task_16_pe_bollinger_reversal</code></li>
+<li><code>task_21_morning_star</code></li>
+<li><code>task_22_bullish_sandwich</code></li>
+<li><code>task_27_atr_volatility_breakout</code></li>
+<li><code>task_31_triple_timeframe_macd</code></li>
+<li><code>task_32_weekly_breakout_daily_pullback</code></li>
+</ul>
+<h3 id="deepseek-v4-pro1m_1">deepseek-v4-pro[1m]<a class="headerlink" href="#deepseek-v4-pro1m_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>task_11_semiconductor_macd</code></li>
+<li><code>task_20_ultimate_multi_condition</code></li>
+<li><code>task_21_morning_star</code></li>
+<li><code>task_22_bullish_sandwich</code></li>
+<li><code>task_23_gentle_volume_rise</code></li>
+<li><code>task_24_doji_to_surge</code></li>
+<li><code>task_26_ma_convergence_divergence</code></li>
+<li><code>task_27_atr_volatility_breakout</code></li>
+<li><code>task_28_volatility_compression_explosion</code></li>
+<li><code>task_31_triple_timeframe_macd</code></li>
+<li><code>task_32_weekly_breakout_daily_pullback</code></li>
+<li><code>task_33_sector_leadership</code></li>
+<li><code>task_39_interest_rate_sector_rotation</code></li>
+<li><code>task_40_commodity_equity_linkage</code></li>
+</ul>
+<h2 id="artifacts">Artifacts<a class="headerlink" href="#artifacts" title="Permanent link">&para;</a></h2>
+<p>The committed result artifacts intentionally include run summaries and
+<code>results.json</code> files only. Large per-task workspaces, transcripts, and tool logs
+remain under the ignored <code>results/</code> tree unless explicitly force-added later.</p>
+<ul>
+<li>Full runs: <code>results/claude_code/</code></li>
+<li>Smoke runs: <code>results/claude_code_smoke/</code></li>
+<li>Adapter: <code>bayesian_agent/adapters/claude_code.py</code></li>
+<li>Runner: <code>experiments/run_benchmarks.py --harness claude-code</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 DataArcTech
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/DataArcTech/Bayesian-Agent" target="_blank" rel="noopener" title="Bayesian-Agent on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
