@@ -497,7 +497,7 @@ If you use Bayesian-Agent in your research or projects, please cite it as:
 
 ```bibtex
 @misc{wu2026bayesianagent,
-  title = {Bayesian-Agent: Posterior-Guided Skill Evolution for LLM Agent Harnesses},
+  title = {Bayesian-Agent: Posterior-Guided Skill Evolution Across LLM Agent Harnesses},
   author = {Xiaojun Wu and Cehao Yang and Honghao Liu and Xueyuan Lin and Wenjie Zhang and Zhichao Shi and Xuhui Jiang and Chengjin Xu and Jia Li and Jian Guo},
   year = {2026},
   eprint = {2606.08348},
