@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="920" viewBox="0 0 1440 920">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="1" stop-color="#eef7f5"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#475569"/>
+    </marker>
+    <style>
+      .title{font:700 34px Inter,Arial,sans-serif;fill:#0f172a}
+      .subtitle{font:500 18px Inter,Arial,sans-serif;fill:#475569}
+      .section{font:700 20px Inter,Arial,sans-serif;fill:#0f172a}
+      .label{font:700 17px Inter,Arial,sans-serif;fill:#0f172a}
+      .small{font:500 14px Inter,Arial,sans-serif;fill:#475569}
+      .tiny{font:500 12px Inter,Arial,sans-serif;fill:#64748b}
+      .card{fill:#ffffff;stroke:#d7e3ee;stroke-width:1.3;filter:url(#shadow)}
+      .soft{fill:#f8fafc;stroke:#dbe6ef;stroke-width:1.2}
+      .code{font:600 13px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#334155}
+      .arrow{stroke:#475569;stroke-width:2.4;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#94a3b8;stroke-width:2;fill:none;stroke-dasharray:7 7;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <rect width="1440" height="920" fill="url(#bg)"/>
+
+  <text x="720" y="58" text-anchor="middle" class="title">Bayesian-Agent Repository Architecture</text>
+  <text x="720" y="88" text-anchor="middle" class="subtitle">A Bayesian Skill/SOP evolution layer for full runs, incremental repair, and cross-harness adaptation</text>
+
+  <rect x="65" y="145" width="300" height="250" rx="24" class="card"/>
+  <text x="215" y="178" text-anchor="middle" class="section">External Harnesses</text>
+  <rect x="95" y="205" width="240" height="48" rx="12" class="soft"/>
+  <text x="215" y="235" text-anchor="middle" class="label">GenericAgent</text>
+  <rect x="95" y="270" width="240" height="48" rx="12" class="soft"/>
+  <text x="215" y="300" text-anchor="middle" class="label">Upcoming BA Harness</text>
+  <rect x="95" y="335" width="240" height="36" rx="10" class="soft"/>
+  <text x="215" y="358" text-anchor="middle" class="small">Other Agent Frameworks</text>
+
+  <rect x="415" y="135" width="610" height="520" rx="30" fill="#ffffff" stroke="#bfd7ec" stroke-width="1.6" filter="url(#shadow)"/>
+  <rect x="450" y="170" width="540" height="72" rx="20" fill="url(#core)"/>
+  <text x="720" y="202" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="800" fill="#ffffff">bayesian_agent/core</text>
+  <text x="720" y="226" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="500" fill="#dbeafe">Framework-agnostic Bayesian evolution engine</text>
+
+  <rect x="455" y="275" width="235" height="92" rx="18" class="soft"/>
+  <text x="572" y="303" text-anchor="middle" class="label">Evidence</text>
+  <text x="572" y="329" text-anchor="middle" class="code">TrajectoryEvidence</text>
+  <text x="572" y="349" text-anchor="middle" class="tiny">verified run outcomes</text>
+
+  <rect x="750" y="275" width="235" height="92" rx="18" class="soft"/>
+  <text x="868" y="303" text-anchor="middle" class="label">Belief</text>
+  <text x="868" y="329" text-anchor="middle" class="code">SkillBelief</text>
+  <text x="868" y="349" text-anchor="middle" class="tiny">Beta posterior + cost</text>
+
+  <rect x="455" y="400" width="235" height="92" rx="18" class="soft"/>
+  <text x="572" y="428" text-anchor="middle" class="label">Registry</text>
+  <text x="572" y="454" text-anchor="middle" class="code">BayesianSkillRegistry</text>
+  <text x="572" y="474" text-anchor="middle" class="tiny">JSON persistence</text>
+
+  <rect x="750" y="400" width="235" height="92" rx="18" class="soft"/>
+  <text x="868" y="428" text-anchor="middle" class="label">Policy</text>
+  <text x="868" y="454" text-anchor="middle" class="code">RewritePolicy</text>
+  <text x="868" y="474" text-anchor="middle" class="tiny">compress / patch / split</text>
+
+  <rect x="455" y="525" width="530" height="82" rx="18" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.4"/>
+  <text x="720" y="555" text-anchor="middle" class="label">Posterior-Weighted Context</text>
+  <text x="720" y="581" text-anchor="middle" class="code">SkillContextBuilder.render(task_context)</text>
+
+  <rect x="1085" y="145" width="290" height="250" rx="24" class="card"/>
+  <text x="1230" y="178" text-anchor="middle" class="section">Portable Interfaces</text>
+  <rect x="1115" y="205" width="230" height="48" rx="12" class="soft"/>
+  <text x="1230" y="235" text-anchor="middle" class="code">adapters/base.py</text>
+  <rect x="1115" y="270" width="230" height="48" rx="12" class="soft"/>
+  <text x="1230" y="300" text-anchor="middle" class="code">schemas/*.json</text>
+  <rect x="1115" y="335" width="230" height="36" rx="10" class="soft"/>
+  <text x="1230" y="358" text-anchor="middle" class="small">trajectory contract</text>
+
+  <rect x="65" y="490" width="300" height="238" rx="24" class="card"/>
+  <text x="215" y="523" text-anchor="middle" class="section">Run Modes</text>
+  <rect x="95" y="550" width="240" height="42" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="215" y="577" text-anchor="middle" class="label">Full Self-Evolution</text>
+  <rect x="95" y="608" width="240" height="42" rx="12" fill="#f0fdfa" stroke="#99f6e4"/>
+  <text x="215" y="635" text-anchor="middle" class="label">Incremental Repair</text>
+  <rect x="95" y="666" width="240" height="42" rx="12" fill="#fff7ed" stroke="#fed7aa"/>
+  <text x="215" y="693" text-anchor="middle" class="label">Cross-Harness Adapt</text>
+
+  <rect x="1085" y="490" width="290" height="238" rx="24" class="card"/>
+  <text x="1230" y="523" text-anchor="middle" class="section">Repo Surface</text>
+  <rect x="1115" y="550" width="230" height="42" rx="12" class="soft"/>
+  <text x="1230" y="577" text-anchor="middle" class="code">cli.py</text>
+  <rect x="1115" y="608" width="230" height="42" rx="12" class="soft"/>
+  <text x="1230" y="635" text-anchor="middle" class="code">artifacts/</text>
+  <rect x="1115" y="666" width="230" height="42" rx="12" class="soft"/>
+  <text x="1230" y="693" text-anchor="middle" class="code">docs/ + README</text>
+
+  <path d="M365 270 C390 270 390 315 430 315" class="arrow"/>
+  <path d="M985 315 C1035 315 1035 270 1085 270" class="arrow"/>
+  <path d="M1085 355 C1038 355 1038 565 990 565" class="dash"/>
+  <path d="M365 610 C395 610 410 565 455 565" class="arrow"/>
+  <path d="M720 607 C720 680 505 680 365 680" class="dash"/>
+  <path d="M985 565 C1035 565 1035 610 1085 610" class="arrow"/>
+
+  <rect x="185" y="785" width="1070" height="70" rx="22" fill="#0f172a" opacity="0.95"/>
+  <text x="720" y="817" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="800" fill="#ffffff">Core idea</text>
+  <text x="720" y="843" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="500" fill="#dbeafe">Do not replace the agent harness. Learn from its trajectories, update Skill beliefs, and feed better context back.</text>
+</svg>
