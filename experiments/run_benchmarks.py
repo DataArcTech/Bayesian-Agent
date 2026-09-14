@@ -16,6 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from bayesian_agent.adapters.aider import AiderAdapter
 from bayesian_agent.adapters.bayesian_agent import NativeBayesianAgentAdapter
 from bayesian_agent.adapters.claude_code import ClaudeCodeAdapter
 from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
@@ -68,7 +69,7 @@ def build_run_plan(mode: str, out_root: Path, baseline_paths: Sequence[str]) -> 
     mode = mode.replace("_", "-")
     out_root = Path(out_root)
     supplied_baseline = [str(path) for path in baseline_paths]
-    fresh_baseline = str(out_root / "baseline" / "results.json")
+    fresh_baseline = (out_root / "baseline" / "results.json").as_posix()
     plan: List[ExperimentRun] = []
     if mode in {"all", "baseline"}:
         plan.append(ExperimentRun("baseline", "baseline", out_root / "baseline"))
@@ -92,7 +93,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run Bayesian-Agent benchmarks through the BA harness core.")
     parser.add_argument(
         "--harness",
-        choices=["bayesian-agent", "genericagent", "claude-code", "mini-swe-agent"],
+        choices=["bayesian-agent", "genericagent", "claude-code", "mini-swe-agent", "aider"],
         default="bayesian-agent",
     )
     parser.add_argument("--mode", choices=["all", "baseline", "bayesian-full", "bayesian-incremental"], default="all")
@@ -117,6 +118,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--claude-permission-mode", default="bypassPermissions")
     parser.add_argument("--claude-timeout", type=int, default=900)
     parser.add_argument("--claude-max-budget-usd", type=float, default=0.0)
+    parser.add_argument("--aider-cli", default="aider", help="Aider CLI path for --harness aider.")
+    parser.add_argument("--aider-timeout", type=int, default=900)
+    parser.add_argument(
+        "--aider-auto-commits",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Enable/disable git auto-commits by Aider (default: False).",
+    )
+    parser.add_argument(
+        "--aider-yes-always",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Always say yes to confirmations in Aider (default: True).",
+    )
     parser.add_argument("--mini-swe-agent-root", default="", help="Local mini-swe-agent checkout. Defaults to discovery.")
     parser.add_argument("--mini-swe-config", default="default", help="mini-swe-agent config spec.")
     parser.add_argument("--mini-swe-env-timeout", type=int, default=60)
@@ -165,6 +180,14 @@ def build_adapter(args: argparse.Namespace):
             permission_mode=args.claude_permission_mode,
             timeout_seconds=args.claude_timeout,
             max_budget_usd=args.claude_max_budget_usd or None,
+        )
+    if args.harness == "aider":
+        return AiderAdapter(
+            model=args.model,
+            cli_path=args.aider_cli,
+            timeout_seconds=args.aider_timeout,
+            auto_commits=args.aider_auto_commits,
+            yes_always=args.aider_yes_always,
         )
     if args.harness == "mini-swe-agent":
         return MiniSWEAgentAdapter(
@@ -279,6 +302,7 @@ def print_dry_run(
         "native_first_party": isinstance(backend, NativeBayesianAgentAdapter),
         "native_memory": bool(getattr(adapter, "memory_enabled", False)),
         "claude_cli": backend.cli_path if isinstance(backend, ClaudeCodeAdapter) else "",
+        "aider_cli": backend.cli_path if isinstance(backend, AiderAdapter) else "",
         "mini_swe_config": backend.config if isinstance(backend, MiniSWEAgentAdapter) else "",
         "data_root": str(Path(args.data_root).resolve()),
         "model": args.model,
@@ -304,6 +328,7 @@ def agent_name_for_harness(harness: str, mode: str, evolution_algorithm: str = D
         "genericagent": "GA",
         "claude-code": "ClaudeCode",
         "mini-swe-agent": "MiniSWEAgent",
+        "aider": "Aider",
     }.get(harness, harness)
     mode = mode.replace("_", "-")
     suffix = "Frequentist" if evolution_algorithm == "frequentist" else "Bayesian"

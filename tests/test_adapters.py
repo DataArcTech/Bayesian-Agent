@@ -1,10 +1,12 @@
 import os
+import stat
+import sys
 import tempfile
 import time
 import unittest
 from pathlib import Path
-import stat
 
+from bayesian_agent.adapters.aider import AiderAdapter
 from bayesian_agent.adapters.base import AgentAdapter
 from bayesian_agent.adapters.claude_code import ClaudeCodeAdapter
 from bayesian_agent.adapters.generic_agent import GenericAgentAdapter
@@ -132,6 +134,7 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(run["transcript"], "cached")
             self.assertEqual(run["total_tokens"], 5)
 
+    @unittest.skipIf(os.name == "nt", "Claude Code timeout handling relies on POSIX os.killpg")
     def test_claude_code_adapter_returns_error_on_timeout(self):
         with tempfile.TemporaryDirectory() as td:
             script = Path(td) / "sleep_cli.sh"
@@ -145,6 +148,7 @@ class AdapterTests(unittest.TestCase):
             self.assertTrue(run["is_error"])
             self.assertIn("timed out", run["error"])
 
+    @unittest.skipIf(os.name == "nt", "Claude Code timeout handling relies on POSIX os.killpg")
     def test_claude_code_adapter_kills_child_processes_on_timeout(self):
         with tempfile.TemporaryDirectory() as td:
             script = Path(td) / "spawn_child.py"
@@ -179,13 +183,166 @@ class AdapterTests(unittest.TestCase):
                 time.sleep(0.1)
             self.assertFalse(_pid_exists(child_pid))
 
+    def test_aider_adapter_does_not_import_aider_eagerly(self):
+        adapter = AiderAdapter(cli_path="/tmp/not-installed-aider")
+
+        self.assertEqual(adapter.cli_path, "/tmp/not-installed-aider")
+        self.assertIn("Aider", adapter.integration_note())
+
+    def test_aider_adapter_builds_noninteractive_command(self):
+        adapter = AiderAdapter(model="deepseek-v4-pro[1m]", cli_path="/usr/local/bin/aider")
+
+        command = adapter.build_command()
+
+        self.assertIn("/usr/local/bin/aider", command)
+        self.assertIn("--model", command)
+        self.assertIn("deepseek-v4-pro[1m]", command)
+        self.assertIn("--yes-always", command)
+        self.assertIn("--no-auto-commits", command)
+        self.assertIn("--no-stream", command)
+        self.assertIn("--message-file", command)
+        self.assertNotIn("--message", command)
+
+        # Also test auto_commits=True and yes_always=False
+        adapter_custom = AiderAdapter(auto_commits=True, yes_always=False)
+        command_custom = adapter_custom.build_command()
+        self.assertIn("--auto-commits", command_custom)
+        self.assertNotIn("--no-auto-commits", command_custom)
+        self.assertNotIn("--yes-always", command_custom)
+
+    def test_aider_adapter_parses_token_and_cost_usage(self):
+        adapter = AiderAdapter(model="deepseek-v4-flash")
+        sample_stdout = (
+            "Aider v0.70.0\n"
+            "Model: deepseek-v4-flash\n"
+            "Applied 1 edit successfully.\n"
+            "Tokens: 1.5k sent, 250 received. Cost: $0.02 message, $0.05 session.\n"
+        )
+
+        parsed = adapter.parse_result(sample_stdout)
+
+        self.assertIn("Applied 1 edit successfully", parsed["transcript"])
+        self.assertEqual(parsed["input_tokens"], 1500)
+        self.assertEqual(parsed["output_tokens"], 250)
+        self.assertEqual(parsed["total_tokens"], 1750)
+        self.assertEqual(parsed["total_cost_usd"], 0.05)
+        self.assertFalse(parsed["is_error"])
+        self.assertEqual(parsed["errors"], [])
+
+        # Parse realistic comma-formatted usage
+        sample_stdout_comma = (
+            "Model: deepseek-v4-flash\n"
+            "Tokens: 1,200 sent, 350 received. Cost: $0.03\n"
+        )
+        parsed_comma = adapter.parse_result(sample_stdout_comma)
+        self.assertEqual(parsed_comma["input_tokens"], 1200)
+        self.assertEqual(parsed_comma["output_tokens"], 350)
+        self.assertEqual(parsed_comma["total_tokens"], 1550)
+        self.assertEqual(parsed_comma["total_cost_usd"], 0.03)
+
+        # Graceful handling when usage info is absent
+        empty_parsed = adapter.parse_result("No tokens mentioned here.")
+        self.assertEqual(empty_parsed["input_tokens"], 0)
+        self.assertEqual(empty_parsed["output_tokens"], 0)
+        self.assertEqual(empty_parsed["total_tokens"], 0)
+        self.assertEqual(empty_parsed["total_cost_usd"], 0.0)
+
+    def test_aider_adapter_has_task_level_boundary(self):
+        with tempfile.TemporaryDirectory() as td:
+            adapter = AiderAdapter(model="deepseek-v4-flash")
+
+            task = adapter.build_task(prompt="solve task", workspace=Path(td), max_turns=5)
+
+            self.assertEqual(task["prompt"], "solve task")
+            self.assertEqual(task["workspace"], str(Path(td).resolve()))
+            self.assertEqual(task["max_turns"], 5)
+
+    def test_aider_adapter_returns_error_on_timeout(self):
+        with tempfile.TemporaryDirectory() as td:
+            if os.name == "nt":
+                script = Path(td) / "sleep_cli.bat"
+                script.write_text(f'@"{sys.executable}" -c "import time; time.sleep(5)"\n', encoding="utf-8")
+            else:
+                script = Path(td) / "sleep_cli.sh"
+                script.write_text("#!/usr/bin/env bash\nsleep 5\n", encoding="utf-8")
+                script.chmod(script.stat().st_mode | stat.S_IXUSR)
+            adapter = AiderAdapter(model="deepseek-v4-flash", cli_path=str(script), timeout_seconds=1)
+
+            run = adapter.run_task(prompt="hello", workspace=Path(td) / "workspace")
+
+            self.assertNotEqual(run["exit_code"], 0)
+            self.assertTrue(run["is_error"])
+            self.assertIn("timed out", run["error"])
+
+    def test_aider_adapter_kills_child_processes_on_timeout(self):
+        with tempfile.TemporaryDirectory() as td:
+            py_code = (
+                "import os\n"
+                "import subprocess\n"
+                "import sys\n"
+                "import time\n"
+                "child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'])\n"
+                "with open('child.pid', 'w', encoding='utf-8') as handle:\n"
+                "    handle.write(str(child.pid))\n"
+                "    handle.flush()\n"
+                "    os.fsync(handle.fileno())\n"
+                "time.sleep(30)\n"
+            )
+            if os.name == "nt":
+                py_script = Path(td) / "spawn_child.py"
+                py_script.write_text(py_code, encoding="utf-8")
+                script = Path(td) / "spawn_child.bat"
+                script.write_text(f'@"{sys.executable}" "{py_script}"\n', encoding="utf-8")
+            else:
+                script = Path(td) / "spawn_child.py"
+                script.write_text(f"#!/usr/bin/env python3\n{py_code}", encoding="utf-8")
+                script.chmod(script.stat().st_mode | stat.S_IXUSR)
+
+            workspace = Path(td) / "workspace"
+            adapter = AiderAdapter(model="deepseek-v4-flash", cli_path=str(script), timeout_seconds=2)
+
+            run = adapter.run_task(prompt="hello", workspace=workspace)
+
+            self.assertNotEqual(run["exit_code"], 0)
+            for _ in range(20):
+                if (workspace / "child.pid").exists():
+                    break
+                time.sleep(0.1)
+            child_pid = int((workspace / "child.pid").read_text(encoding="utf-8").strip())
+            for _ in range(20):
+                if not _pid_exists(child_pid):
+                    break
+                time.sleep(0.1)
+            self.assertFalse(_pid_exists(child_pid))
+
+    def test_aider_adapter_can_load_existing_workspace_log(self):
+        with tempfile.TemporaryDirectory() as td:
+            workspace = Path(td)
+            (workspace / "model_response_log.txt").write_text(
+                "Completed edits.\nTokens: 120 sent, 45 received. Cost: $0.01 message, $0.01 session.\n",
+                encoding="utf-8",
+            )
+            adapter = AiderAdapter(model="deepseek-v4-flash")
+
+            run = adapter.load_run_from_workspace(workspace)
+
+            self.assertIsNotNone(run)
+            self.assertIn("Completed edits", run["transcript"])
+            self.assertEqual(run["input_tokens"], 120)
+            self.assertEqual(run["output_tokens"], 45)
+            self.assertEqual(run["total_tokens"], 165)
+            self.assertEqual(run["total_cost_usd"], 0.01)
+            self.assertTrue(run["recovered_from_workspace"])
+
+
 def _pid_exists(pid: int) -> bool:
     try:
         os.kill(pid, 0)
-    except ProcessLookupError:
+    except (ProcessLookupError, OSError):
         return False
     return True
 
 
 if __name__ == "__main__":
     unittest.main()
+

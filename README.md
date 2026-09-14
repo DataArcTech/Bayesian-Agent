@@ -17,9 +17,9 @@ It supports three usage patterns:
 
 - **Run from scratch**: start with no prior traces and evolve Skills during full benchmark or production runs.
 - **Repair incrementally**: attach to an existing agent, read its failed trajectories, and rerun only the tasks that need repair.
-- **Run native or adapt across harnesses**: use the first-party Bayesian-Agent harness by default, or integrate with GenericAgent, mini-swe-agent, Claude Code, and other runtimes through a portable trajectory schema and adapter boundary.
+- **Run native or adapt across harnesses**: use the first-party Bayesian-Agent harness by default, or integrate with GenericAgent, mini-swe-agent, Claude Code, Aider, and other runtimes through a portable trajectory schema and adapter boundary.
 
-> v0.5 adds a first-party native harness on top of the Bayesian Skill Evolution core. GenericAgent, mini-swe-agent, and Claude Code are compatibility backends; they are not copied, vendored, or forked.
+> v0.5 adds a first-party native harness on top of the Bayesian Skill Evolution core. GenericAgent, mini-swe-agent, Claude Code, and Aider are compatibility backends; they are not copied, vendored, or forked.
 
 ## 📅 News
 
@@ -139,7 +139,7 @@ Both backends feed the same Skill ranking, posterior audit rendering, and rewrit
 - **First-party native harness**: run an OpenAI-compatible LLM loop, workspace tools, optional three-layer memory, and trajectory logging inside Bayesian-Agent itself. Native memory prompt/state updates are disabled by default and can be enabled with `--native-memory`.
 - **Full self-evolution from scratch**: run all tasks, collect evidence online, and evolve Skills without prior traces.
 - **Incremental repair for existing agents**: consume failed trajectories from a baseline agent and rerun only the failed tasks.
-- **Cross-harness adaptation**: use BA native by default, or integrate with GenericAgent, mini-swe-agent, Claude Code, and other frameworks through adapters instead of vendoring their code.
+- **Cross-harness adaptation**: use BA native by default, or integrate with GenericAgent, mini-swe-agent, Claude Code, Aider, and other frameworks through adapters instead of vendoring their code.
 - **Standard-library-first core**: the core package has no runtime dependency beyond Python.
 
 ## 🧬 Self-Evolution Mechanism
@@ -293,6 +293,7 @@ External compatibility backends remain available when you want to compare agains
 --harness genericagent
 --harness mini-swe-agent
 --harness claude-code
+--harness aider
 ```
 
 Run incremental repair against an existing GA baseline by passing its result files. The script reruns only failed tasks:
@@ -438,12 +439,13 @@ The open-source structure is:
 - `bayesian_agent/adapters/generic_agent.py`: optional GenericAgent boundary
 - `bayesian_agent/adapters/mini_swe_agent.py`: optional mini-swe-agent boundary
 - `bayesian_agent/adapters/claude_code.py`: optional Claude Code boundary
+- `bayesian_agent/adapters/aider.py`: optional Aider CLI boundary
 - `schemas/`: portable trajectory and Skill belief schemas
 - `artifacts/` and `results/`: reproducible benchmark result files
 
 The native harness is deliberately small: LLM, tools, optional memory, loop, and trajectory capture. The native memory system is disabled by default; Bayesian Skill evolution and the persistent Skill registry still run without it. More capability improvement is pushed into Bayesian Skill/SOP evolution, so the learning layer stays inspectable and portable.
 
-GenericAgent, mini-swe-agent, and Claude Code remain optional compatibility backends. Users can integrate Bayesian-Agent with their own agent harness by emitting the common trajectory schema and implementing the adapter boundary.
+GenericAgent, mini-swe-agent, Claude Code, and Aider remain optional compatibility backends. Users can integrate Bayesian-Agent with their own agent harness by emitting the common trajectory schema and implementing the adapter boundary.
 
 MinimalAgent adapter support is intentionally not included in v0.5.
 
