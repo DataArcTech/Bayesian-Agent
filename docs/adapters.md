@@ -79,6 +79,26 @@ result = adapter.run(
 
 It does not eagerly import GenericAgent and does not vendor GenericAgent source code. The experiment script `experiments/run_benchmarks.py` uses this adapter for task execution while Bayesian-Agent owns SOP-Bench, Lifelong AgentBench, and RealFin-Bench orchestration, evidence collection, posterior updates, and incremental repair.
 
+## Aider Adapter
+
+The Aider adapter runs task prompts using the local `aider` CLI. Bayesian-Agent owns benchmark orchestration, result grading, and Bayesian Skill evolution, while Aider acts as an external code editing execution harness.
+
+```python
+from bayesian_agent.adapters.aider import AiderAdapter
+
+adapter = AiderAdapter(model="deepseek-v4-flash", cli_path="aider")
+result = adapter.run(
+    {
+        "prompt": "Fix the failing test in this workspace.",
+        "workspace": "temp/task_01",
+        "max_turns": 8,
+    },
+    skill_context="### Bayesian Failure-Mode Patches\n...",
+)
+```
+
+It does not eagerly import Aider and does not vendor or copy Aider source code. The adapter communicates with Aider purely via CLI subprocess invocation in headless, non-interactive mode.
+
 ## Why This Boundary Matters
 
 Bayesian-Agent should be usable with more than one agent framework. The durable contract is the trajectory schema, not a copied harness implementation.
@@ -101,6 +121,7 @@ External harnesses remain useful for comparison and transfer. Current optional b
 --harness genericagent
 --harness mini-swe-agent
 --harness claude-code
+--harness aider
 ```
 
 Each backend should emit enough trajectory evidence for Bayesian-Agent to update Skill beliefs: task identity, outcome, failure mode, token usage, tool/runtime metadata, and artifacts.

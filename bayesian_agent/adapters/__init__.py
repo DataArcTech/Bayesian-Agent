@@ -1,5 +1,6 @@
 """Optional agent adapters."""
 
+from bayesian_agent.adapters.aider import AiderAdapter
 from bayesian_agent.adapters.base import AgentAdapter
 from bayesian_agent.adapters.bayesian_agent import NativeBayesianAgentAdapter
 from bayesian_agent.adapters.claude_code import ClaudeCodeAdapter
@@ -8,8 +9,10 @@ from bayesian_agent.adapters.mini_swe_agent import MiniSWEAgentAdapter
 
 __all__ = [
     "AgentAdapter",
+    "AiderAdapter",
     "ClaudeCodeAdapter",
     "GenericAgentAdapter",
     "MiniSWEAgentAdapter",
     "NativeBayesianAgentAdapter",
 ]
+
